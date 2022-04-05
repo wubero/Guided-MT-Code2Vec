@@ -1,5 +1,5 @@
-**./idea/**
-**./${project.build.directory)/**
+**./.idea/**
+**./${project.build.directory}/**
 *.tar.gz
 **/venv/**
 *.tar.gz

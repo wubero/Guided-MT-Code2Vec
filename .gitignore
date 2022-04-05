@@ -1,0 +1,11 @@
+**./idea/**
+**./${project.build.directory)/**
+*.tar.gz
+**/venv/**
+*.tar.gz
+**/log.txt
+**/__pycache__/**
+**/eval_log.txt
+**.docx
+**.stackdump
+**.dll

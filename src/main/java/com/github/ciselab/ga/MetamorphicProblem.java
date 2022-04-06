@@ -18,27 +18,16 @@ import io.jenetics.util.ISeq;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Properties;
 import java.util.function.Function;
 import org.apache.commons.lang3.tuple.Pair;
+import org.eclipse.jdt.internal.compiler.batch.Main;
 
 public class MetamorphicProblem implements Problem<ISeq<Pair<Integer, Integer>>, EnumGene<Pair<Integer, Integer>>, Double> {
 
     private static final List<String> transformerOptions =
             new ArrayList<>(Arrays.asList("IfTrueTransformer", "IfFalseElseTransformer", "RenameVariableTransformer"));
-
-
-    public static BaseTransformer strToTransformer(String name) {
-        switch (name) {
-            case "IfTrueTransformer":
-                return new IfTrueTransformer();
-            case "IfFalseElseTransformer":
-                return new IfFalseElseTransformer();
-            case "RenameVariableTransformer":
-                return new RenameVariableTransformer();
-            default:
-                return new EmptyMethodTransformer();
-        }
-    }
+    private static String currentInput = "java-small_0";
 
     public static BaseTransformer createTransformers(Integer key, Integer seed) {
         switch (key) {
@@ -54,8 +43,8 @@ public class MetamorphicProblem implements Problem<ISeq<Pair<Integer, Integer>>,
     }
 
     public static double runTransformations(List<BaseTransformer> transformers) {
-        // TODO perform transformations
-        MainPipeline.runCode2vec();
+        currentInput = MainPipeline.runTransformations(transformers, currentInput);
+        MainPipeline.runCode2vec(currentInput);
         List<Double> metricScores = calculateMetric();
         return calculateFitness(metricScores);
     }

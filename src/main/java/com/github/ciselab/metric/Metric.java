@@ -13,7 +13,7 @@ public abstract class Metric implements Comparable<Metric> {
 
     protected double score;
     protected String name;
-    protected final String defaultPath = "C:\\Users\\Ruben-pc\\Documents\\Master_thesis\\OptimizedCode2Vec\\code2vec\\log.txt";
+    protected final String defaultPath = "C:\\Users\\Ruben-pc\\Documents\\Master_thesis\\OptimizedCode2Vec\\code2vec\\results.txt";
 
     public Metric(String metricName) {
         this.name = metricName;

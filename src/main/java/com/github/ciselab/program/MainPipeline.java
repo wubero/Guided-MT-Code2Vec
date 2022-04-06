@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import java.io.IOException;
 
 public class MainPipeline {
 
@@ -25,6 +26,7 @@ public class MainPipeline {
         String eval = "python3 code2vec.py --load models/java14_model/saved_model_iter8.release --test data/java-testPipeline/java-testPipeline.test.c2v --logs-path eval_log.txt";
         run(eval);
         System.out.println("Completed evaluation, results are in log.txt");
+        // The evaluation writes to the log.txt file
     }
 
     private static void run(String git_command) {
@@ -64,7 +66,6 @@ public class MainPipeline {
             System.out.println("Started process");
 //            Process process = processBuilder.start();
             Process process  = Runtime.getRuntime().exec(command);
-
             int exitVal = process.waitFor();
             if (exitVal == 0) {
                 System.out.println(" --- Command run successfully");

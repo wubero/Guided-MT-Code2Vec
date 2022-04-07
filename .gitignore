@@ -12,3 +12,4 @@
 **.dll
 .idea/*
 ${project.build.directory}/*
+target/*

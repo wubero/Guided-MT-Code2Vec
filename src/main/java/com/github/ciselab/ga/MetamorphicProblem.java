@@ -1,5 +1,7 @@
 package com.github.ciselab.ga;
 
+import static java.util.Objects.requireNonNull;
+
 import com.github.ciselab.lampion.core.transformations.transformers.BaseTransformer;
 import com.github.ciselab.lampion.core.transformations.transformers.EmptyMethodTransformer;
 import com.github.ciselab.lampion.core.transformations.transformers.IfFalseElseTransformer;
@@ -10,24 +12,38 @@ import com.github.ciselab.metric.MetricCategory;
 import com.github.ciselab.metric.metrics.F1_score;
 import com.github.ciselab.metric.metrics.MRR;
 import com.github.ciselab.metric.metrics.Percentage_MRR;
-import com.github.ciselab.program.MainPipeline;
+import com.github.ciselab.program.PipelineSupport;
 import io.jenetics.EnumGene;
 import io.jenetics.engine.Codec;
+import io.jenetics.engine.Codecs;
 import io.jenetics.engine.Problem;
 import io.jenetics.util.ISeq;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Properties;
 import java.util.function.Function;
+import java.util.random.RandomGenerator;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
-import org.eclipse.jdt.internal.compiler.batch.Main;
 
 public class MetamorphicProblem implements Problem<ISeq<Pair<Integer, Integer>>, EnumGene<Pair<Integer, Integer>>, Double> {
 
     private static final List<String> transformerOptions =
             new ArrayList<>(Arrays.asList("IfTrueTransformer", "IfFalseElseTransformer", "RenameVariableTransformer"));
-    private static String currentInput = "java-small_0";
+    private static String currentDataset = "java-small_0";
+
+    private final ISeq<Pair<Integer, Integer>> _basicSet;
+    private final Integer _size;
+
+    public MetamorphicProblem(final ISeq<Pair<Integer, Integer>> basicSet, Integer size) {
+        _basicSet = requireNonNull(basicSet);
+        _size = size;
+    }
+
+    public static MetamorphicProblem of(final int maxTransformerValue, final int numberOfTransformers, final RandomGenerator random) {
+        return new MetamorphicProblem(random.ints(1, maxTransformerValue+1).limit(numberOfTransformers).mapToObj(i -> new ImmutablePair<>(Math.abs(i), random.nextInt())).collect(ISeq.toISeq()),
+                numberOfTransformers);
+    }
 
     public static BaseTransformer createTransformers(Integer key, Integer seed) {
         switch (key) {
@@ -42,9 +58,14 @@ public class MetamorphicProblem implements Problem<ISeq<Pair<Integer, Integer>>,
         }
     }
 
+    public static void setCurrentDataset(String dataset) {
+        currentDataset = dataset;
+    }
+
     public static double runTransformations(List<BaseTransformer> transformers) {
-        currentInput = MainPipeline.runTransformations(transformers, currentInput);
-        MainPipeline.runCode2vec(currentInput);
+        String dataset = PipelineSupport.runTransformations(transformers, currentDataset);
+        setCurrentDataset(dataset);
+        PipelineSupport.runCode2vec(currentDataset);
         List<Double> metricScores = calculateMetric();
         return calculateFitness(metricScores);
     }
@@ -76,7 +97,7 @@ public class MetamorphicProblem implements Problem<ISeq<Pair<Integer, Integer>>,
     }
 
     private static double calculateFitness(List<Double> metrics) {
-        List<Double> weights = MainPipeline.getWeights();
+        List<Double> weights = PipelineSupport.getWeights();
         double output = 0;
         for(int i = 0; i < metrics.size(); i++) {
             output += metrics.get(i)*weights.get(i);
@@ -93,6 +114,6 @@ public class MetamorphicProblem implements Problem<ISeq<Pair<Integer, Integer>>,
 
     @Override
     public Codec<ISeq<Pair<Integer, Integer>>, EnumGene<Pair<Integer, Integer>>> codec() {
-        return null;
+        return Codecs.ofSubSet(_basicSet, _size);
     }
 }

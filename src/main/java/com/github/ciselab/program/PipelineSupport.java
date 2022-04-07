@@ -6,29 +6,32 @@ import com.github.ciselab.lampion.core.program.EngineResult;
 import com.github.ciselab.lampion.core.transformations.TransformerRegistry;
 import com.github.ciselab.lampion.core.transformations.transformers.BaseTransformer;
 import com.github.ciselab.metric.MetricCategory;
+import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import spoon.Launcher;
 import spoon.reflect.CtModel;
 
-public class MainPipeline {
+public class PipelineSupport {
 
     public static final String path_bash = "C:/Program Files/Git/bin/bash.exe";
     public static final String resultFile = "C:/Users/Ruben-pc/Documents/Master_thesis/Guided-MT-Code2Vec/code2vec/log.txt";
-    public static final String configFile = "config.properties";
+    public static final String configFile = "C:/Users/Ruben-pc/Documents/Master_thesis/Guided-MT-Code2Vec/src/main/resources/config.properties";
+    public static final String dataDir = "C:/Users/Ruben-pc/Documents/Master_thesis/Guided-MT-Code2Vec/code2vec/data/";
 
-    private static long seed = 2;
+    private static long seed = 200;
     private static boolean removeAllComments = false;
     private static Engine.TransformationScope transformationScope = Engine.TransformationScope.global;
     private static long transformations = 100;
     private static Properties prop = new Properties();
 
-    public static void main(String[] args) {
-        initialize();
+    public static long getSeed() {
+        return seed;
     }
 
     public static void initialize() {
@@ -84,22 +87,24 @@ public class MainPipeline {
         return output;
     }
 
-    public static void runCode2vec(String dir) {
+    public static void runCode2vec(String dataset) {
         System.out.println("Preprocessing file");
-        run("preprocess.sh"); // TODO set dir parameter
+        String dir = dataDir + dataset;
+        String preprocess = "source preprocess.sh " + dir + " " + dataset;
+        run(preprocess);
         System.out.println("Eval model with preprocessed data");
         String eval = "python3 code2vec.py --load models/java14_model/saved_model_iter8.release --test data/java-testPipeline/java-testPipeline.test.c2v --logs-path eval_log.txt";
         run(eval);
-        System.out.println("Completed evaluation, results are in log.txt");
-        // The evaluation writes to the log.txt file
+        System.out.println("Completed evaluation, results are in result.txt");
+        // The evaluation writes to the result.txt file
     }
 
     private static void run(String git_command) {
         // Path to your repository
-        String path_repository = "cd ./code2vec/";
+        String path_repository = "cd code2vec/";
         // Git command you want to run
 
-        String command = path_repository + " && " + git_command;
+        String command = path_repository + " && " + git_command + "&& exit";
 
         runBashCommand(command);
     }
@@ -114,16 +119,22 @@ public class MainPipeline {
 
     private static void runBashCommand(String command) {
         try {
-//            ProcessBuilder processBuilder = new ProcessBuilder();
-//            processBuilder.command(path_bash, "-c", command);
+            ProcessBuilder processBuilder = new ProcessBuilder();
+            processBuilder.command(path_bash, "-c", command);
 
             System.out.println("Started process");
-//            Process process = processBuilder.start();
-            Process process  = Runtime.getRuntime().exec(command);
+            Process process = processBuilder.start();
+
+            BufferedReader reader=new BufferedReader(new InputStreamReader(
+                    process.getInputStream()));
+            String line;
+            while((line = reader.readLine()) != null) {
+                System.out.println(line);
+            }
+
             int exitVal = process.waitFor();
             if (exitVal == 0) {
                 System.out.println(" --- Command run successfully");
-
             } else {
                 System.out.println(" --- Command run unsuccessfully");
             }

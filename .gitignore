@@ -13,3 +13,4 @@
 .idea/*
 ${project.build.directory}/*
 target/*
+*.log

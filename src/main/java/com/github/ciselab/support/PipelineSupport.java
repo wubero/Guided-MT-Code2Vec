@@ -57,6 +57,8 @@ public class PipelineSupport {
 
     /**
      * This method creates an engine and runs the transformations on the input directory.
+     * This is done by first creating all transtormers in a TransformerRegistry and then creating a new Engine.
+     * With this engine we can our CtModel that is created with a spoon launcher.
      * @param transformers the list of transformers.
      * @param input the input directory.
      * @return the directory which the transformation .java files are in.
@@ -67,8 +69,9 @@ public class PipelineSupport {
             registry.registerTransformer(i);
         }
         String[] temp = input.split("_");
-        String output = temp[0] + (Integer.parseInt(temp[1])+1);
-        Engine engine = new Engine(input, output, registry);
+        String output = dataDir + temp[0] + (Integer.parseInt(temp[1])+1);
+        String inputData = dataDir + input;
+        Engine engine = new Engine(inputData, output, registry);
         engine.setNumberOfTransformationsPerScope(transformations, transformationScope);
         engine.setRandomSeed(seed);
         engine.setRemoveAllComments(removeAllComments);
@@ -87,28 +90,26 @@ public class PipelineSupport {
         return output;
     }
 
+    /**
+     * Run 
+     * @param dataset
+     */
     public static void runCode2vec(String dataset) {
         System.out.println("Preprocessing file");
         String dir = dataDir + dataset;
         String preprocess = "source preprocess.sh " + dir + " " + dataset;
-        run(preprocess);
+        runCode2VecCommand(preprocess);
         System.out.println("Eval model with preprocessed data");
         String eval = "python3 code2vec.py --load models/java14_model/saved_model_iter8.release --test data/java-testPipeline/java-testPipeline.test.c2v --logs-path eval_log.txt";
-        run(eval);
+        runCode2VecCommand(eval);
         System.out.println("Completed evaluation, results are in result.txt");
         // The evaluation writes to the result.txt file
     }
 
-    private static void run(String git_command) {
-        // Path to your repository
-        String path_repository = "cd code2vec/";
-        // Git command you want to run
-
-        String command = path_repository + " && " + git_command + "&& exit";
-
-        runBashCommand(command);
-    }
-
+    /**
+     * Get the weights for each metric from the config.properties file.
+     * @return a list with all the weights.
+     */
     public static List<Double> getWeights() {
         List<Double> weights = new ArrayList<>();
         for(MetricCategory i: MetricCategory.values()) {
@@ -117,6 +118,24 @@ public class PipelineSupport {
         return weights;
     }
 
+    /**
+     * This method runs a command from the code2vec directory.
+     * @param comm the command to be run.
+     */
+    private static void runCode2VecCommand(String comm) {
+        // Path to your repository
+        String path_repository = "cd code2vec/";
+        // Git command you want to run
+
+        String command = path_repository + " && " + comm + "&& exit";
+
+        runBashCommand(command);
+    }
+
+    /**
+     * This method runs a given command in git bash and prints the results.
+     * @param command the command to be run in git bash.
+     */
     private static void runBashCommand(String command) {
         try {
             ProcessBuilder processBuilder = new ProcessBuilder();

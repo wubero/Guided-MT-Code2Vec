@@ -3,6 +3,9 @@ package com.github.ciselab.metric.metrics;
 import com.github.ciselab.metric.Metric;
 import java.util.List;
 
+/**
+ * The percentage Mean Reciprocal Rank (Percentage_MRR) custom metric.
+ */
 public class Percentage_MRR extends Metric {
 
     public Percentage_MRR() {

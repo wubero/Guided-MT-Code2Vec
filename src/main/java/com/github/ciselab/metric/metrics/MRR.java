@@ -3,6 +3,9 @@ package com.github.ciselab.metric.metrics;
 import com.github.ciselab.metric.Metric;
 import java.util.List;
 
+/**
+ * The Mean Reciprocal Rank (MRR) metric.
+ */
 public class MRR extends Metric {
 
     public MRR() {

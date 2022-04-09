@@ -1,8 +1,5 @@
 package com.github.ciselab.metric;
 
-import com.github.ciselab.metric.metrics.F1_score;
-import com.github.ciselab.metric.metrics.MRR;
-import com.github.ciselab.metric.metrics.Percentage_MRR;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;

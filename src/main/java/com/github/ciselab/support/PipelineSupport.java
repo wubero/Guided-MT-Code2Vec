@@ -1,4 +1,4 @@
-package com.github.ciselab.program;
+package com.github.ciselab.support;
 
 import com.github.ciselab.lampion.cli.program.App;
 import com.github.ciselab.lampion.core.program.Engine;
@@ -17,24 +17,43 @@ import java.util.Properties;
 import spoon.Launcher;
 import spoon.reflect.CtModel;
 
+/**
+ * This class supports the project with all access to the Transformer and code2vec projects.
+ *
+ * In more detail, it performs all the transformations on the java code,
+ * and then evaluates the pre-trained code2vec model.
+ */
 public class PipelineSupport {
 
     public static final String path_bash = "C:/Program Files/Git/bin/bash.exe";
     public static final String resultFile = "C:/Users/Ruben-pc/Documents/Master_thesis/Guided-MT-Code2Vec/code2vec/log.txt";
     public static final String configFile = "C:/Users/Ruben-pc/Documents/Master_thesis/Guided-MT-Code2Vec/src/main/resources/config.properties";
     public static final String dataDir = "C:/Users/Ruben-pc/Documents/Master_thesis/Guided-MT-Code2Vec/code2vec/data/";
+    private static String currentDataset = "java-small_0";
 
     private static long seed = 200;
     private static boolean removeAllComments = false;
     private static Engine.TransformationScope transformationScope = Engine.TransformationScope.global;
     private static long transformations = 100;
-    private static Properties prop = new Properties();
+    private static final Properties prop = new Properties();
 
     public static long getSeed() {
         return seed;
     }
 
-    public static void initialize() {
+    public static String getCurrentDataset() {
+        return currentDataset;
+    }
+
+    public static void setCurrentDataset(String dataset) {
+        currentDataset = dataset;
+    }
+
+
+    /**
+     * Initialize global fields with config file data.
+     */
+    public static void initializeFields() {
         try (InputStream input = new FileInputStream(configFile)) {
 
             // load a properties file
@@ -57,7 +76,7 @@ public class PipelineSupport {
 
     /**
      * This method creates an engine and runs the transformations on the input directory.
-     * This is done by first creating all transtormers in a TransformerRegistry and then creating a new Engine.
+     * This is done by first creating all transformers in a TransformerRegistry and then creating a new Engine.
      * With this engine we can our CtModel that is created with a spoon launcher.
      * @param transformers the list of transformers.
      * @param input the input directory.
@@ -69,9 +88,7 @@ public class PipelineSupport {
             registry.registerTransformer(i);
         }
         String[] temp = input.split("_");
-        String output = dataDir + temp[0] + (Integer.parseInt(temp[1])+1);
-        String inputData = dataDir + input;
-        Engine engine = new Engine(inputData, output, registry);
+        Engine engine = new Engine(dataDir + input, dataDir + temp[0] + "_" + (Integer.parseInt(temp[1])+1), registry);
         engine.setNumberOfTransformationsPerScope(transformations, transformationScope);
         engine.setRandomSeed(seed);
         engine.setRemoveAllComments(removeAllComments);
@@ -84,21 +101,24 @@ public class PipelineSupport {
         launcher.getFactory().getEnvironment().setAutoImports(false);
         //Further steps are in the method below.
         EngineResult result = engine.run(codeRoot);
+        System.out.println(result);
         App.WriteAST(result, launcher);
         System.out.println("Transformer done");
 
-        return output;
+        return dataDir + temp[0] + "_" + (Integer.parseInt(temp[1])+1);
     }
 
     /**
-     * Run 
-     * @param dataset
+     * Run all scripts from the code2vec project.
+     * This includes first preprocessing the code files and then evaluating the model.
+     * @param dataset The name of the dataset.
      */
     public static void runCode2vec(String dataset) {
+        // Preprocessing file.
         System.out.println("Preprocessing file");
-        String dir = dataDir + dataset;
-        String preprocess = "source preprocess.sh " + dir + " " + dataset;
+        String preprocess = "source preprocess.sh " + dataDir + dataset + " " + dataset;
         runCode2VecCommand(preprocess);
+        // Evaluating code2vec model with preprocessed files.
         System.out.println("Eval model with preprocessed data");
         String eval = "python3 code2vec.py --load models/java14_model/saved_model_iter8.release --test data/java-testPipeline/java-testPipeline.test.c2v --logs-path eval_log.txt";
         runCode2VecCommand(eval);
@@ -123,12 +143,7 @@ public class PipelineSupport {
      * @param comm the command to be run.
      */
     private static void runCode2VecCommand(String comm) {
-        // Path to your repository
-        String path_repository = "cd code2vec/";
-        // Git command you want to run
-
-        String command = path_repository + " && " + comm + "&& exit";
-
+        String command = "cd code2vec/" + " && " + comm + "&& exit";
         runBashCommand(command);
     }
 

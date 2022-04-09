@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.github.ciselab</groupId>
-    <artifactId>OptimizedCode2Vec</artifactId>
+    <artifactId>Guided-MT-Code2Vec</artifactId>
     <version>1.0-SNAPSHOT</version>
     <description>
         This repository works with genetic programming to optimize metrics for code2vec method name prediction
@@ -23,13 +23,13 @@
     <dependencies>
         <dependency>
             <groupId>com.github.ciselab</groupId>
-            <artifactId>Core</artifactId>
-            <version>1.3-SNAPSHOT</version>
+            <artifactId>Lampion-Core</artifactId>
+            <version>1.4-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.github.ciselab</groupId>
-            <artifactId>CLI</artifactId>
-            <version>1.3-SNAPSHOT</version>
+            <artifactId>Lampion-CLI</artifactId>
+            <version>1.4-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>io.jenetics</groupId>

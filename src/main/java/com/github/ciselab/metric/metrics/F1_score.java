@@ -1,12 +1,15 @@
 package com.github.ciselab.metric.metrics;
 
 import com.github.ciselab.metric.Metric;
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.nio.file.Path;
 import java.util.List;
 
+/**
+ * The F1_Score metric.
+ * This metric is already calculated by the code2vec project and gotten from a file.
+ */
 public class F1_score extends Metric {
+
+    private final String filePath = "C:\\Users\\Ruben-pc\\Documents\\Master_thesis\\Guided-MT-Code2Vec\\code2vec\\F1_score_log.txt";
 
     public F1_score() {
         super("F1_score");
@@ -14,7 +17,6 @@ public class F1_score extends Metric {
 
     @Override
     public double CalculateScore() {
-        String filePath = "C:\\Users\\Ruben-pc\\Documents\\Master_thesis\\Guided-MT-Code2Vec\\code2vec\\F1_score_log.txt";
         List<String> lines = readPredictions(filePath);
         double score = -1;
         for(String i: lines) {

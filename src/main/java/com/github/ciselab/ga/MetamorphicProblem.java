@@ -2,10 +2,14 @@ package com.github.ciselab.ga;
 
 import static java.util.Objects.requireNonNull;
 
+import com.github.ciselab.lampion.core.transformations.transformers.AddNeutralElementTransformer;
+import com.github.ciselab.lampion.core.transformations.transformers.AddUnusedVariableTransformer;
 import com.github.ciselab.lampion.core.transformations.transformers.BaseTransformer;
 import com.github.ciselab.lampion.core.transformations.transformers.EmptyMethodTransformer;
 import com.github.ciselab.lampion.core.transformations.transformers.IfFalseElseTransformer;
 import com.github.ciselab.lampion.core.transformations.transformers.IfTrueTransformer;
+import com.github.ciselab.lampion.core.transformations.transformers.LambdaIdentityTransformer;
+import com.github.ciselab.lampion.core.transformations.transformers.RandomParameterNameTransformer;
 import com.github.ciselab.lampion.core.transformations.transformers.RenameVariableTransformer;
 import com.github.ciselab.metric.Metric;
 import com.github.ciselab.metric.MetricCategory;
@@ -18,6 +22,7 @@ import io.jenetics.engine.Codec;
 import io.jenetics.engine.Codecs;
 import io.jenetics.engine.Problem;
 import io.jenetics.util.ISeq;
+import java.nio.channels.Pipe;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -65,6 +70,7 @@ public class MetamorphicProblem implements Problem<ISeq<Pair<Integer, Integer>>,
      * @return a transformer that extends the BaseTransformer.
      */
     public static BaseTransformer createTransformers(Integer key, Integer seed) {
+        System.out.println(key);
         switch (key) {
             case 1:
                 return new IfTrueTransformer(seed);
@@ -72,8 +78,16 @@ public class MetamorphicProblem implements Problem<ISeq<Pair<Integer, Integer>>,
                 return new IfFalseElseTransformer(seed);
             case 3:
                 return new RenameVariableTransformer(seed);
+            case 4:
+                return new AddNeutralElementTransformer(seed);
+            case 5:
+                return new AddUnusedVariableTransformer(seed);
+            case 6:
+                return new LambdaIdentityTransformer(seed);
+            case 7:
+                return new RandomParameterNameTransformer(seed);
             default:
-                return new EmptyMethodTransformer(seed);
+                throw new IllegalArgumentException("The key provided does not match a transformer.");
         }
     }
 
@@ -84,7 +98,9 @@ public class MetamorphicProblem implements Problem<ISeq<Pair<Integer, Integer>>,
      */
     public static double runPipeline(List<BaseTransformer> transformers) {
         PipelineSupport.setCurrentDataset(PipelineSupport.runTransformations(transformers, PipelineSupport.getCurrentDataset()));
+        PipelineSupport.removeOldDir();
         PipelineSupport.runCode2vec(PipelineSupport.getCurrentDataset());
+        System.out.println("Calculating fitness");
         return calculateFitness(calculateMetric());
     }
 

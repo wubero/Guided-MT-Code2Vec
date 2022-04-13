@@ -7,6 +7,7 @@ import com.github.ciselab.lampion.core.transformations.TransformerRegistry;
 import com.github.ciselab.lampion.core.transformations.transformers.BaseTransformer;
 import com.github.ciselab.metric.MetricCategory;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -29,12 +30,12 @@ public class PipelineSupport {
     public static final String resultFile = "C:/Users/Ruben-pc/Documents/Master_thesis/Guided-MT-Code2Vec/code2vec/log.txt";
     public static final String configFile = "C:/Users/Ruben-pc/Documents/Master_thesis/Guided-MT-Code2Vec/src/main/resources/config.properties";
     public static final String dataDir = "C:/Users/Ruben-pc/Documents/Master_thesis/Guided-MT-Code2Vec/code2vec/data/";
-    private static String currentDataset = "java-small_0";
+    private static String currentDataset = "test_0";
 
     private static long seed = 200;
     private static boolean removeAllComments = false;
     private static Engine.TransformationScope transformationScope = Engine.TransformationScope.global;
-    private static long transformations = 100;
+    private static long transformations = 1;
     private static final Properties prop = new Properties();
 
     public static long getSeed() {
@@ -49,6 +50,26 @@ public class PipelineSupport {
         currentDataset = dataset;
     }
 
+
+    /**
+     * Remove previously used directories.
+     */
+    public static void removeOldDir() {
+        String[] temp = currentDataset.split("_");
+        int version = Integer.parseInt(temp[1]);
+        if(version > 2) {
+            String directoryName = temp[0] + "_" + (version-2);
+            System.out.println("Delete directory: " + directoryName);
+            File toDelete = new File(dataDir + directoryName);
+            File[] entries = toDelete.listFiles();
+            if (entries != null) {
+                for (File entry : entries) {
+                    entry.delete();
+                }
+            }
+            toDelete.delete();
+        }
+    }
 
     /**
      * Initialize global fields with config file data.
@@ -88,7 +109,9 @@ public class PipelineSupport {
             registry.registerTransformer(i);
         }
         String[] temp = input.split("_");
-        Engine engine = new Engine(dataDir + input, dataDir + temp[0] + "_" + (Integer.parseInt(temp[1])+1), registry);
+
+        String outputSet = temp[0] + "_" + (Integer.parseInt(temp[1])+1);
+        Engine engine = new Engine(dataDir + input, dataDir + outputSet, registry);
         engine.setNumberOfTransformationsPerScope(transformations, transformationScope);
         engine.setRandomSeed(seed);
         engine.setRemoveAllComments(removeAllComments);
@@ -105,7 +128,7 @@ public class PipelineSupport {
         App.WriteAST(result, launcher);
         System.out.println("Transformer done");
 
-        return dataDir + temp[0] + "_" + (Integer.parseInt(temp[1])+1);
+        return outputSet;
     }
 
     /**

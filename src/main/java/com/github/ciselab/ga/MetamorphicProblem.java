@@ -5,7 +5,6 @@ import static java.util.Objects.requireNonNull;
 import com.github.ciselab.lampion.core.transformations.transformers.AddNeutralElementTransformer;
 import com.github.ciselab.lampion.core.transformations.transformers.AddUnusedVariableTransformer;
 import com.github.ciselab.lampion.core.transformations.transformers.BaseTransformer;
-import com.github.ciselab.lampion.core.transformations.transformers.EmptyMethodTransformer;
 import com.github.ciselab.lampion.core.transformations.transformers.IfFalseElseTransformer;
 import com.github.ciselab.lampion.core.transformations.transformers.IfTrueTransformer;
 import com.github.ciselab.lampion.core.transformations.transformers.LambdaIdentityTransformer;
@@ -22,9 +21,7 @@ import io.jenetics.engine.Codec;
 import io.jenetics.engine.Codecs;
 import io.jenetics.engine.Problem;
 import io.jenetics.util.ISeq;
-import java.nio.channels.Pipe;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
 import java.util.random.RandomGenerator;
@@ -70,7 +67,6 @@ public class MetamorphicProblem implements Problem<ISeq<Pair<Integer, Integer>>,
      * @return a transformer that extends the BaseTransformer.
      */
     public static BaseTransformer createTransformers(Integer key, Integer seed) {
-        System.out.println(key);
         switch (key) {
             case 1:
                 return new IfTrueTransformer(seed);
@@ -100,7 +96,6 @@ public class MetamorphicProblem implements Problem<ISeq<Pair<Integer, Integer>>,
         PipelineSupport.setCurrentDataset(PipelineSupport.runTransformations(transformers, PipelineSupport.getCurrentDataset()));
         PipelineSupport.removeOldDir();
         PipelineSupport.runCode2vec(PipelineSupport.getCurrentDataset());
-        System.out.println("Calculating fitness");
         return calculateFitness(calculateMetric());
     }
 
@@ -109,34 +104,13 @@ public class MetamorphicProblem implements Problem<ISeq<Pair<Integer, Integer>>,
      * @return a list of scores.
      */
     private static List<Double> calculateMetric() {
-        List<Metric> metrics = new ArrayList<>();
-        for(MetricCategory metricCategory: MetricCategory.values()) {
-            metrics.add(createMetric(metricCategory.name()));
-        }
-
         List<Double> scores = new ArrayList<>();
-        for(Metric metric: metrics) {
-            scores.add(metric.CalculateScore());
+        for(Metric metric: PipelineSupport.getMetrics()) {
+            double score = metric.CalculateScore();
+            System.out.println(metric.getName() + ": " + score);
+            scores.add(score);
         }
         return scores;
-    }
-
-    /**
-     * Create a new metric from the specified name.
-     * @param name the metric name.
-     * @return The new metric.
-     */
-    private static Metric createMetric(String name) {
-        switch (name) {
-            case "MRR":
-                return new MRR();
-            case "F1_score":
-                return new F1_score();
-            case "Percentage_MRR":
-                return new Percentage_MRR();
-            default:
-                throw new IllegalArgumentException("Metric name not a correct metric.");
-        }
     }
 
     /**

@@ -5,7 +5,11 @@ import com.github.ciselab.lampion.core.program.Engine;
 import com.github.ciselab.lampion.core.program.EngineResult;
 import com.github.ciselab.lampion.core.transformations.TransformerRegistry;
 import com.github.ciselab.lampion.core.transformations.transformers.BaseTransformer;
+import com.github.ciselab.metric.Metric;
 import com.github.ciselab.metric.MetricCategory;
+import com.github.ciselab.metric.metrics.F1_score;
+import com.github.ciselab.metric.metrics.MRR;
+import com.github.ciselab.metric.metrics.Percentage_MRR;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -37,6 +41,8 @@ public class PipelineSupport {
     private static Engine.TransformationScope transformationScope = Engine.TransformationScope.global;
     private static long transformations = 1;
     private static final Properties prop = new Properties();
+    private static List<Metric> metricList = new ArrayList<>();
+    private static List<Double> metricWeights = new ArrayList<>();
 
     public static long getSeed() {
         return seed;
@@ -50,6 +56,13 @@ public class PipelineSupport {
         currentDataset = dataset;
     }
 
+    public static List<Metric> getMetrics() {
+        return metricList;
+    }
+
+    public static List<Double> getWeights() {
+        return metricWeights;
+    }
 
     /**
      * Remove previously used directories.
@@ -59,7 +72,6 @@ public class PipelineSupport {
         int version = Integer.parseInt(temp[1]);
         if(version > 2) {
             String directoryName = temp[0] + "_" + (version-2);
-            System.out.println("Delete directory: " + directoryName);
             File toDelete = new File(dataDir + directoryName);
             File[] entries = toDelete.listFiles();
             if (entries != null) {
@@ -93,6 +105,30 @@ public class PipelineSupport {
         if(prop.get("transformations") != null) {
             transformations = Long.parseLong((String)prop.get("transformations"));
         }
+        for(MetricCategory metricCategory: MetricCategory.values()) {
+            metricList.add(createMetric(metricCategory.name()));
+        }
+        for(MetricCategory i: MetricCategory.values()) {
+            metricWeights.add(Double.parseDouble(prop.getProperty(i.name())));
+        }
+    }
+
+    /**
+     * Create a new metric from the specified name.
+     * @param name the metric name.
+     * @return The new metric.
+     */
+    private static Metric createMetric(String name) {
+        switch (name) {
+            case "MRR":
+                return new MRR();
+            case "F1_score":
+                return new F1_score();
+            case "Percentage_MRR":
+                return new Percentage_MRR();
+            default:
+                throw new IllegalArgumentException("Metric name not a correct metric.");
+        }
     }
 
     /**
@@ -124,9 +160,7 @@ public class PipelineSupport {
         launcher.getFactory().getEnvironment().setAutoImports(false);
         //Further steps are in the method below.
         EngineResult result = engine.run(codeRoot);
-        System.out.println(result);
         App.WriteAST(result, launcher);
-        System.out.println("Transformer done");
 
         return outputSet;
     }
@@ -138,27 +172,13 @@ public class PipelineSupport {
      */
     public static void runCode2vec(String dataset) {
         // Preprocessing file.
-        System.out.println("Preprocessing file");
         String preprocess = "source preprocess.sh " + dataDir + dataset + " " + dataset;
         runCode2VecCommand(preprocess);
         // Evaluating code2vec model with preprocessed files.
-        System.out.println("Eval model with preprocessed data");
-        String eval = "python3 code2vec.py --load models/java14_model/saved_model_iter8.release --test data/java-testPipeline/java-testPipeline.test.c2v --logs-path eval_log.txt";
+        String testData = "data/" + dataset + "/" + dataset + ".test.c2v";
+        String eval = "python3 code2vec.py --load models/java14_model/saved_model_iter8.release --test" + testData +  " --logs-path eval_log.txt";
         runCode2VecCommand(eval);
-        System.out.println("Completed evaluation, results are in result.txt");
         // The evaluation writes to the result.txt file
-    }
-
-    /**
-     * Get the weights for each metric from the config.properties file.
-     * @return a list with all the weights.
-     */
-    public static List<Double> getWeights() {
-        List<Double> weights = new ArrayList<>();
-        for(MetricCategory i: MetricCategory.values()) {
-            weights.add(Double.parseDouble(prop.getProperty(i.name())));
-        }
-        return weights;
     }
 
     /**
@@ -166,20 +186,19 @@ public class PipelineSupport {
      * @param comm the command to be run.
      */
     private static void runCode2VecCommand(String comm) {
-        String command = "cd code2vec/" + " && " + comm + "&& exit";
-        runBashCommand(command);
+        String command = "cd code2vec/" + " && " + comm + " && exit";
+        runBashCommand(command, 0);
     }
 
     /**
      * This method runs a given command in git bash and prints the results.
      * @param command the command to be run in git bash.
      */
-    private static void runBashCommand(String command) {
+    private static void runBashCommand(String command, Integer countFailed) {
         try {
             ProcessBuilder processBuilder = new ProcessBuilder();
             processBuilder.command(path_bash, "-c", command);
 
-            System.out.println("Started process");
             Process process = processBuilder.start();
 
             BufferedReader reader=new BufferedReader(new InputStreamReader(
@@ -193,7 +212,13 @@ public class PipelineSupport {
             if (exitVal == 0) {
                 System.out.println(" --- Command run successfully");
             } else {
-                System.out.println(" --- Command run unsuccessfully");
+                if(countFailed < 3) {
+                    System.out.println(" --- Command run , trying again");
+                    runBashCommand(command, countFailed+1);
+                } else {
+                    System.out.println("The command: " + command + "\n Will not run, quiting the system.");
+                    System.exit(0);
+                }
             }
         } catch (IOException | InterruptedException e) {
             System.out.println(" --- Interruption in RunCommand: " + e);

@@ -17,6 +17,10 @@ public abstract class Metric implements Comparable<Metric> {
         this.score = -1;
     }
 
+    public String getName() {
+        return name;
+    }
+
     public List<String> readPredictions(String filePath) {
         List<String> predictions = new ArrayList<>();
         try {

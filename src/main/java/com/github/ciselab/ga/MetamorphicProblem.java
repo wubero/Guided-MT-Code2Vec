@@ -11,11 +11,8 @@ import com.github.ciselab.lampion.core.transformations.transformers.LambdaIdenti
 import com.github.ciselab.lampion.core.transformations.transformers.RandomParameterNameTransformer;
 import com.github.ciselab.lampion.core.transformations.transformers.RenameVariableTransformer;
 import com.github.ciselab.metric.Metric;
-import com.github.ciselab.metric.MetricCategory;
-import com.github.ciselab.metric.metrics.F1_score;
-import com.github.ciselab.metric.metrics.MRR;
-import com.github.ciselab.metric.metrics.Percentage_MRR;
-import com.github.ciselab.support.PipelineSupport;
+import com.github.ciselab.support.GenotypeSupport;
+import io.jenetics.BitGene;
 import io.jenetics.EnumGene;
 import io.jenetics.engine.Codec;
 import io.jenetics.engine.Codecs;
@@ -33,31 +30,27 @@ import org.apache.commons.lang3.tuple.Pair;
  * It does this by implementing a sequence of transformer key and seed pairs. For each of these pairs a transformer is built.
  * These transformers are then performed on the test dataset in the order in which they are described.
  */
-public class MetamorphicProblem implements Problem<ISeq<Pair<Integer, Integer>>, EnumGene<Pair<Integer, Integer>>, Double> {
+public class MetamorphicProblem implements Problem<ISeq<Pair<Integer, Integer>>, BitGene, Double> {
 
     private final ISeq<Pair<Integer, Integer>> _basicSet;
-    private final Integer _size;
 
     /**
      * Constructor for the Metamorphic problem.
      * @param basicSet an initial sequence of transformer keys and seed pairs.
-     * @param size The amount of transformers used.
      */
-    public MetamorphicProblem(final ISeq<Pair<Integer, Integer>> basicSet, Integer size) {
+    public MetamorphicProblem(final ISeq<Pair<Integer, Integer>> basicSet) {
         _basicSet = requireNonNull(basicSet);
-        _size = size;
     }
 
     /**
      * Create a new metamorphic problem for the genetic algorithm.
      * @param maxTransformerValue the maximum value for the transformer keys.
-     * @param numberOfTransformers the number of transformers used in each problem.
      * @param random a random number generator.
      * @return the new metamorphic problem.
      */
-    public static MetamorphicProblem of(final int maxTransformerValue, final int numberOfTransformers, final RandomGenerator random) {
-        return new MetamorphicProblem(random.ints(1, maxTransformerValue+1).limit(numberOfTransformers).mapToObj(i -> new ImmutablePair<>(Math.abs(i), random.nextInt())).collect(ISeq.toISeq()),
-                numberOfTransformers);
+    public static MetamorphicProblem of(final int maxTransformerValue, final int maxTransformers, final RandomGenerator random) {
+        return new MetamorphicProblem(random.ints(1, maxTransformerValue+1)
+                .limit(maxTransformers).mapToObj(i -> new ImmutablePair<>(Math.abs(i), random.nextInt())).collect(ISeq.toISeq()));
     }
 
     /**
@@ -92,10 +85,9 @@ public class MetamorphicProblem implements Problem<ISeq<Pair<Integer, Integer>>,
      * @param transformers the list of metamorphic transformers.
      * @return the fitness.
      */
-    public static double runPipeline(List<BaseTransformer> transformers) {
-        PipelineSupport.setCurrentDataset(PipelineSupport.runTransformations(transformers, PipelineSupport.getCurrentDataset()));
-        PipelineSupport.removeOldDir();
-        PipelineSupport.runCode2vec(PipelineSupport.getCurrentDataset());
+    public static double runPipeline(List<BaseTransformer> transformers, List<Pair<Integer, Integer>> pairs) {
+        String name = GenotypeSupport.runTransformations(transformers, pairs, GenotypeSupport.getCurrentDataset());
+        GenotypeSupport.runCode2vec(name);
         return calculateFitness(calculateMetric());
     }
 
@@ -105,7 +97,7 @@ public class MetamorphicProblem implements Problem<ISeq<Pair<Integer, Integer>>,
      */
     private static List<Double> calculateMetric() {
         List<Double> scores = new ArrayList<>();
-        for(Metric metric: PipelineSupport.getMetrics()) {
+        for(Metric metric: GenotypeSupport.getMetrics()) {
             double score = metric.CalculateScore();
             System.out.println(metric.getName() + ": " + score);
             scores.add(score);
@@ -119,7 +111,7 @@ public class MetamorphicProblem implements Problem<ISeq<Pair<Integer, Integer>>,
      * @return The global fitness.
      */
     private static double calculateFitness(List<Double> metrics) {
-        List<Double> weights = PipelineSupport.getWeights();
+        List<Double> weights = GenotypeSupport.getWeights();
         double output = 0;
         for(int i = 0; i < metrics.size(); i++) {
             output += metrics.get(i)*weights.get(i);
@@ -135,7 +127,7 @@ public class MetamorphicProblem implements Problem<ISeq<Pair<Integer, Integer>>,
     @Override
     public Function<ISeq<Pair<Integer, Integer>>, Double> fitness() {
         return subset
-                -> runPipeline(subset.stream().map(p -> createTransformers(p.getLeft(), p.getRight())).toList());
+                -> runPipeline(subset.stream().map(p -> createTransformers(p.getLeft(), p.getRight())).toList(), subset.stream().toList());
     }
 
     /**
@@ -143,7 +135,7 @@ public class MetamorphicProblem implements Problem<ISeq<Pair<Integer, Integer>>,
      * @return A Codec from the input sequence to the gene.
      */
     @Override
-    public Codec<ISeq<Pair<Integer, Integer>>, EnumGene<Pair<Integer, Integer>>> codec() {
-        return Codecs.ofSubSet(_basicSet, _size);
+    public Codec<ISeq<Pair<Integer, Integer>>, BitGene> codec() {
+        return Codecs.ofSubSet(_basicSet);
     }
 }

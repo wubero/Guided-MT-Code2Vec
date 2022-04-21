@@ -10,15 +10,24 @@ import com.github.ciselab.metric.MetricCategory;
 import com.github.ciselab.metric.metrics.F1_score;
 import com.github.ciselab.metric.metrics.MRR;
 import com.github.ciselab.metric.metrics.Percentage_MRR;
+import io.jenetics.BitGene;
+import io.jenetics.EnumGene;
+import io.jenetics.Phenotype;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
+import java.util.Random;
+import org.apache.commons.lang3.tuple.Pair;
 import spoon.Launcher;
 import spoon.reflect.CtModel;
 
@@ -28,13 +37,13 @@ import spoon.reflect.CtModel;
  * In more detail, it performs all the transformations on the java code,
  * and then evaluates the pre-trained code2vec model.
  */
-public class PipelineSupport {
+public class GenotypeSupport {
 
     public static final String path_bash = "C:/Program Files/Git/bin/bash.exe";
     public static final String resultFile = "C:/Users/Ruben-pc/Documents/Master_thesis/Guided-MT-Code2Vec/code2vec/log.txt";
     public static final String configFile = "C:/Users/Ruben-pc/Documents/Master_thesis/Guided-MT-Code2Vec/src/main/resources/config.properties";
     public static final String dataDir = "C:/Users/Ruben-pc/Documents/Master_thesis/Guided-MT-Code2Vec/code2vec/data/";
-    private static String currentDataset = "test_0";
+    private static String currentDataset = "spoon_test";
 
     private static long seed = 200;
     private static boolean removeAllComments = false;
@@ -43,6 +52,9 @@ public class PipelineSupport {
     private static final Properties prop = new Properties();
     private static List<Metric> metricList = new ArrayList<>();
     private static List<Double> metricWeights = new ArrayList<>();
+
+    public static Map<List<Pair<Integer, Integer>>, String> fileLookup = new HashMap<>();
+    public static Map<List<Pair<Integer, Integer>>, Double> metricLookup = new HashMap<>();
 
     public static long getSeed() {
         return seed;
@@ -64,23 +76,43 @@ public class PipelineSupport {
         return metricWeights;
     }
 
+    private static String getNextDataSet() {
+        String[] temp = currentDataset.split("_");
+        int version = Integer.parseInt(temp[1])+1;
+        return temp[0] + "_" + version;
+    }
+
+    public Optional<String> getDir(List<Pair<Integer, Integer>> genotype) {
+        String file = fileLookup.get(genotype);
+        return Optional.ofNullable(file);
+    }
+
+    public void storeFiles(List<Pair<Integer, Integer>> genotype, String fileName, Double score) {
+        fileLookup.put(genotype, fileName);
+        metricLookup.put(genotype, score);
+    }
+
     /**
      * Remove previously used directories.
      */
-    public static void removeOldDir() {
-        String[] temp = currentDataset.split("_");
-        int version = Integer.parseInt(temp[1]);
-        if(version > 2) {
-            String directoryName = temp[0] + "_" + (version-2);
-            File toDelete = new File(dataDir + directoryName);
-            File[] entries = toDelete.listFiles();
-            if (entries != null) {
-                for (File entry : entries) {
+    public static boolean removeOtherDirs() {
+        String toKeep = currentDataset.split("_")[0];
+        File toDelete = new File(dataDir);
+        File[] entries = toDelete.listFiles();
+        if (entries != null) {
+            for (File entry : entries) {
+                if (!entry.getName().contains(toKeep)) {
+                    File[] files = entry.listFiles();
+                    if (files != null) {
+                        for (File i : files) {
+                            i.delete();
+                        }
+                    }
                     entry.delete();
                 }
             }
-            toDelete.delete();
         }
+        return toDelete.delete();
     }
 
     /**
@@ -132,23 +164,41 @@ public class PipelineSupport {
     }
 
     /**
+     * Generate random string for the intermediate dataset names name.
+     * @return the directory name.
+     */
+    private static String generateRandomString() {
+        String options = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        int maxLength = 5;
+        Random r =  new Random();
+        StringBuilder out = new StringBuilder();
+
+        for(int i = 0; i < maxLength; i++) {
+            out.append(options.charAt(r.nextInt(0, options.length())));
+        }
+        return out.toString();
+    }
+
+    /**
      * This method creates an engine and runs the transformations on the input directory.
      * This is done by first creating all transformers in a TransformerRegistry and then creating a new Engine.
      * With this engine we can our CtModel that is created with a spoon launcher.
      * @param transformers the list of transformers.
+     * @param keys the genotype.
      * @param input the input directory.
      * @return the directory which the transformation .java files are in.
      */
-    public static String runTransformations(List<BaseTransformer> transformers, String input) {
+    public static String runTransformations(List<BaseTransformer> transformers, List<Pair<Integer, Integer>> keys, String input) {
         TransformerRegistry registry = new TransformerRegistry("fromGA");
         for(BaseTransformer i: transformers) {
             registry.registerTransformer(i);
         }
-        String[] temp = input.split("_");
 
-        String outputSet = temp[0] + "_" + (Integer.parseInt(temp[1])+1);
-        Engine engine = new Engine(dataDir + input, dataDir + outputSet, registry);
-        engine.setNumberOfTransformationsPerScope(transformations, transformationScope);
+        String outputSet = generateRandomString();
+        fileLookup.put(keys, outputSet);
+
+        Engine engine = new Engine(dataDir + input, dataDir + outputSet + "/test", registry);
+        engine.setNumberOfTransformationsPerScope(transformers.size(), transformationScope);
         engine.setRandomSeed(seed);
         engine.setRemoveAllComments(removeAllComments);
 
@@ -166,19 +216,68 @@ public class PipelineSupport {
     }
 
     /**
+     * Save and print the current results + get everything in the correct directories.
+     * @param phenotype best phenotype of the generation.
+     */
+    public static void saveAndPrint(Phenotype<BitGene, Double> phenotype) {
+        System.out.println("Starting save and print");
+        // get linked file directory
+        String file = fileLookup.get(phenotype.genotype().gene());
+
+        // replace files to test_"version"
+        File dir = new File(dataDir + file + "/test");
+        String targetDir = dataDir + getNextDataSet();
+        new File(targetDir).mkdir();
+        if(dir.isDirectory()) {
+            File[] content = dir.listFiles();
+            if(content != null) {
+                for (File value : content) {
+                    value.renameTo(new File(targetDir, value.getName()));
+                }
+            }
+        }
+        // delete other files & clear map
+        setCurrentDataset(getNextDataSet());
+        removeOtherDirs();
+        // write the best fitness to file for plotting
+        Double result = phenotype.fitness();
+        try {
+            FileWriter myWriter = new FileWriter("GA_results.txt");
+            myWriter.write("Generation: " + phenotype.generation() + ", result: " + result + "\n");
+            myWriter.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        System.out.println(result);
+    }
+
+    /**
      * Run all scripts from the code2vec project.
      * This includes first preprocessing the code files and then evaluating the model.
      * @param dataset The name of the dataset.
      */
     public static void runCode2vec(String dataset) {
+        String path = dataDir + dataset;
+        createDirs(path);
         // Preprocessing file.
-        String preprocess = "source preprocess.sh " + dataDir + dataset + " " + dataset;
+        String preprocess = "source preprocess.sh " + path + " " + dataset;
         runCode2VecCommand(preprocess);
         // Evaluating code2vec model with preprocessed files.
         String testData = "data/" + dataset + "/" + dataset + ".test.c2v";
-        String eval = "python3 code2vec.py --load models/java14_model/saved_model_iter8.release --test" + testData +  " --logs-path eval_log.txt";
+        String eval = "python3 code2vec.py --load models/java14_model/saved_model_iter8.release --test " + testData +  " --logs-path eval_log.txt";
         runCode2VecCommand(eval);
         // The evaluation writes to the result.txt file
+    }
+
+    /**
+     * Create the correct directories for the code2vec application.
+     * @param path path to the dataset.
+     */
+    private static void createDirs(String path) {
+        File valDir = new File(path + "/validation");
+        File trainingDir = new File(path + "/training");
+        valDir.mkdir();
+        trainingDir.mkdir();
     }
 
     /**
@@ -213,7 +312,6 @@ public class PipelineSupport {
                 System.out.println(" --- Command run successfully");
             } else {
                 if(countFailed < 3) {
-                    System.out.println(" --- Command run , trying again");
                     runBashCommand(command, countFailed+1);
                 } else {
                     System.out.println("The command: " + command + "\n Will not run, quiting the system.");

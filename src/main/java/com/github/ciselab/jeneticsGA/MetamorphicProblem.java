@@ -1,4 +1,4 @@
-package com.github.ciselab.ga;
+package com.github.ciselab.jeneticsGA;
 
 import static java.util.Objects.requireNonNull;
 
@@ -13,7 +13,6 @@ import com.github.ciselab.lampion.core.transformations.transformers.RenameVariab
 import com.github.ciselab.metric.Metric;
 import com.github.ciselab.support.GenotypeSupport;
 import io.jenetics.BitGene;
-import io.jenetics.EnumGene;
 import io.jenetics.engine.Codec;
 import io.jenetics.engine.Codecs;
 import io.jenetics.engine.Problem;
@@ -85,8 +84,8 @@ public class MetamorphicProblem implements Problem<ISeq<Pair<Integer, Integer>>,
      * @param transformers the list of metamorphic transformers.
      * @return the fitness.
      */
-    public static double runPipeline(List<BaseTransformer> transformers, List<Pair<Integer, Integer>> pairs) {
-        String name = GenotypeSupport.runTransformations(transformers, pairs, GenotypeSupport.getCurrentDataset());
+    public static double runPipeline(List<BaseTransformer> transformers) {
+        String name = GenotypeSupport.runTransformations(transformers, GenotypeSupport.getCurrentDataset());
         GenotypeSupport.runCode2vec(name);
         return calculateFitness(calculateMetric());
     }
@@ -127,7 +126,7 @@ public class MetamorphicProblem implements Problem<ISeq<Pair<Integer, Integer>>,
     @Override
     public Function<ISeq<Pair<Integer, Integer>>, Double> fitness() {
         return subset
-                -> runPipeline(subset.stream().map(p -> createTransformers(p.getLeft(), p.getRight())).toList(), subset.stream().toList());
+                -> runPipeline(subset.stream().map(p -> createTransformers(p.getLeft(), p.getRight())).toList());
     }
 
     /**

@@ -40,11 +40,12 @@ import spoon.reflect.CtModel;
 public class GenotypeSupport {
 
     public static final String path_bash = "C:/Program Files/Git/bin/bash.exe";
-    public static final String resultFile = "C:/Users/Ruben-pc/Documents/Master_thesis/Guided-MT-Code2Vec/code2vec/log.txt";
-    public static final String configFile = "C:/Users/Ruben-pc/Documents/Master_thesis/Guided-MT-Code2Vec/src/main/resources/config.properties";
-    public static final String dataDir = "C:/Users/Ruben-pc/Documents/Master_thesis/Guided-MT-Code2Vec/code2vec/data/";
-    private static String currentDataset = "spoon_test";
+    public static final String resultFile = System.getProperty("user.dir") + "/code2vec/log.txt";
+    public static final String configFile = System.getProperty("user.dir") + "/src/main/resources/config.properties";
+    public static final String dataDir = System.getProperty("user.dir") + "/code2vec/data/";
+    private static String currentDataset = "generation_0";
 
+    public static boolean maximize = true;
     private static long seed = 200;
     private static boolean removeAllComments = false;
     private static Engine.TransformationScope transformationScope = Engine.TransformationScope.global;
@@ -53,41 +54,77 @@ public class GenotypeSupport {
     private static List<Metric> metricList = new ArrayList<>();
     private static List<Double> metricWeights = new ArrayList<>();
 
-    public static Map<List<Pair<Integer, Integer>>, String> fileLookup = new HashMap<>();
-    public static Map<List<Pair<Integer, Integer>>, Double> metricLookup = new HashMap<>();
+    public static Map<List<BaseTransformer>, String> fileLookup = new HashMap<>();
+    public static Map<List<BaseTransformer>, Double> metricLookup = new HashMap<>();
 
+    /**
+     * Get the base seed used for this run.
+     * @return the seed.
+     */
     public static long getSeed() {
         return seed;
     }
 
+    /**
+     * Get the current dataset used as a baseline.
+     * @return the dataset.
+     */
     public static String getCurrentDataset() {
         return currentDataset;
     }
 
-    public static void setCurrentDataset(String dataset) {
-        currentDataset = dataset;
-    }
-
+    /**
+     * Get the initialized metrics.
+     * @return the list of metrics.
+     */
     public static List<Metric> getMetrics() {
         return metricList;
     }
 
+    /**
+     * Get the metric weights.
+     * @return the list of metric weights.
+     */
     public static List<Double> getWeights() {
         return metricWeights;
     }
 
-    private static String getNextDataSet() {
-        String[] temp = currentDataset.split("_");
-        int version = Integer.parseInt(temp[1])+1;
-        return temp[0] + "_" + version;
-    }
-
-    public Optional<String> getDir(List<Pair<Integer, Integer>> genotype) {
+    /**
+     * Get the directory corresponding to the given genotype.
+     * @param genotype the list of transformers.
+     * @return the directory string if it exists, null otherwise.
+     */
+    public static Optional<String> getDir(List<BaseTransformer> genotype) {
         String file = fileLookup.get(genotype);
         return Optional.ofNullable(file);
     }
 
-    public void storeFiles(List<Pair<Integer, Integer>> genotype, String fileName, Double score) {
+    /**
+     * Create a key value pair of an individual and the corresponding fitness.
+     * @param indiv the individual.
+     * @param fitness the fitness score.
+     */
+    public static void fillFitness(List<BaseTransformer> indiv, double fitness) {
+        metricLookup.put(indiv, fitness);
+    }
+
+    /**
+     *
+     * @param genotype
+     * @return
+     */
+    public static Optional<Double> getMetricResult(List<BaseTransformer> genotype) {
+        Double file = metricLookup.get(genotype);
+        return Optional.ofNullable(file);
+    }
+
+    /**
+     * Store the current genotype together with the fitness and filename in the map for later reference.
+     * @param genotype the list of transformers.
+     * @param fileName the file name.
+     * @param score the fitness score.
+     */
+    public static void storeFiles(List<BaseTransformer> genotype, String fileName, Double score) {
         fileLookup.put(genotype, fileName);
         metricLookup.put(genotype, score);
     }
@@ -126,6 +163,8 @@ public class GenotypeSupport {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        if(prop.get("Optimization_objective") != null)
+            maximize = prop.get("Optimization_objective").equals("max");
         if(prop.get("seed") != null)
             seed = Long.parseLong((String) prop.get("seed"));
         if(prop.get("removeAllComments")!=null){
@@ -142,6 +181,24 @@ public class GenotypeSupport {
         }
         for(MetricCategory i: MetricCategory.values()) {
             metricWeights.add(Double.parseDouble(prop.getProperty(i.name())));
+        }
+        removeZeroWeights();
+    }
+
+    /**
+     * Remove all metrics that have a weight of zero.
+     * These do not have to be calculated or initialized.
+     */
+    private static void removeZeroWeights() {
+        List<Integer> toRemove = new ArrayList<>();
+        for(int i = 0; i < metricWeights.size(); i++) {
+            if(metricWeights.get(i) <= 0) {
+                toRemove.add(i);
+            }
+        }
+        for(int i: toRemove){
+            metricList.remove(i);
+            metricWeights.remove(i);
         }
     }
 
@@ -184,18 +241,17 @@ public class GenotypeSupport {
      * This is done by first creating all transformers in a TransformerRegistry and then creating a new Engine.
      * With this engine we can our CtModel that is created with a spoon launcher.
      * @param transformers the list of transformers.
-     * @param keys the genotype.
      * @param input the input directory.
      * @return the directory which the transformation .java files are in.
      */
-    public static String runTransformations(List<BaseTransformer> transformers, List<Pair<Integer, Integer>> keys, String input) {
+    public static String runTransformations(List<BaseTransformer> transformers, String input) {
         TransformerRegistry registry = new TransformerRegistry("fromGA");
         for(BaseTransformer i: transformers) {
             registry.registerTransformer(i);
         }
 
         String outputSet = generateRandomString();
-        fileLookup.put(keys, outputSet);
+        fileLookup.put(transformers, outputSet);
 
         Engine engine = new Engine(dataDir + input, dataDir + outputSet + "/test", registry);
         engine.setNumberOfTransformationsPerScope(transformers.size(), transformationScope);
@@ -213,42 +269,6 @@ public class GenotypeSupport {
         App.WriteAST(result, launcher);
 
         return outputSet;
-    }
-
-    /**
-     * Save and print the current results + get everything in the correct directories.
-     * @param phenotype best phenotype of the generation.
-     */
-    public static void saveAndPrint(Phenotype<BitGene, Double> phenotype) {
-        System.out.println("Starting save and print");
-        // get linked file directory
-        String file = fileLookup.get(phenotype.genotype().gene());
-
-        // replace files to test_"version"
-        File dir = new File(dataDir + file + "/test");
-        String targetDir = dataDir + getNextDataSet();
-        new File(targetDir).mkdir();
-        if(dir.isDirectory()) {
-            File[] content = dir.listFiles();
-            if(content != null) {
-                for (File value : content) {
-                    value.renameTo(new File(targetDir, value.getName()));
-                }
-            }
-        }
-        // delete other files & clear map
-        setCurrentDataset(getNextDataSet());
-        removeOtherDirs();
-        // write the best fitness to file for plotting
-        Double result = phenotype.fitness();
-        try {
-            FileWriter myWriter = new FileWriter("GA_results.txt");
-            myWriter.write("Generation: " + phenotype.generation() + ", result: " + result + "\n");
-            myWriter.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        System.out.println(result);
     }
 
     /**

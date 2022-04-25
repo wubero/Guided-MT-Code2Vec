@@ -1,4 +1,4 @@
-package com.github.ciselab.ga;
+package com.github.ciselab.jeneticsGA;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 

@@ -2,7 +2,6 @@ import os
 
 
 def main():
-    # path = "C:/Users/Ruben-pc/Documents/Master_thesis/Guided-MT-Code2Vec/code2vec/data/java-small_0/test/hadoop"
     path = "C:/Users/Ruben-pc/Documents/Master_thesis/Guided-MT-Code2Vec/code2vec/data/test_0"
     for filename in os.listdir(path):
         f = os.path.join(path, filename)
@@ -10,6 +9,9 @@ def main():
             with open(f, "r") as myFile:
                 data = myFile.read()
                 if "class " not in data:
+                    myFile.close()
+                    os.remove(f)
+                elif "extends " in data:
                     myFile.close()
                     os.remove(f)
                 elif "package " not in data:

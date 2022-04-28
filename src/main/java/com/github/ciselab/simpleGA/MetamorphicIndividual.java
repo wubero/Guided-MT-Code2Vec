@@ -10,6 +10,7 @@ import com.github.ciselab.lampion.core.transformations.transformers.RandomParame
 import com.github.ciselab.lampion.core.transformations.transformers.RenameVariableTransformer;
 import com.github.ciselab.metric.Metric;
 import com.github.ciselab.support.GenotypeSupport;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.random.RandomGenerator;
@@ -72,6 +73,7 @@ public class MetamorphicIndividual {
      */
     public void setGene(int index, BaseTransformer gene) {
         transformers.set(index, gene);
+        length = transformers.size();
         fitness = -1;
     }
 
@@ -81,6 +83,7 @@ public class MetamorphicIndividual {
      */
     public void addGene(BaseTransformer gene) {
         transformers.add(gene);
+        length++;
         fitness = -1;
     }
 
@@ -97,6 +100,8 @@ public class MetamorphicIndividual {
             BaseTransformer newTransformer = createTransformers(key, seed);
             length++;
             fitness = -1;
+            GenotypeSupport.log("Genotype changed by increase, the old genotype was: ");
+            GenotypeSupport.log(this.toString());
             if(GenotypeSupport.getDir(transformers).isPresent()) {
                 List<BaseTransformer> t = new ArrayList<>();
                 t.add(newTransformer);
@@ -112,6 +117,28 @@ public class MetamorphicIndividual {
                     fitness = GenotypeSupport.getMetricResult(transformers).get();
                 }
             }
+            GenotypeSupport.log("Genotype changed by increase, the new genotype is: ");
+            GenotypeSupport.log(this.toString());
+        }
+    }
+
+    /**
+     * Decrease the amount of transformers for this metamorphic individual.
+     * @param randomGen the random generator used for this run.
+     */
+    public void decrease(RandomGenerator randomGen) {
+        if(length > 1) {
+            int drop = randomGen.nextInt(0, length);
+            GenotypeSupport.log("Genotype changed by decrease, the old genotype was: ");
+            GenotypeSupport.log(this.toString());
+            transformers.remove(drop);
+            length--;
+            GenotypeSupport.log("Genotype changed by decrease, the new genotype is: ");
+            GenotypeSupport.log(this.toString());
+            if(GenotypeSupport.getMetricResult(transformers).isPresent())
+                fitness = GenotypeSupport.getMetricResult(transformers).get();
+            else
+                fitness = -1;
         }
     }
 
@@ -127,10 +154,12 @@ public class MetamorphicIndividual {
 
     /**
      * Get the fitness of this metamorphic individual. If it does not exist calculate it.
-     * @return
+     * @return the fitness of this metamorphic individual.
      */
     public double getFitness() {
         if (fitness < 0) {
+            GenotypeSupport.log("Calculating fitness, the genotype is: ");
+            GenotypeSupport.log(this.toString());
             String name = GenotypeSupport.runTransformations(transformers, GenotypeSupport.getCurrentDataset());
             GenotypeSupport.runCode2vec(name);
             fitness = calculateFitness(calculateMetric());
@@ -183,20 +212,20 @@ public class MetamorphicIndividual {
      */
     private static BaseTransformer createTransformers(Integer key, Integer seed) {
         switch (key) {
-            case 1:
+            case 0:
                 return new IfTrueTransformer(seed);
-            case 2:
+            case 1:
                 return new IfFalseElseTransformer(seed);
-            case 3:
+            case 2:
                 return new RenameVariableTransformer(seed);
-            case 4:
+            case 3:
                 return new AddNeutralElementTransformer(seed);
-            case 5:
+            case 4:
                 return new AddUnusedVariableTransformer(seed);
+            case 5:
+                return new RandomParameterNameTransformer(seed);
             case 6:
                 return new LambdaIdentityTransformer(seed);
-            case 7:
-                return new RandomParameterNameTransformer(seed);
             default:
                 throw new IllegalArgumentException("The key provided does not match a transformer.");
         }

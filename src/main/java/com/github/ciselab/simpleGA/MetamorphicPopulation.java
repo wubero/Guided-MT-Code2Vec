@@ -20,7 +20,7 @@ public class MetamorphicPopulation {
             int cutOff = popSize/2;
             for (int i = 0; i < cutOff; i++) {
                 MetamorphicIndividual individual = new MetamorphicIndividual();
-                individual.createIndividual(r, 1, maxValue);
+                individual.createIndividual(r, 2, maxValue);
                 saveIndividual(i, individual);
             }
             for (int j = cutOff; j < popSize; j++) {

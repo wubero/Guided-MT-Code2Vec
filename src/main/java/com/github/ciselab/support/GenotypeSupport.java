@@ -20,6 +20,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -40,9 +42,9 @@ import spoon.reflect.CtModel;
 public class GenotypeSupport {
 
     public static final String path_bash = "C:/Program Files/Git/bin/bash.exe";
-    public static final String resultFile = System.getProperty("user.dir") + "/code2vec/log.txt";
-    public static final String configFile = System.getProperty("user.dir") + "/src/main/resources/config.properties";
-    public static final String dataDir = System.getProperty("user.dir") + "/code2vec/data/";
+    public static final String resultFile =  "C:/Users/Ruben-pc/Documents/Master_thesis/Guided-MT-Code2Vec/code2vec/log.txt";
+    public static final String configFile = "C:/Users/Ruben-pc/Documents/Master_thesis/Guided-MT-Code2Vec/src/main/resources/config.properties";
+    public static final String dataDir = "C:/Users/Ruben-pc/Documents/Master_thesis/Guided-MT-Code2Vec/code2vec/data/";
     private static String currentDataset = "generation_0";
 
     public static boolean maximize = true;
@@ -56,6 +58,20 @@ public class GenotypeSupport {
 
     public static Map<List<BaseTransformer>, String> fileLookup = new HashMap<>();
     public static Map<List<BaseTransformer>, Double> metricLookup = new HashMap<>();
+
+    private static DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+    public static FileWriter logger;
+
+    private static long totalCode2vecTime = 0;
+    private static long totalTransformationTime = 0;
+
+    private static void createLog() {
+        try {
+            logger = new FileWriter("GA_log");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     /**
      * Get the base seed used for this run.
@@ -71,6 +87,14 @@ public class GenotypeSupport {
      */
     public static String getCurrentDataset() {
         return currentDataset;
+    }
+
+    public static long getTotalCode2vevTime(){
+        return totalCode2vecTime;
+    }
+
+    public static long getTotalTransformationTime() {
+        return totalTransformationTime;
     }
 
     /**
@@ -109,9 +133,9 @@ public class GenotypeSupport {
     }
 
     /**
-     *
-     * @param genotype
-     * @return
+     *Get the fitness score corresponding to a given genotype.
+     * @param genotype the genotype.
+     * @return the fitness score.
      */
     public static Optional<Double> getMetricResult(List<BaseTransformer> genotype) {
         Double file = metricLookup.get(genotype);
@@ -127,6 +151,19 @@ public class GenotypeSupport {
     public static void storeFiles(List<BaseTransformer> genotype, String fileName, Double score) {
         fileLookup.put(genotype, fileName);
         metricLookup.put(genotype, score);
+    }
+
+    /**
+     * Log to GA_log file.
+     * @param text the string to log.
+     */
+    public static void log(String text) {
+        try {
+            LocalDateTime now = LocalDateTime.now();
+            logger.write("[" + dtf.format(now) + "] " + text + "\n");
+        } catch (IOException e) {
+            System.out.println("Couldn't log: " + text);
+        }
     }
 
     /**
@@ -156,6 +193,7 @@ public class GenotypeSupport {
      * Initialize global fields with config file data.
      */
     public static void initializeFields() {
+        createLog();
         try (InputStream input = new FileInputStream(configFile)) {
 
             // load a properties file
@@ -245,8 +283,10 @@ public class GenotypeSupport {
      * @return the directory which the transformation .java files are in.
      */
     public static String runTransformations(List<BaseTransformer> transformers, String input) {
+        long start = System.currentTimeMillis();
         TransformerRegistry registry = new TransformerRegistry("fromGA");
         for(BaseTransformer i: transformers) {
+            i.setTryingToCompile(false);
             registry.registerTransformer(i);
         }
 
@@ -263,11 +303,14 @@ public class GenotypeSupport {
         // The CodeRoot is the highest level of available information regarding the AST
         CtModel codeRoot = launcher.buildModel();
         // With the imports set to true, on second application the import will disappear, making Lambdas uncompilable.
-        launcher.getFactory().getEnvironment().setAutoImports(false);
+        launcher.getFactory().getEnvironment().setAutoImports(true);
         //Further steps are in the method below.
         EngineResult result = engine.run(codeRoot);
         App.WriteAST(result, launcher);
 
+        long diff = (System.currentTimeMillis() - start) / 1000;
+        totalTransformationTime += diff;
+        log("Transformations of this individual took: " + diff + " seconds");
         return outputSet;
     }
 
@@ -277,16 +320,22 @@ public class GenotypeSupport {
      * @param dataset The name of the dataset.
      */
     public static void runCode2vec(String dataset) {
+        long start = System.currentTimeMillis();
         String path = dataDir + dataset;
+        removeSubDirs(new File(path + "/test"), new File(path + "/test"));
         createDirs(path);
         // Preprocessing file.
         String preprocess = "source preprocess.sh " + path + " " + dataset;
         runCode2VecCommand(preprocess);
         // Evaluating code2vec model with preprocessed files.
         String testData = "data/" + dataset + "/" + dataset + ".test.c2v";
-        String eval = "python3 code2vec.py --load models/java14_model/saved_model_iter8.release --test " + testData +  " --logs-path eval_log.txt";
+        String eval = "python3 code2vec.py --load models/java14_model/saved_model_iter8.release --test " + testData + " --logs-path eval_log.txt";
         runCode2VecCommand(eval);
         // The evaluation writes to the result.txt file
+
+        long diff = (System.currentTimeMillis() - start) / 1000;
+        totalCode2vecTime += diff;
+        log("Code2vec operations of this generation took: " + diff + " seconds");
     }
 
     /**
@@ -298,6 +347,23 @@ public class GenotypeSupport {
         File trainingDir = new File(path + "/training");
         valDir.mkdir();
         trainingDir.mkdir();
+    }
+
+    /**
+     * Moves all files from subdirectories to the main target directory.
+     * @param toDir the main target directory.
+     * @param currDir the directory we are currently in.
+     */
+    public static boolean removeSubDirs(File toDir, File currDir) {
+        for (File file: currDir.listFiles()) {
+            if (file.isDirectory()) {
+                removeSubDirs(toDir, file);
+                file.delete();
+            } else {
+                file.renameTo(new File(toDir, file.getName()));
+            }
+        }
+        return true;
     }
 
     /**

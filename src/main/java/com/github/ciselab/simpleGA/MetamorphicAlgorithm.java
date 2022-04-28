@@ -16,7 +16,8 @@ public class MetamorphicAlgorithm {
     private static final int tournamentSize = 4;
     private static final boolean elitism = true;
     private static final double increaseSizeRate = 0.4;
-    private static final int maxTransformerValue = 7;
+    private static final double decreaseSizeRate = 0.7;
+    private static final int maxTransformerValue = 6;
     private static int maxGeneLength = 10;
     private static RandomGenerator randomGenerator;
 
@@ -55,7 +56,7 @@ public class MetamorphicAlgorithm {
         // Mutate population
         for (int i = elitismOffset; i < newPopulation.size(); i++) {
             mutate(newPopulation.getIndividual(i));
-            increaseSize(newPopulation.getIndividual(i));
+            refactorSize(newPopulation.getIndividual(i));
         }
 
         // Check if fitness is already known
@@ -72,9 +73,11 @@ public class MetamorphicAlgorithm {
      * Increase the size of an individual by one if the size is not already at the max size.
      * @param indiv The individual to increase the size of.
      */
-    private static void increaseSize(MetamorphicIndividual indiv) {
+    private static void refactorSize(MetamorphicIndividual indiv) {
         if (Math.random() <= increaseSizeRate) {
             indiv.increase(maxGeneLength, randomGenerator, maxTransformerValue);
+        } else if (Math.random() <= decreaseSizeRate) {
+            indiv.decrease(randomGenerator);
         }
     }
 

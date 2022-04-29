@@ -14,6 +14,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.random.RandomGenerator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class creates a metamorphic individual for the metamorphic population.
@@ -21,6 +23,7 @@ import java.util.random.RandomGenerator;
  */
 public class MetamorphicIndividual {
 
+    private static Logger logger = LoggerFactory.getLogger(MetamorphicIndividual.class);
     private int length = 0;
     private List<BaseTransformer> transformers = new ArrayList<>();
     private double fitness = -1;
@@ -100,8 +103,6 @@ public class MetamorphicIndividual {
             BaseTransformer newTransformer = createTransformers(key, seed);
             length++;
             fitness = -1;
-            GenotypeSupport.log("Genotype changed by increase, the old genotype was: ");
-            GenotypeSupport.log(this.toString());
             if(GenotypeSupport.getDir(transformers).isPresent()) {
                 List<BaseTransformer> t = new ArrayList<>();
                 t.add(newTransformer);
@@ -117,8 +118,7 @@ public class MetamorphicIndividual {
                     fitness = GenotypeSupport.getMetricResult(transformers).get();
                 }
             }
-            GenotypeSupport.log("Genotype changed by increase, the new genotype is: ");
-            GenotypeSupport.log(this.toString());
+            logger.info("The gene " + this.hashCode() + " has increased its size to " + this.length);
         }
     }
 
@@ -129,12 +129,9 @@ public class MetamorphicIndividual {
     public void decrease(RandomGenerator randomGen) {
         if(length > 1) {
             int drop = randomGen.nextInt(0, length);
-            GenotypeSupport.log("Genotype changed by decrease, the old genotype was: ");
-            GenotypeSupport.log(this.toString());
             transformers.remove(drop);
             length--;
-            GenotypeSupport.log("Genotype changed by decrease, the new genotype is: ");
-            GenotypeSupport.log(this.toString());
+            logger.info("The gene " + this.hashCode() + " has decreased its size to " + this.length);
             if(GenotypeSupport.getMetricResult(transformers).isPresent())
                 fitness = GenotypeSupport.getMetricResult(transformers).get();
             else
@@ -158,13 +155,12 @@ public class MetamorphicIndividual {
      */
     public double getFitness() {
         if (fitness < 0) {
-            GenotypeSupport.log("Calculating fitness, the genotype is: ");
-            GenotypeSupport.log(this.toString());
             String name = GenotypeSupport.runTransformations(transformers, GenotypeSupport.getCurrentDataset());
             GenotypeSupport.runCode2vec(name);
             fitness = calculateFitness(calculateMetric());
             GenotypeSupport.fillFitness(transformers, fitness);
         }
+        logger.info("The gene " + this.hashCode() + " has calculated its fitness, it is: " + fitness);
         return fitness;
     }
 
@@ -227,6 +223,7 @@ public class MetamorphicIndividual {
             case 6:
                 return new LambdaIdentityTransformer(seed);
             default:
+                logger.error("The key provided does not match a transformer");
                 throw new IllegalArgumentException("The key provided does not match a transformer.");
         }
     }

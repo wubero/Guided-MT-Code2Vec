@@ -10,7 +10,8 @@
 **.docx
 **.stackdump
 **.dll
-.idea/*
+.idea/**
+Results/*
 ${project.build.directory}/*
 target/*
 *log

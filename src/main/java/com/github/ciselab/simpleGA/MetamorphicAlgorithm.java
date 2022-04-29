@@ -11,26 +11,40 @@ import java.util.random.RandomGenerator;
 public class MetamorphicAlgorithm {
 
     /* GA parameters */
-    private static final double uniformRate = 0.8;
-    private static final double mutationRate = 0.015;
-    private static final int tournamentSize = 4;
-    private static final boolean elitism = true;
-    private static final double increaseSizeRate = 0.4;
-    private static final double decreaseSizeRate = 0.7;
-    private static final int maxTransformerValue = 6;
-    private static int maxGeneLength = 10;
+    private static double uniformRate;
+    private static double mutationRate;
+    private static int tournamentSize;
+    private static boolean elitism;
+    private static double increaseSizeRate;
+    private static double decreaseSizeRate;
+    private static int maxTransformerValue;
+    private static int maxGeneLength;
     private static RandomGenerator randomGenerator;
 
+
+    public static String initializeParameters(double uRate, double mRate, int tSize, boolean elite, double increaseRate,
+                                              double decreaseRate, int maxValue, int maxLength, RandomGenerator r) {
+        uniformRate = uRate;
+        mutationRate = mRate;
+        tournamentSize = tSize;
+        elitism = elite;
+        increaseSizeRate = increaseRate;
+        decreaseSizeRate = decreaseRate;
+        maxTransformerValue = maxValue;
+        maxGeneLength = maxLength;
+        randomGenerator = r;
+        return String.format("{uniform rate: %g, mutation rate: %g, tournament size: %d, elitism: %b, increase rate: %g," +
+                " decrease rate: %g, max transformer value: %d, max gene length: %d}",
+                uRate, mRate, tSize, elite, increaseRate, decreaseRate, maxValue, maxLength);
+    }
 
     /**
      * This method creates the next population with crossover and mutation.
      * @param pop the current population.
-     * @param random the random generator used in this run.
      * @return the new metamorphic population
      */
-    public static MetamorphicPopulation evolvePopulation(MetamorphicPopulation pop, RandomGenerator random) {
-        randomGenerator = random;
-        MetamorphicPopulation newPopulation = new MetamorphicPopulation(pop.size(), random, maxTransformerValue, false);
+    public static MetamorphicPopulation evolvePopulation(MetamorphicPopulation pop) {
+        MetamorphicPopulation newPopulation = new MetamorphicPopulation(pop.size(), randomGenerator, maxTransformerValue, false);
 
         // Keep our best individual
         if (elitism) {
@@ -47,8 +61,8 @@ public class MetamorphicAlgorithm {
         // Loop over the population size and create new individuals with
         // crossover
         for (int i = elitismOffset; i < pop.size(); i++) {
-            MetamorphicIndividual indiv1 = tournamentSelection(pop, random);
-            MetamorphicIndividual indiv2 = tournamentSelection(pop, random);
+            MetamorphicIndividual indiv1 = tournamentSelection(pop, randomGenerator);
+            MetamorphicIndividual indiv2 = tournamentSelection(pop, randomGenerator);
             MetamorphicIndividual newIndiv = crossover(indiv1, indiv2);
             newPopulation.saveIndividual(i, newIndiv);
         }

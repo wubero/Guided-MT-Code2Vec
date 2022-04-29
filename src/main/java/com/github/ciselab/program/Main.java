@@ -21,6 +21,8 @@ import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalTime;
 import java.util.random.RandomGenerator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This is the main class of the project where the evolutionary algorithm engine is created,
@@ -28,10 +30,20 @@ import java.util.random.RandomGenerator;
  */
 public class Main {
 
+    // GA parameters
+    private final static double uniformRate = 0.8;
+    private final static double mutationRate = 0.015;
+    private final static int tournamentSize = 4;
+    private final static boolean elitism = true;
+    private final static double increaseSizeRate = 0.4;
+    private final static double decreaseSizeRate = 0.7;
     private final static int maxTransformerValue = 6;
+    private final static int maxGeneLength = 10;
+
     private final static int popSize = 5;
-    private static final int maxSteadyGenerations = 15;
-    private static final int maxTimeInMin = 660;
+    private static final int maxSteadyGenerations = 25;
+    private static final int maxTimeInMin = 900;
+    private final static Logger logger = LoggerFactory.getLogger(Main.class);
 
     /**
      * The main method for the Guided-MT-Code2Vec project.
@@ -39,16 +51,11 @@ public class Main {
      */
     public static void main(String[] args) {
 
-        GenotypeSupport.initializeFields();
+        logger.info("Guided-MT started");
+        logger.info("Configuration: " + GenotypeSupport.initializeFields().toString());
 
         //runJeneticsGA();
         runSimpleGA();
-        try {
-            GenotypeSupport.logger.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        System.out.println("System done");
     }
 
     /**
@@ -58,6 +65,9 @@ public class Main {
         LocalTime start = LocalTime.now();
         boolean converged = false;
         RandomGenerator random = new LCG64ShiftRandom(101010);
+        String GA_parameters = MetamorphicAlgorithm.initializeParameters(uniformRate, mutationRate, tournamentSize, elitism, increaseSizeRate,
+                decreaseSizeRate, maxTransformerValue, maxGeneLength, random);
+        logger.info("GA parameters: " + GA_parameters);
 
         // Create an initial population
         try {
@@ -68,11 +78,12 @@ public class Main {
             int generationCount = 0;
             MetamorphicIndividual best = new MetamorphicIndividual();
             double bestFitness = best.getFitness();
-            GenotypeSupport.log("Initial genotype fitness: " + bestFitness);
+            logger.info("Initial fitness without transformations: " + bestFitness);
             int steadyGens = 0;
+            logger.debug("Initial population: " + myPop);
             while (!converged && timeDiffSmaller(start)) {
                 generationCount++;
-                GenotypeSupport.log("Generation " + generationCount);
+                logger.info("Generation " + generationCount);
                 if (isFitter(myPop, bestFitness)) {
                     bestFitness = myPop.getFittest().getFitness();
                     best = myPop.getFittest();
@@ -85,30 +96,32 @@ public class Main {
                 myWriter.write("Generation: " + generationCount + ", result: " + myPop.getFittest().getFitness() + "\n");
                 myWriter.write("Gene: " + best + "\n");
 
-                System.out.println("Generation: " + generationCount + " Fittest: " + myPop.getFittest().getFitness() + " Gene:");
-                System.out.println(best);
-                myPop = MetamorphicAlgorithm.evolvePopulation(myPop, random);
+                logger.info("Generation: " + generationCount + " Fittest: " + myPop.getFittest().getFitness() + " Gene:");
+                logger.info(best.toString());
+                myPop = MetamorphicAlgorithm.evolvePopulation(myPop);
+                logger.debug("Population of generation " + generationCount + " = " + myPop);
             }
-            GenotypeSupport.log("Generation: " + generationCount);
-            GenotypeSupport.log("Max fitness: " + best.getFitness());
-            GenotypeSupport.log("Genes:");
-            GenotypeSupport.log(best.toString());
+            logger.info("Program finished");
+            if(converged)
+                logger.info("Terminated because too many steady generations.");
+            else
+                logger.info("Terminated because total minutes increased max.");
+            logger.info("Generation used: " + generationCount);
+            logger.info("Max fitness: " + best.getFitness());
+            logger.info("Best individual: ");
+            logger.info(best.toString());
 
             long code2vecTime = GenotypeSupport.getTotalCode2vevTime();
             int code2vecSec = (int) (code2vecTime % 60);
             int code2vecMin = (int) ((code2vecTime / 60)%60);
-            GenotypeSupport.log("Total time spent on Code2Vec operations was " + code2vecMin + " minutes and " + code2vecSec + " seconds.");
+            logger.info("Total time spent on Code2Vec inference was " + code2vecMin + " minutes and " + code2vecSec + " seconds.");
 
             long transitionTime = GenotypeSupport.getTotalTransformationTime();
             int transitionSec = (int) (transitionTime % 60);
             int transitionMin = (int) ((transitionTime / 60)%60);
-            GenotypeSupport.log("Total time spent on Transformation operations was " + transitionMin + " minutes and " + transitionSec + " seconds.");
+            logger.info("Total time spent on Transformation operations was " + transitionMin + " minutes and " + transitionSec + " seconds.");
 
             myWriter.close();
-            if(converged)
-                System.out.println("Terminated because too many steady generations.");
-            else
-                System.out.println("Terminated because total minutes increased max.");
         } catch (IOException e) {
             e.printStackTrace();
         }

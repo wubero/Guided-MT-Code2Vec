@@ -30,6 +30,8 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.Random;
 import org.apache.commons.lang3.tuple.Pair;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import spoon.Launcher;
 import spoon.reflect.CtModel;
 
@@ -45,7 +47,7 @@ public class GenotypeSupport {
     public static final String resultFile =  "C:/Users/Ruben-pc/Documents/Master_thesis/Guided-MT-Code2Vec/code2vec/log.txt";
     public static final String configFile = "C:/Users/Ruben-pc/Documents/Master_thesis/Guided-MT-Code2Vec/src/main/resources/config.properties";
     public static final String dataDir = "C:/Users/Ruben-pc/Documents/Master_thesis/Guided-MT-Code2Vec/code2vec/data/";
-    private static String currentDataset = "generation_0";
+    private final static String currentDataset = "generation_0";
 
     public static boolean maximize = true;
     private static long seed = 200;
@@ -59,19 +61,10 @@ public class GenotypeSupport {
     public static Map<List<BaseTransformer>, String> fileLookup = new HashMap<>();
     public static Map<List<BaseTransformer>, Double> metricLookup = new HashMap<>();
 
-    private static DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
-    public static FileWriter logger;
+    private final static Logger logger = LoggerFactory.getLogger(GenotypeSupport.class);
 
     private static long totalCode2vecTime = 0;
     private static long totalTransformationTime = 0;
-
-    private static void createLog() {
-        try {
-            logger = new FileWriter("GA_log");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
 
     /**
      * Get the base seed used for this run.
@@ -154,19 +147,6 @@ public class GenotypeSupport {
     }
 
     /**
-     * Log to GA_log file.
-     * @param text the string to log.
-     */
-    public static void log(String text) {
-        try {
-            LocalDateTime now = LocalDateTime.now();
-            logger.write("[" + dtf.format(now) + "] " + text + "\n");
-        } catch (IOException e) {
-            System.out.println("Couldn't log: " + text);
-        }
-    }
-
-    /**
      * Remove previously used directories.
      */
     public static boolean removeOtherDirs() {
@@ -192,8 +172,7 @@ public class GenotypeSupport {
     /**
      * Initialize global fields with config file data.
      */
-    public static void initializeFields() {
-        createLog();
+    public static Properties initializeFields() {
         try (InputStream input = new FileInputStream(configFile)) {
 
             // load a properties file
@@ -210,9 +189,12 @@ public class GenotypeSupport {
         }
         if(prop.get("transformationscope") != null){
             transformationScope = Engine.TransformationScope.valueOf(prop.getProperty("transformationscope"));
+            if(!prop.getProperty("transformationscope").equals("global"))
+                logger.warn("Transformation scope is not global, this might not be desired.");
         }
         if(prop.get("transformations") != null) {
             transformations = Long.parseLong((String)prop.get("transformations"));
+            logger.warn("This program uses the amount of transformations an individual has so this field will be ignored.");
         }
         for(MetricCategory metricCategory: MetricCategory.values()) {
             metricList.add(createMetric(metricCategory.name()));
@@ -221,6 +203,7 @@ public class GenotypeSupport {
             metricWeights.add(Double.parseDouble(prop.getProperty(i.name())));
         }
         removeZeroWeights();
+        return prop;
     }
 
     /**
@@ -234,9 +217,9 @@ public class GenotypeSupport {
                 toRemove.add(i);
             }
         }
-        for(int i: toRemove){
-            metricList.remove(i);
-            metricWeights.remove(i);
+        for(int i = toRemove.size()-1; i >= 0; i--){
+            metricList.remove((int)toRemove.get(i));
+            metricWeights.remove((int)toRemove.get(i));
         }
     }
 
@@ -310,7 +293,7 @@ public class GenotypeSupport {
 
         long diff = (System.currentTimeMillis() - start) / 1000;
         totalTransformationTime += diff;
-        log("Transformations of this individual took: " + diff + " seconds");
+        logger.info("Transformations of this individual took: " + diff + " seconds");
         return outputSet;
     }
 
@@ -335,7 +318,7 @@ public class GenotypeSupport {
 
         long diff = (System.currentTimeMillis() - start) / 1000;
         totalCode2vecTime += diff;
-        log("Code2vec operations of this generation took: " + diff + " seconds");
+        logger.info("Code2vec inference of this generation took: " + diff + " seconds");
     }
 
     /**

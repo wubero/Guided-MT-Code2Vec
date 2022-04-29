@@ -1,5 +1,7 @@
 package com.github.ciselab.simpleGA;
 
+import com.github.ciselab.lampion.core.transformations.transformers.BaseTransformer;
+import java.util.Arrays;
 import java.util.random.RandomGenerator;
 
 public class MetamorphicPopulation {
@@ -70,5 +72,13 @@ public class MetamorphicPopulation {
      */
     public int size() {
         return individuals.length;
+    }
+
+    @Override
+    public String toString() {
+        String output = "MetamorphicPopulation{";
+        for (MetamorphicIndividual indiv: individuals)
+            output += indiv.toString() + ", ";
+        return output.substring(0, output.length()-2) + "}";
     }
 }

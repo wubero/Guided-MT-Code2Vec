@@ -7,9 +7,14 @@ import com.github.ciselab.lampion.core.transformations.TransformerRegistry;
 import com.github.ciselab.lampion.core.transformations.transformers.BaseTransformer;
 import com.github.ciselab.metric.Metric;
 import com.github.ciselab.metric.MetricCategory;
+import com.github.ciselab.metric.metrics.EditDistance;
 import com.github.ciselab.metric.metrics.F1_score;
+import com.github.ciselab.metric.metrics.InputLength;
 import com.github.ciselab.metric.metrics.MRR;
 import com.github.ciselab.metric.metrics.Percentage_MRR;
+import com.github.ciselab.metric.metrics.Precision;
+import com.github.ciselab.metric.metrics.PredictionLength;
+import com.github.ciselab.metric.metrics.Recall;
 import io.jenetics.BitGene;
 import io.jenetics.EnumGene;
 import io.jenetics.Phenotype;
@@ -45,7 +50,7 @@ public class GenotypeSupport {
 
     public static final String path_bash = "C:/Program Files/Git/bin/bash.exe";
     public static final String resultFile =  "C:/Users/Ruben-pc/Documents/Master_thesis/Guided-MT-Code2Vec/code2vec/log.txt";
-    public static final String configFile = "C:/Users/Ruben-pc/Documents/Master_thesis/Guided-MT-Code2Vec/src/main/resources/config.properties";
+    public static String configFile = "C:/Users/Ruben-pc/Documents/Master_thesis/Guided-MT-Code2Vec/src/main/resources/config.properties";
     public static final String dataDir = "C:/Users/Ruben-pc/Documents/Master_thesis/Guided-MT-Code2Vec/code2vec/data/";
     private final static String currentDataset = "generation_0";
 
@@ -75,6 +80,22 @@ public class GenotypeSupport {
     }
 
     /**
+     * Setter for the config file field.
+     * @param config the string to set.
+     */
+    public static void setConfigFile(String config) {
+        configFile = config;
+    }
+
+    /**
+     * Setter for the maximize field
+     * @param max the boolean to set.
+     */
+    public static void setMaximize(boolean max) {
+        maximize = max;
+    }
+
+    /**
      * Get the current dataset used as a baseline.
      * @return the dataset.
      */
@@ -82,10 +103,18 @@ public class GenotypeSupport {
         return currentDataset;
     }
 
+    /**
+     * Get total time spent of Coded2vec inference.
+     * @return the total time spent.
+     */
     public static long getTotalCode2vevTime(){
         return totalCode2vecTime;
     }
 
+    /**
+     * Get total time spent on transformations operations.
+     * @return the total time spent.
+     */
     public static long getTotalTransformationTime() {
         return totalTransformationTime;
     }
@@ -149,24 +178,31 @@ public class GenotypeSupport {
     /**
      * Remove previously used directories.
      */
-    public static boolean removeOtherDirs() {
-        String toKeep = currentDataset.split("_")[0];
+    public static void removeOtherDirs() {
         File toDelete = new File(dataDir);
         File[] entries = toDelete.listFiles();
         if (entries != null) {
             for (File entry : entries) {
-                if (!entry.getName().contains(toKeep)) {
-                    File[] files = entry.listFiles();
-                    if (files != null) {
-                        for (File i : files) {
-                            i.delete();
-                        }
-                    }
-                    entry.delete();
+                if (!entry.getName().equals(currentDataset)) {
+                    deleteDirectory(entry);
                 }
             }
         }
-        return toDelete.delete();
+    }
+
+    /**
+     * Delete directory and all its contents.
+     * @param directoryToBeDeleted the directory to be deleted.
+     * @return whether it was successful.
+     */
+    private static boolean deleteDirectory(File directoryToBeDeleted) {
+        File[] allContents = directoryToBeDeleted.listFiles();
+        if (allContents != null) {
+            for (File file : allContents) {
+                deleteDirectory(file);
+            }
+        }
+        return directoryToBeDeleted.delete();
     }
 
     /**
@@ -236,7 +272,18 @@ public class GenotypeSupport {
                 return new F1_score();
             case "Percentage_MRR":
                 return new Percentage_MRR();
+            case "Precision":
+                return new Precision();
+            case "Recall":
+                return new Recall();
+            case "Edit_distance":
+                return new EditDistance();
+            case "Input_length":
+                return new InputLength();
+            case "Prediction_length":
+                return new PredictionLength();
             default:
+                logger.error("Metric name not a correct metric.");
                 throw new IllegalArgumentException("Metric name not a correct metric.");
         }
     }
@@ -337,7 +384,7 @@ public class GenotypeSupport {
      * @param toDir the main target directory.
      * @param currDir the directory we are currently in.
      */
-    public static boolean removeSubDirs(File toDir, File currDir) {
+    private static boolean removeSubDirs(File toDir, File currDir) {
         for (File file: currDir.listFiles()) {
             if (file.isDirectory()) {
                 removeSubDirs(toDir, file);

@@ -60,19 +60,19 @@ public class MetamorphicProblem implements Problem<ISeq<Pair<Integer, Integer>>,
      */
     public static BaseTransformer createTransformers(Integer key, Integer seed) {
         switch (key) {
-            case 1:
+            case 0:
                 return new IfTrueTransformer(seed);
-            case 2:
+            case 1:
                 return new IfFalseElseTransformer(seed);
-            case 3:
+            case 2:
                 return new RenameVariableTransformer(seed);
-            case 4:
+            case 3:
                 return new AddNeutralElementTransformer(seed);
-            case 5:
+            case 4:
                 return new AddUnusedVariableTransformer(seed);
-            case 6:
+            case 5:
                 return new LambdaIdentityTransformer(seed);
-            case 7:
+            case 6:
                 return new RandomParameterNameTransformer(seed);
             default:
                 throw new IllegalArgumentException("The key provided does not match a transformer.");

@@ -1,7 +1,6 @@
 package com.github.ciselab.simpleGA;
 
-import com.github.ciselab.lampion.core.transformations.transformers.BaseTransformer;
-import java.util.Arrays;
+import com.github.ciselab.support.GenotypeSupport;
 import java.util.random.RandomGenerator;
 
 public class MetamorphicPopulation {
@@ -58,9 +57,13 @@ public class MetamorphicPopulation {
     public MetamorphicIndividual getFittest() {
         MetamorphicIndividual fittest = individuals[0];
         // Loop through individuals to find fittest
-        for (int i = 0; i < size(); i++) {
-            if (fittest.getFitness() <= getIndividual(i).getFitness()) {
-                fittest = getIndividual(i);
+        for (int i = 1; i < size(); i++) {
+            if(GenotypeSupport.maximize) {
+                if (fittest.getFitness() < getIndividual(i).getFitness())
+                    fittest = getIndividual(i);
+            } else {
+                if (fittest.getFitness() > getIndividual(i).getFitness())
+                    fittest = getIndividual(i);
             }
         }
         return fittest;

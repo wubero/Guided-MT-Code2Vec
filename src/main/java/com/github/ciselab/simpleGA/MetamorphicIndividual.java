@@ -9,6 +9,7 @@ import com.github.ciselab.lampion.core.transformations.transformers.LambdaIdenti
 import com.github.ciselab.lampion.core.transformations.transformers.RandomParameterNameTransformer;
 import com.github.ciselab.lampion.core.transformations.transformers.RenameVariableTransformer;
 import com.github.ciselab.metric.Metric;
+import com.github.ciselab.metric.metrics.InputLength;
 import com.github.ciselab.support.GenotypeSupport;
 import java.io.File;
 import java.util.ArrayList;
@@ -109,7 +110,7 @@ public class MetamorphicIndividual {
                 String oldDir = GenotypeSupport.getDir(transformers).get() + "/test";
                 String name = GenotypeSupport.runTransformations(t, oldDir);
                 GenotypeSupport.runCode2vec(name);
-                fitness = calculateFitness(calculateMetric());
+                fitness = calculateFitness(calculateMetric(name));
                 transformers.add(newTransformer);
                 GenotypeSupport.storeFiles(transformers, name, fitness);
             } else {
@@ -157,7 +158,7 @@ public class MetamorphicIndividual {
         if (fitness < 0) {
             String name = GenotypeSupport.runTransformations(transformers, GenotypeSupport.getCurrentDataset());
             GenotypeSupport.runCode2vec(name);
-            fitness = calculateFitness(calculateMetric());
+            fitness = calculateFitness(calculateMetric(name));
             GenotypeSupport.fillFitness(transformers, fitness);
         }
         logger.info("The gene " + this.hashCode() + " has calculated its fitness, it is: " + fitness);
@@ -176,9 +177,11 @@ public class MetamorphicIndividual {
      * Calculate the scores for each metric.
      * @return a list of scores.
      */
-    private static List<Double> calculateMetric() {
+    private static List<Double> calculateMetric(String dataset) {
         List<Double> scores = new ArrayList<>();
         for(Metric metric: GenotypeSupport.getMetrics()) {
+            if(metric.getName().equals("Input_length"))
+                InputLength.setDataSet(dataset);
             double score = metric.CalculateScore();
             System.out.println(metric.getName() + ": " + score);
             scores.add(score);

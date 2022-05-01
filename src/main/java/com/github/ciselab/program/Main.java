@@ -42,7 +42,7 @@ public class Main {
 
     private final static int popSize = 5;
     private static final int maxSteadyGenerations = 25;
-    private static final int maxTimeInMin = 900;
+    private static int maxTimeInMin = 900;
     private final static Logger logger = LoggerFactory.getLogger(Main.class);
 
     /**
@@ -121,6 +121,9 @@ public class Main {
             int transitionMin = (int) ((transitionTime / 60)%60);
             logger.info("Total time spent on Transformation operations was " + transitionMin + " minutes and " + transitionSec + " seconds.");
 
+            GenotypeSupport.removeOtherDirs();
+            logger.info("Clean up other files.");
+
             myWriter.close();
         } catch (IOException e) {
             e.printStackTrace();
@@ -165,7 +168,7 @@ public class Main {
      * @param best the current best.
      * @return whether the population is fitter.
      */
-    private static boolean isFitter(MetamorphicPopulation pop, double best) {
+    public static boolean isFitter(MetamorphicPopulation pop, double best) {
         if(GenotypeSupport.maximize) {
             return pop.getFittest().getFitness() > best;
         } else {
@@ -178,9 +181,17 @@ public class Main {
      * @param start the start time.
      * @return whether the difference is less than the threshold.
      */
-    private static boolean timeDiffSmaller(LocalTime start) {
+    public static boolean timeDiffSmaller(LocalTime start) {
         long minutesBetween = Duration.between(start, LocalTime.now()).getSeconds() / 60;
         return minutesBetween < maxTimeInMin;
+    }
+
+    /**
+     * Setter for the maxTimeInMin field.
+     * @param time the time to set.
+     */
+    public static void setMaxTimeInMin(int time) {
+        maxTimeInMin = time;
     }
 
 }

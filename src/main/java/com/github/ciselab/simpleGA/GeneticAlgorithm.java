@@ -8,7 +8,7 @@ import java.util.random.RandomGenerator;
 /**
  * The metamorphic algorithm performs the evolution of the metamorphic populations.
  */
-public class MetamorphicAlgorithm {
+public class GeneticAlgorithm {
 
     /* GA parameters */
     private static double uniformRate;
@@ -75,9 +75,9 @@ public class MetamorphicAlgorithm {
 
         // Check if fitness is already known
         for(MetamorphicIndividual i : newPopulation.individuals) {
-            Optional<Double> fitness = GenotypeSupport.getMetricResult(i.getTransformers());
+            Optional<double[]> fitness = GenotypeSupport.getMetricResult(i.getTransformers());
             if(fitness.isPresent()) {
-                i.setFitness(fitness.get());
+                i.setMetrics(fitness.get());
             }
         }
         return newPopulation;
@@ -131,7 +131,8 @@ public class MetamorphicAlgorithm {
             }
         }
         if (GenotypeSupport.getMetricResult(indiv.getTransformers()).isPresent()) {
-            indiv.setFitness(GenotypeSupport.getMetricResult(indiv.getTransformers()).get());
+            double[] metrics = GenotypeSupport.getMetricResult(indiv.getTransformers()).get();
+            indiv.setMetrics(metrics);
         }
     }
 
@@ -152,5 +153,16 @@ public class MetamorphicAlgorithm {
         }
         // Get the fittest
         return tournament.getFittest();
+    }
+
+    /**
+     * Check population with the current Pareto set.
+     * @param population the population
+     */
+    public static void checkPareto(MetamorphicPopulation population) {
+        for(int i = 0; i < population.size(); i++) {
+            double[] solution = population.getIndividual(i).getMetrics();
+            GenotypeSupport.addToParetoOptimum(solution);
+        }
     }
 }

@@ -6,6 +6,7 @@ import com.github.ciselab.support.GenotypeSupport;
 import io.jenetics.prngine.LCG64ShiftRandom;
 import java.time.LocalTime;
 import java.util.random.RandomGenerator;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
@@ -16,6 +17,11 @@ public class MainTest {
     public void setUp() {
         GenotypeSupport.setConfigFile("src/test/resources/config.properties");
         GenotypeSupport.initializeFields();
+    }
+
+    @AfterEach
+    public void after() {
+        GenotypeSupport.removeOtherDirs();
     }
 
     @Test

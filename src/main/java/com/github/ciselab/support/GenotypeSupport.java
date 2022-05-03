@@ -15,26 +15,21 @@ import com.github.ciselab.metric.metrics.Percentage_MRR;
 import com.github.ciselab.metric.metrics.Precision;
 import com.github.ciselab.metric.metrics.PredictionLength;
 import com.github.ciselab.metric.metrics.Recall;
-import io.jenetics.BitGene;
-import io.jenetics.EnumGene;
-import io.jenetics.Phenotype;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.Random;
-import org.apache.commons.lang3.tuple.Pair;
+import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spoon.Launcher;
@@ -60,11 +55,13 @@ public class GenotypeSupport {
     private static Engine.TransformationScope transformationScope = Engine.TransformationScope.global;
     private static long transformations = 1;
     private static final Properties prop = new Properties();
-    private static List<Metric> metricList = new ArrayList<>();
-    private static List<Double> metricWeights = new ArrayList<>();
+    private static final List<Metric> metricList = new ArrayList<>();
+    private static final List<Float> metricWeights = new ArrayList<>();
 
     public static Map<List<BaseTransformer>, String> fileLookup = new HashMap<>();
-    public static Map<List<BaseTransformer>, Double> metricLookup = new HashMap<>();
+    public static Map<List<BaseTransformer>, double[]> metricLookup = new HashMap<>();
+    private static final Set<double[]> pareto = new HashSet<>();
+    private static int activeMetrics = 0;
 
     private final static Logger logger = LoggerFactory.getLogger(GenotypeSupport.class);
 
@@ -85,6 +82,22 @@ public class GenotypeSupport {
      */
     public static void setConfigFile(String config) {
         configFile = config;
+    }
+
+    /**
+     * Get the amount of active metrics.
+     * @return the amount of active metrics.
+     */
+    public static int getActiveMetrics(){
+        return activeMetrics;
+    }
+
+    /**
+     * Getter for the Pareto set.
+     * @return the Pareto set.
+     */
+    public static Set<double[]> getPareto() {
+        return pareto;
     }
 
     /**
@@ -131,7 +144,7 @@ public class GenotypeSupport {
      * Get the metric weights.
      * @return the list of metric weights.
      */
-    public static List<Double> getWeights() {
+    public static List<Float> getWeights() {
         return metricWeights;
     }
 
@@ -150,7 +163,7 @@ public class GenotypeSupport {
      * @param indiv the individual.
      * @param fitness the fitness score.
      */
-    public static void fillFitness(List<BaseTransformer> indiv, double fitness) {
+    public static void fillFitness(List<BaseTransformer> indiv, double[] fitness) {
         metricLookup.put(indiv, fitness);
     }
 
@@ -159,8 +172,8 @@ public class GenotypeSupport {
      * @param genotype the genotype.
      * @return the fitness score.
      */
-    public static Optional<Double> getMetricResult(List<BaseTransformer> genotype) {
-        Double file = metricLookup.get(genotype);
+    public static Optional<double[]> getMetricResult(List<BaseTransformer> genotype) {
+        double[] file = metricLookup.get(genotype);
         return Optional.ofNullable(file);
     }
 
@@ -170,7 +183,7 @@ public class GenotypeSupport {
      * @param fileName the file name.
      * @param score the fitness score.
      */
-    public static void storeFiles(List<BaseTransformer> genotype, String fileName, Double score) {
+    public static void storeFiles(List<BaseTransformer> genotype, String fileName, double[] score) {
         fileLookup.put(genotype, fileName);
         metricLookup.put(genotype, score);
     }
@@ -193,16 +206,15 @@ public class GenotypeSupport {
     /**
      * Delete directory and all its contents.
      * @param directoryToBeDeleted the directory to be deleted.
-     * @return whether it was successful.
      */
-    private static boolean deleteDirectory(File directoryToBeDeleted) {
+    private static void deleteDirectory(File directoryToBeDeleted) {
         File[] allContents = directoryToBeDeleted.listFiles();
         if (allContents != null) {
             for (File file : allContents) {
                 deleteDirectory(file);
             }
         }
-        return directoryToBeDeleted.delete();
+        directoryToBeDeleted.delete();
     }
 
     /**
@@ -236,10 +248,84 @@ public class GenotypeSupport {
             metricList.add(createMetric(metricCategory.name()));
         }
         for(MetricCategory i: MetricCategory.values()) {
-            metricWeights.add(Double.parseDouble(prop.getProperty(i.name())));
+            metricWeights.add(Float.parseFloat(prop.getProperty(i.name())));
         }
         removeZeroWeights();
+        normalizeWeights();
+        activeMetrics = metricWeights.size();
         return prop;
+    }
+
+    /**
+     * Clear the lists for the next tests.
+     */
+    public static void clearLists() {
+        metricWeights.clear();
+        metricList.clear();
+    }
+
+    /**
+     * Normalizes the weights and ensures that there is at least one metric enabled.
+     */
+    private static void normalizeWeights() {
+        float sum = 0;
+        for(float i: metricWeights)
+            sum += i;
+        System.out.println(sum);
+        if(sum > 0.0) {
+            for (int j = 0; j < metricWeights.size(); j++)
+                metricWeights.set(j, metricWeights.get(j) / sum);
+        } else {
+            logger.error("Combined weight is zero. There should be at least one metric enabled.");
+            throw new IllegalArgumentException("There should be at least one metric enabled.");
+        }
+    }
+
+    /**
+     * Add to the Pareto set if no solution dominates the current solution.
+     * @param solution the current solution.
+     */
+    public static void addToParetoOptimum(double[] solution) {
+        if(pareto.contains(solution))
+            return;
+        for(double[] i: pareto) {
+            if (paretoDominant(i, solution)) {
+                return;
+            }
+        }
+        List<double[]> toRemove = new ArrayList<>();
+        for(double[] i: pareto) {
+            // if solution is dominant over i then delete i
+            if (paretoDominant(solution, i)) {
+                toRemove.add(i);
+            }
+        }
+        toRemove.forEach(pareto::remove);
+        pareto.add(solution);
+    }
+
+    /**
+     * Check if solutionA is Pareto dominant over solutionB.
+     * @param solutionA a solution.
+     * @param solutionB a solution.
+     * @return whether solutionA is pareto dominant over solutionB.
+     */
+    private static boolean paretoDominant(double[] solutionA, double[] solutionB) {
+        boolean dominant = false;
+        for(int i = 0; i < solutionA.length; i++) {
+            if(maximize) {
+                if(solutionA[i] < solutionB[i])
+                    return false;
+                if(solutionA[i] > solutionB[i])
+                    dominant = true;
+            } else {
+                if(solutionA[i] > solutionB[i])
+                    return false;
+                if(solutionA[i] < solutionB[i])
+                    dominant = true;
+            }
+        }
+        return dominant;
     }
 
     /**
@@ -384,7 +470,7 @@ public class GenotypeSupport {
      * @param toDir the main target directory.
      * @param currDir the directory we are currently in.
      */
-    private static boolean removeSubDirs(File toDir, File currDir) {
+    private static void removeSubDirs(File toDir, File currDir) {
         for (File file: currDir.listFiles()) {
             if (file.isDirectory()) {
                 removeSubDirs(toDir, file);
@@ -393,7 +479,6 @@ public class GenotypeSupport {
                 file.renameTo(new File(toDir, file.getName()));
             }
         }
-        return true;
     }
 
     /**

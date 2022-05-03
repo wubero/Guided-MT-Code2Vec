@@ -28,6 +28,7 @@ public class MetamorphicIndividual {
     private int length = 0;
     private List<BaseTransformer> transformers = new ArrayList<>();
     private double fitness = -1;
+    private double[] metrics = new double[GenotypeSupport.getActiveMetrics()];
 
     /**
      * Create a new metamorphic individual.
@@ -37,6 +38,7 @@ public class MetamorphicIndividual {
      */
     public void createIndividual(RandomGenerator r, int length, int maxTransformerValue) {
         transformers.clear();
+        metrics = new double[GenotypeSupport.getActiveMetrics()];
         this.length = length;
         for(int i = 0; i < length; i++) {
             int key = r.nextInt(1, maxTransformerValue+1);
@@ -110,13 +112,15 @@ public class MetamorphicIndividual {
                 String oldDir = GenotypeSupport.getDir(transformers).get() + "/test";
                 String name = GenotypeSupport.runTransformations(t, oldDir);
                 GenotypeSupport.runCode2vec(name);
-                fitness = calculateFitness(calculateMetric(name));
+                metrics = calculateMetric(name);
+                fitness = calculateFitness(metrics);
                 transformers.add(newTransformer);
-                GenotypeSupport.storeFiles(transformers, name, fitness);
+                GenotypeSupport.storeFiles(transformers, name, metrics);
             } else {
                 transformers.add(newTransformer);
                 if (GenotypeSupport.getMetricResult(transformers).isPresent()) {
-                    fitness = GenotypeSupport.getMetricResult(transformers).get();
+                    metrics = GenotypeSupport.getMetricResult(transformers).get();
+                    fitness = calculateFitness(metrics);
                 }
             }
             logger.info("The gene " + this.hashCode() + " has increased its size to " + this.length);
@@ -133,10 +137,13 @@ public class MetamorphicIndividual {
             transformers.remove(drop);
             length--;
             logger.info("The gene " + this.hashCode() + " has decreased its size to " + this.length);
-            if(GenotypeSupport.getMetricResult(transformers).isPresent())
-                fitness = GenotypeSupport.getMetricResult(transformers).get();
-            else
+            if(GenotypeSupport.getMetricResult(transformers).isPresent()) {
+                metrics = GenotypeSupport.getMetricResult(transformers).get();
+                fitness = calculateFitness(metrics);
+            } else {
                 fitness = -1;
+                metrics = new double[GenotypeSupport.getActiveMetrics()];
+            }
         }
     }
 
@@ -155,14 +162,32 @@ public class MetamorphicIndividual {
      * @return the fitness of this metamorphic individual.
      */
     public double getFitness() {
-        if (fitness < 0) {
+        if (fitness < 0.0) {
             String name = GenotypeSupport.runTransformations(transformers, GenotypeSupport.getCurrentDataset());
             GenotypeSupport.runCode2vec(name);
-            fitness = calculateFitness(calculateMetric(name));
-            GenotypeSupport.fillFitness(transformers, fitness);
+            metrics = calculateMetric(name);
+            fitness = calculateFitness(metrics);
+            GenotypeSupport.fillFitness(transformers, metrics);
         }
         logger.info("The gene " + this.hashCode() + " has calculated its fitness, it is: " + fitness);
         return fitness;
+    }
+
+    /**
+     * Getter for the metrics field.
+     * @return the metrics array.
+     */
+    public double[] getMetrics() {
+        return metrics;
+    }
+
+    /**
+     * Set the metrics of this metamorphic individual.
+     * @param metrics the metrics to set.
+     */
+    public void setMetrics(double[] metrics) {
+        this.metrics = metrics;
+        fitness = calculateFitness(metrics);
     }
 
     /**
@@ -177,14 +202,15 @@ public class MetamorphicIndividual {
      * Calculate the scores for each metric.
      * @return a list of scores.
      */
-    private static List<Double> calculateMetric(String dataset) {
-        List<Double> scores = new ArrayList<>();
-        for(Metric metric: GenotypeSupport.getMetrics()) {
-            if(metric.getName().equals("Input_length"))
+    private static double[] calculateMetric(String dataset) {
+        List<Metric> metrics = GenotypeSupport.getMetrics();
+        double[] scores = new double[metrics.size()];
+        for(int i = 0; i < metrics.size(); i++) {
+            if(metrics.get(i).getName().equals("Input_length"))
                 InputLength.setDataSet(dataset);
-            double score = metric.CalculateScore();
-            System.out.println(metric.getName() + ": " + score);
-            scores.add(score);
+            double score = metrics.get(i).CalculateScore();
+            System.out.println(metrics.get(i).getName() + ": " + score);
+            scores[i] = score;
         }
         return scores;
     }
@@ -194,11 +220,11 @@ public class MetamorphicIndividual {
      * @param metrics the list of metrics.
      * @return The global fitness.
      */
-    private static double calculateFitness(List<Double> metrics) {
-        List<Double> weights = GenotypeSupport.getWeights();
+    private static double calculateFitness(double[] metrics) {
+        List<Float> weights = GenotypeSupport.getWeights();
         double output = 0;
-        for(int i = 0; i < metrics.size(); i++) {
-            output += metrics.get(i)*weights.get(i);
+        for(int i = 0; i < metrics.length; i++) {
+            output += metrics[i]*weights.get(i);
         }
         return output;
     }

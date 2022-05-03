@@ -110,7 +110,7 @@ public class MetamorphicProblem implements Problem<ISeq<Pair<Integer, Integer>>,
      * @return The global fitness.
      */
     private static double calculateFitness(List<Double> metrics) {
-        List<Double> weights = GenotypeSupport.getWeights();
+        List<Float> weights = GenotypeSupport.getWeights();
         double output = 0;
         for(int i = 0; i < metrics.size(); i++) {
             output += metrics.get(i)*weights.get(i);

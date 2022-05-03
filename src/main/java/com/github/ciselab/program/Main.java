@@ -1,6 +1,6 @@
 package com.github.ciselab.program;
 
-import com.github.ciselab.simpleGA.MetamorphicAlgorithm;
+import com.github.ciselab.simpleGA.GeneticAlgorithm;
 import com.github.ciselab.simpleGA.MetamorphicIndividual;
 import com.github.ciselab.simpleGA.MetamorphicPopulation;
 import com.github.ciselab.jeneticsGA.MetamorphicProblem;
@@ -20,6 +20,9 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalTime;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
 import java.util.random.RandomGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,7 +45,7 @@ public class Main {
 
     private final static int popSize = 5;
     private static final int maxSteadyGenerations = 25;
-    private static int maxTimeInMin = 900;
+    private static int maxTimeInMin = 30;
     private final static Logger logger = LoggerFactory.getLogger(Main.class);
 
     /**
@@ -65,23 +68,29 @@ public class Main {
         LocalTime start = LocalTime.now();
         boolean converged = false;
         RandomGenerator random = new LCG64ShiftRandom(101010);
-        String GA_parameters = MetamorphicAlgorithm.initializeParameters(uniformRate, mutationRate, tournamentSize, elitism, increaseSizeRate,
+        String GA_parameters = GeneticAlgorithm.initializeParameters(uniformRate, mutationRate, tournamentSize, elitism, increaseSizeRate,
                 decreaseSizeRate, maxTransformerValue, maxGeneLength, random);
         logger.info("GA parameters: " + GA_parameters);
 
         // Create an initial population
         try {
             MetamorphicPopulation myPop = new MetamorphicPopulation(popSize, random, maxTransformerValue, true);
+            logger.debug("Initial population: " + myPop);
+
             FileWriter myWriter = new FileWriter("GA_results.txt");
 
-            // Evolve our population until we reach an optimum solution
-            int generationCount = 0;
             MetamorphicIndividual best = new MetamorphicIndividual();
             double bestFitness = best.getFitness();
             logger.info("Initial fitness without transformations: " + bestFitness);
+
+            // check best against pareto
+            GenotypeSupport.addToParetoOptimum(best.getMetrics());
+
+            // Evolve our population until we reach an optimum solution
+            int generationCount = 0;
             int steadyGens = 0;
-            logger.debug("Initial population: " + myPop);
             while (!converged && timeDiffSmaller(start)) {
+
                 generationCount++;
                 logger.info("Generation " + generationCount);
                 if (isFitter(myPop, bestFitness)) {
@@ -92,13 +101,15 @@ public class Main {
                     steadyGens++;
                 if (steadyGens > maxSteadyGenerations)
                     converged = true;
+                GeneticAlgorithm.checkPareto(myPop);
+                logger.debug("Current Pareto set = " + displayPareto(GenotypeSupport.getPareto()));
 
                 myWriter.write("Generation: " + generationCount + ", result: " + myPop.getFittest().getFitness() + "\n");
                 myWriter.write("Gene: " + best + "\n");
 
                 logger.info("Generation: " + generationCount + " Fittest: " + myPop.getFittest().getFitness() + " Gene:");
                 logger.info(best.toString());
-                myPop = MetamorphicAlgorithm.evolvePopulation(myPop);
+                myPop = GeneticAlgorithm.evolvePopulation(myPop);
                 logger.debug("Population of generation " + generationCount + " = " + myPop);
             }
             logger.info("Program finished");
@@ -110,6 +121,9 @@ public class Main {
             logger.info("Max fitness: " + best.getFitness());
             logger.info("Best individual: ");
             logger.info(best.toString());
+
+            GeneticAlgorithm.checkPareto(myPop);
+            logger.info("Pareto set: " + displayPareto(GenotypeSupport.getPareto()));
 
             long code2vecTime = GenotypeSupport.getTotalCode2vevTime();
             int code2vecSec = (int) (code2vecTime % 60);
@@ -192,6 +206,18 @@ public class Main {
      */
     public static void setMaxTimeInMin(int time) {
         maxTimeInMin = time;
+    }
+
+    /**
+     * Display the Pareto set for the logger.
+     * @param pareto the Pareto set.
+     * @return the String that can be displayed in the logger.
+     */
+    private static String displayPareto(Set<double[]> pareto) {
+        String out = "{";
+        for(double[] i: pareto)
+            out += Arrays.toString(i) + ", ";
+        return out.substring(0, out.length()-2) + "}";
     }
 
 }

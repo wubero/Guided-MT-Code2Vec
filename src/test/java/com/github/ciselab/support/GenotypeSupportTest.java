@@ -6,10 +6,16 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class GenotypeSupportTest {
+
+    @AfterEach
+    public void after() {
+        GenotypeSupport.removeOtherDirs();
+    }
 
     @Test
     public void removeOldDirTest() {
@@ -26,32 +32,43 @@ public class GenotypeSupportTest {
     @Test
     public void initializeFieldsTest() {
         GenotypeSupport.setConfigFile("src/test/resources/config.properties");
-        assertTrue(GenotypeSupport.getMetrics().isEmpty());
         Properties prop = GenotypeSupport.initializeFields();
         assertEquals(prop.getProperty("version"), "1.0");
         assertFalse(GenotypeSupport.getMetrics().isEmpty());
+        assertFalse(GenotypeSupport.getWeights().isEmpty());
+        assertEquals(GenotypeSupport.getSeed(), Long.parseLong(prop.getProperty("seed")));
+    }
+
+    @Test
+    public void initializeFields_withNoMetrics_Test() {
+        GenotypeSupport.clearLists();
+        GenotypeSupport.setConfigFile("src/test/resources/config2.properties");
+        assertThrows(IllegalArgumentException.class, GenotypeSupport::initializeFields);
     }
 
     @Test
     public void fillFitnessTest() {
         List<BaseTransformer> transformers = new ArrayList<>();
-        GenotypeSupport.fillFitness(transformers, 8);
+        double[] arr = new double[]{10,3};
+        GenotypeSupport.fillFitness(transformers, arr);
         assertTrue(GenotypeSupport.getMetricResult(transformers).isPresent());
-        assertEquals(GenotypeSupport.getMetricResult(transformers).get(), 8.0);
+        assertSame(GenotypeSupport.getMetricResult(transformers).get(), arr);
         transformers.add(new RandomParameterNameTransformer());
-        GenotypeSupport.fillFitness(transformers, 10);
+        double[] second = new double[]{9,4,5};
+        GenotypeSupport.fillFitness(transformers, second);
         assertTrue(GenotypeSupport.getMetricResult(transformers).isPresent());
-        assertEquals(GenotypeSupport.getMetricResult(transformers).get(), 10.0);
+        assertSame(GenotypeSupport.getMetricResult(transformers).get(), second);
     }
 
     @Test
     public void storeFilesTest() {
         List<BaseTransformer> transformers = new ArrayList<>();
-        GenotypeSupport.storeFiles(transformers, "file", 10.0);
+        double[] arr = new double[]{10,3};
+        GenotypeSupport.storeFiles(transformers, "file", arr);
         assertTrue(GenotypeSupport.getDir(transformers).isPresent());
         assertEquals(GenotypeSupport.getDir(transformers).get(), "file");
         assertTrue(GenotypeSupport.getMetricResult(transformers).isPresent());
-        assertEquals(GenotypeSupport.getMetricResult(transformers).get(), 10.0);
+        assertSame(GenotypeSupport.getMetricResult(transformers).get(), arr);
     }
 
     @Test
@@ -60,6 +77,18 @@ public class GenotypeSupportTest {
         String name = GenotypeSupport.runTransformations(transformers, "generation_0");
         assertTrue(GenotypeSupport.getDir(transformers).isPresent());
         assertEquals(GenotypeSupport.getDir(transformers).get(), name);
+        assertTrue(GenotypeSupport.getTotalTransformationTime() > 0);
+        GenotypeSupport.removeOtherDirs();
+    }
+
+    @Test
+    public void runCode2vecInferenceTest() {
+        GenotypeSupport.setConfigFile("src/test/resources/config.properties");
+        GenotypeSupport.initializeFields();
+        List<BaseTransformer> transformers = new ArrayList<>();
+        String name = GenotypeSupport.runTransformations(transformers, "generation_0");
+        GenotypeSupport.runCode2vec(name);
+        assertTrue(GenotypeSupport.getTotalCode2vevTime() > 0);
         GenotypeSupport.removeOtherDirs();
     }
 }

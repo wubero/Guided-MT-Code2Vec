@@ -22,6 +22,19 @@ public class GeneticAlgorithm {
     private static RandomGenerator randomGenerator;
 
 
+    /**
+     * Initialize all GA parameters.
+     * @param uRate the  uniform rate.
+     * @param mRate the mutation rate.
+     * @param tSize the tournament size.
+     * @param elite elitism.
+     * @param increaseRate the increase rate.
+     * @param decreaseRate the decrease rate.
+     * @param maxValue the maximum transformer value.
+     * @param maxLength the maximum individual length.
+     * @param r the random generator.
+     * @return the parameters in a string for the logger.
+     */
     public static String initializeParameters(double uRate, double mRate, int tSize, boolean elite, double increaseRate,
                                               double decreaseRate, int maxValue, int maxLength, RandomGenerator r) {
         uniformRate = uRate;

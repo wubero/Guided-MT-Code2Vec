@@ -8,6 +8,7 @@ import java.util.SplittableRandom;
 import java.util.random.RandomGenerator;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -62,5 +63,13 @@ public class MainTest {
         LocalTime time = LocalTime.now().minusMinutes(2);
         Main.setMaxTimeInMin(1);
         assertFalse(Main.timeDiffSmaller(time));
+    }
+
+    @Tag("Slow")
+    @Tag("File")
+    @Test
+    public void mainIntegrationTest() {
+        Main.setMaxGenerations(2);
+        Main.runSimpleGA();
     }
 }

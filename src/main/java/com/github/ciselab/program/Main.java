@@ -32,7 +32,7 @@ public class Main {
     private final static int maxGeneLength = 10;
 
     private final static int popSize = 5;
-    private static final int maxSteadyGenerations = 25;
+    private static int maxSteadyGenerations = 25;
     private static int maxTimeInMin = 30;
     private final static Logger logger = LoggerFactory.getLogger(Main.class);
 
@@ -48,9 +48,17 @@ public class Main {
     }
 
     /**
+     * Setter for all GA parameters, used in the tests.
+     * @param generations the maximum number of steady generations.
+     */
+    public static void setMaxGenerations(int generations) {
+        maxSteadyGenerations = generations;
+    }
+
+    /**
      * Run the custom simple genetic algorithm created for variable length chromosomes.
      */
-    private static void runSimpleGA() {
+    public static void runSimpleGA() {
         LocalTime start = LocalTime.now();
         boolean converged = false;
         RandomGenerator random = new SplittableRandom(10110);

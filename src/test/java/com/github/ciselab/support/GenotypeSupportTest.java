@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -21,6 +22,7 @@ public class GenotypeSupportTest {
         GenotypeSupport.removeOtherDirs();
     }
 
+    @Tag("File")
     @Test
     public void removeOldDirTest() {
         File myDir = new File("./code2vec/data/test_1/");
@@ -75,6 +77,8 @@ public class GenotypeSupportTest {
         assertSame(GenotypeSupport.getMetricResult(transformers).get(), arr);
     }
 
+    @Tag("Slow")
+    @Tag("File")
     @Test
     public void runTransformationsTest() {
         List<BaseTransformer> transformers = new ArrayList<>();
@@ -85,6 +89,8 @@ public class GenotypeSupportTest {
         GenotypeSupport.removeOtherDirs();
     }
 
+    @Tag("Slow")
+    @Tag("File")
     @Test
     public void runCode2vecInferenceTest() {
         GenotypeSupport.setConfigFile("src/test/resources/config.properties");

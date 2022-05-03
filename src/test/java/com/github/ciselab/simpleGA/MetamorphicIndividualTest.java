@@ -55,8 +55,9 @@ public class MetamorphicIndividualTest {
         assertEquals(individual.getTransformers().size(), 1);
     }
 
+    @Tag("Slow")
+    @Tag("File")
     @Test
-    @Tag("slow")
     public void extendExistingDirectory_withTransformerTest() {
         MetamorphicIndividual individual = new MetamorphicIndividual();
         individual.createIndividual(r, 2, 6);

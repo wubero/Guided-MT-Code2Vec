@@ -3,25 +3,13 @@ package com.github.ciselab.program;
 import com.github.ciselab.simpleGA.GeneticAlgorithm;
 import com.github.ciselab.simpleGA.MetamorphicIndividual;
 import com.github.ciselab.simpleGA.MetamorphicPopulation;
-import com.github.ciselab.jeneticsGA.MetamorphicProblem;
 import com.github.ciselab.support.GenotypeSupport;
-import io.jenetics.BitGene;
-import io.jenetics.Mutator;
-import io.jenetics.Phenotype;
-import io.jenetics.RouletteWheelSelector;
-import io.jenetics.SinglePointCrossover;
-import io.jenetics.TournamentSelector;
-import io.jenetics.engine.Engine;
-import io.jenetics.engine.EvolutionResult;
-import io.jenetics.engine.EvolutionStatistics;
-import io.jenetics.engine.Limits;
 import io.jenetics.prngine.LCG64ShiftRandom;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalTime;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Set;
 import java.util.random.RandomGenerator;
 import org.slf4j.Logger;
@@ -56,8 +44,6 @@ public class Main {
 
         logger.info("Guided-MT started");
         logger.info("Configuration: " + GenotypeSupport.initializeFields().toString());
-
-        //runJeneticsGA();
         runSimpleGA();
     }
 
@@ -142,38 +128,6 @@ public class Main {
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-
-    /**
-     * Run genetic algorithm from Jenetics package.
-     */
-    private static void runJeneticsGA() {
-        final MetamorphicProblem problem = MetamorphicProblem.of(maxTransformerValue, popSize, new LCG64ShiftRandom(101010));
-
-        final Engine<BitGene, Double> engine = Engine.builder(problem)
-                .maximizing()
-                .maximalPhenotypeAge(3)
-                .populationSize(4)
-                .survivorsSelector(new TournamentSelector<>(2))
-                .offspringSelector(new RouletteWheelSelector<>())
-                .alterers(
-                        new Mutator<>(0.115),
-                        new SinglePointCrossover<>(0.16))
-                .build();
-
-        // Create evolution statistics consumer.
-        final EvolutionStatistics<Double, ?>
-                statistics = EvolutionStatistics.ofNumber();
-
-        final Phenotype<BitGene, Double> result = engine.stream()
-                .limit(Limits.bySteadyFitness(maxSteadyGenerations))
-                .limit(100)
-                .peek(statistics)
-                .peek(er -> System.out.println(er.bestPhenotype()))
-                .collect(EvolutionResult.toBestPhenotype());
-
-        System.out.println(statistics);
-        System.out.println(result);
     }
 
     /**

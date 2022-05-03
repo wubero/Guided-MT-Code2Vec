@@ -3,8 +3,8 @@ package com.github.ciselab.program;
 import com.github.ciselab.simpleGA.MetamorphicIndividual;
 import com.github.ciselab.simpleGA.MetamorphicPopulation;
 import com.github.ciselab.support.GenotypeSupport;
-import io.jenetics.prngine.LCG64ShiftRandom;
 import java.time.LocalTime;
+import java.util.SplittableRandom;
 import java.util.random.RandomGenerator;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -26,7 +26,7 @@ public class MainTest {
 
     @Test
     public void isFitterTest_isFitter() {
-        RandomGenerator r = new LCG64ShiftRandom(101010);
+        RandomGenerator r = new SplittableRandom(101010);
         MetamorphicPopulation pop = new MetamorphicPopulation(1, r, 6, false);
         MetamorphicIndividual indiv = new MetamorphicIndividual();
         indiv.createIndividual(r, 1, 6);
@@ -39,7 +39,7 @@ public class MainTest {
 
     @Test
     public void isFitterTest_isNotFitter() {
-        RandomGenerator r = new LCG64ShiftRandom(101010);
+        RandomGenerator r = new SplittableRandom(101010);
         MetamorphicPopulation pop = new MetamorphicPopulation(1, r, 6, false);
         MetamorphicIndividual indiv = new MetamorphicIndividual();
         indiv.createIndividual(r, 1, 6);

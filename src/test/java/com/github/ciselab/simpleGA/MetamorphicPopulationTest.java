@@ -5,14 +5,14 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.github.ciselab.support.GenotypeSupport;
-import io.jenetics.prngine.LCG64ShiftRandom;
+import java.util.SplittableRandom;
 import java.util.random.RandomGenerator;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
 public class MetamorphicPopulationTest {
 
-    RandomGenerator r = new LCG64ShiftRandom(101010);
+    RandomGenerator r = new SplittableRandom(101010);
 
     @AfterEach
     public void after() {

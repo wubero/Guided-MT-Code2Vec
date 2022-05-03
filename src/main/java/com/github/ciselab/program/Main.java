@@ -4,13 +4,13 @@ import com.github.ciselab.simpleGA.GeneticAlgorithm;
 import com.github.ciselab.simpleGA.MetamorphicIndividual;
 import com.github.ciselab.simpleGA.MetamorphicPopulation;
 import com.github.ciselab.support.GenotypeSupport;
-import io.jenetics.prngine.LCG64ShiftRandom;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.Set;
+import java.util.SplittableRandom;
 import java.util.random.RandomGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,7 +53,7 @@ public class Main {
     private static void runSimpleGA() {
         LocalTime start = LocalTime.now();
         boolean converged = false;
-        RandomGenerator random = new LCG64ShiftRandom(101010);
+        RandomGenerator random = new SplittableRandom(10110);
         String GA_parameters = GeneticAlgorithm.initializeParameters(uniformRate, mutationRate, tournamentSize, elitism, increaseSizeRate,
                 decreaseSizeRate, maxTransformerValue, maxGeneLength, random);
         logger.info("GA parameters: " + GA_parameters);

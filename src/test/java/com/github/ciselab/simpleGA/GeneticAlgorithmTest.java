@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 import com.github.ciselab.support.GenotypeSupport;
-import io.jenetics.prngine.LCG64ShiftRandom;
+import java.util.SplittableRandom;
 import java.util.random.RandomGenerator;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -18,7 +18,7 @@ public class GeneticAlgorithmTest {
 
     @Test
     public void initializeParametersTest() {
-        String real = GeneticAlgorithm.initializeParameters(0.7, 0.01, 3, true, 0.4, 0.7, 6, 10, new LCG64ShiftRandom(101010));
+        String real = GeneticAlgorithm.initializeParameters(0.7, 0.01, 3, true, 0.4, 0.7, 6, 10, new SplittableRandom(101010));
         String expected = "{uniform rate: 0.700000, mutation rate: 0.0100000, tournament size: 3, elitism: true, increase rate: 0.400000, decrease rate: 0.700000, max transformer value: 6, max gene length: 10}";
         assertEquals(expected, real);
     }
@@ -26,8 +26,8 @@ public class GeneticAlgorithmTest {
     @Test
     public void evolvePopulationTest() {
         int popSize = 5;
-        RandomGenerator r = new LCG64ShiftRandom(101010);
-        MetamorphicPopulation pop = new MetamorphicPopulation(popSize, new LCG64ShiftRandom(101010), 6, false);
+        RandomGenerator r = new SplittableRandom(101010);
+        MetamorphicPopulation pop = new MetamorphicPopulation(popSize, new SplittableRandom(101010), 6, false);
         for(int i = 0; i < popSize; i++) {
             MetamorphicIndividual temp = new MetamorphicIndividual();
             temp.createIndividual(r, 3, 6);

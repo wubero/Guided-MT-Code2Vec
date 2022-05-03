@@ -16,7 +16,7 @@ public class InputLength extends Metric {
     @Override
     public double CalculateScore() {
         if(dataset != null) {
-            List<String> lines = readPredictions(filePath);
+            List<String> lines = readPredictions(filePath + dataset);
             return lines.size();
         }
         return 0;

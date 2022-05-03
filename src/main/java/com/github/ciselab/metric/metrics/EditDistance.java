@@ -16,7 +16,7 @@ public class EditDistance extends Metric {
         List<String> lines = readPredictions(filePath);
         double score = 0;
         for(String i: lines) {
-            if(i.contains("original") && i.contains("predicted")) {
+            if(i.contains("Original") && i.contains("predicted")) {
                 String[] t = i.split(", ");
                 String original = t[0].split(": ")[1];
                 String predicted = t[1].split(": ")[1];
@@ -32,7 +32,7 @@ public class EditDistance extends Metric {
      * @param predicted the predicted word.
      * @return the edit distance.
      */
-    public static int editDistance(String original, String predicted) {
+    public int editDistance(String original, String predicted) {
         int len1 = original.length();
         int len2 = predicted.length();
         int[][] dp = new int[len1 + 1][len2 + 1];

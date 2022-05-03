@@ -60,7 +60,7 @@ public class GenotypeSupport {
 
     public static Map<List<BaseTransformer>, String> fileLookup = new HashMap<>();
     public static Map<List<BaseTransformer>, double[]> metricLookup = new HashMap<>();
-    private static final Set<double[]> pareto = new HashSet<>();
+    private static Set<double[]> pareto = new HashSet<>();
     private static int activeMetrics = 0;
 
     private final static Logger logger = LoggerFactory.getLogger(GenotypeSupport.class);
@@ -98,6 +98,14 @@ public class GenotypeSupport {
      */
     public static Set<double[]> getPareto() {
         return pareto;
+    }
+
+    /**
+     * Set the pareto set.
+     * @param newPareto the new pareto set.
+     */
+    public static void setPareto(Set<double[]> newPareto) {
+        pareto = newPareto;
     }
 
     /**

@@ -88,9 +88,9 @@ public class GeneticAlgorithm {
 
         // Check if fitness is already known
         for(MetamorphicIndividual i : newPopulation.individuals) {
-            Optional<double[]> fitness = GenotypeSupport.getMetricResult(i.getTransformers());
-            if(fitness.isPresent()) {
-                i.setMetrics(fitness.get());
+            Optional<double[]> metrics = GenotypeSupport.getMetricResult(i.getTransformers());
+            if(metrics.isPresent()) {
+                i.setMetrics(metrics.get());
             }
         }
         return newPopulation;

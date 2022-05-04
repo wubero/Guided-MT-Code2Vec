@@ -22,8 +22,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -294,7 +296,7 @@ public class GenotypeSupport {
      * @param solution the current solution.
      */
     public static void addToParetoOptimum(double[] solution) {
-        if(pareto.contains(solution))
+        if(isIn(pareto, solution))
             return;
         for(double[] i: pareto) {
             if (paretoDominant(i, solution)) {
@@ -310,6 +312,22 @@ public class GenotypeSupport {
         }
         toRemove.forEach(pareto::remove);
         pareto.add(solution);
+    }
+
+    /**
+     * Support method to see if a set has a certain element in it.
+     * @param set the set.
+     * @param find the element.
+     * @return Whether the set has the find element in it.
+     */
+    public static boolean isIn(Set<double[]> set, double[] find) {
+        Iterator<double[]> i = set.iterator();
+        while(i.hasNext()) {
+            if(Arrays.equals(i.next(), find)){
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

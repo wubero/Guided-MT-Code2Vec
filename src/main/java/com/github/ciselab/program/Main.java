@@ -32,8 +32,8 @@ public class Main {
     private final static int maxGeneLength = 10;
 
     private final static int popSize = 5;
-    private static int maxSteadyGenerations = 25;
-    private static int maxTimeInMin = 30;
+    private static int maxSteadyGenerations = 2;//50;
+    private static int maxTimeInMin = 30;//900;
     private final static Logger logger = LoggerFactory.getLogger(Main.class);
 
     /**

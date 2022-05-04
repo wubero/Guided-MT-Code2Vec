@@ -206,7 +206,7 @@ public class MetamorphicIndividual {
         List<Metric> metrics = GenotypeSupport.getMetrics();
         double[] scores = new double[metrics.size()];
         for(int i = 0; i < metrics.size(); i++) {
-            if(metrics.get(i).getName().equals("Input_length"))
+            if(metrics.get(i).getName().contains("Input_length"))
                 InputLength.setDataSet(dataset);
             double score = metrics.get(i).CalculateScore();
             System.out.println(metrics.get(i).getName() + ": " + score);

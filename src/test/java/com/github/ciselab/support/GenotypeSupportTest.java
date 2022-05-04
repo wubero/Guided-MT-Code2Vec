@@ -13,6 +13,8 @@ import java.util.Set;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+
+import static com.github.ciselab.support.GenotypeSupport.isIn;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class GenotypeSupportTest {
@@ -159,21 +161,26 @@ public class GenotypeSupportTest {
         assertSame(GenotypeSupport.getPareto(), initial);
         GenotypeSupport.addToParetoOptimum(new double[]{5.0, 5.0});
         assertEquals(1, GenotypeSupport.getPareto().size());
-        assertTrue(isIn(GenotypeSupport.getPareto(), new double[]{5.0, 5.0}));    }
+        assertTrue(isIn(GenotypeSupport.getPareto(), new double[]{5.0, 5.0}));
+    }
 
-    /**
-     * Support method to see if a set has a certain element in it.
-     * @param set the set.
-     * @param find the element.
-     * @return Whether the set has the find element in it.
-     */
-    private static boolean isIn(Set<double[]> set, double[] find) {
-        Iterator<double[]> i = set.iterator();
-        while(i.hasNext()) {
-            if(Arrays.equals(i.next(), find)){
-                return true;
-            }
-        }
-        return false;
+    @Test
+    public void addToParetoTest_addExistingArray() {
+        GenotypeSupport.setMaximize(true);
+        Set<double[]> initial = new HashSet<>(){{
+            add(new double[]{1.0, 3.0});
+            add(new double[]{2.0, 2.0});
+            add(new double[]{3.0, 1.0});
+        }};
+        GenotypeSupport.setPareto(initial);
+        GenotypeSupport.addToParetoOptimum(new double[]{1.0, 3.0});
+        assertEquals(3, GenotypeSupport.getPareto().size());
+        assertTrue(isIn(GenotypeSupport.getPareto(), new double[]{1.0, 3.0}));
+        assertTrue(isIn(GenotypeSupport.getPareto(), new double[]{2.0, 2.0}));
+        assertTrue(isIn(GenotypeSupport.getPareto(), new double[]{3.0, 1.0}));
+        GenotypeSupport.addToParetoOptimum(new double[]{5.0, 5.0});
+        assertEquals(1, GenotypeSupport.getPareto().size());
+        GenotypeSupport.addToParetoOptimum(new double[]{5.0, 5.0});
+        assertEquals(1, GenotypeSupport.getPareto().size());
     }
 }

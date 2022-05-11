@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalTime;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 import java.util.SplittableRandom;
 import java.util.random.RandomGenerator;
@@ -22,18 +23,18 @@ import org.slf4j.LoggerFactory;
 public class Main {
 
     // GA parameters
-    private final static double uniformRate = 0.8;
-    private final static double mutationRate = 0.015;
+    private final static double uniformRate = 0.7; // 0.7, 0.8, 0.9
+    private final static double mutationRate = 0.3; //0.2, 0.3, 0.4
     private final static int tournamentSize = 4;
-    private final static boolean elitism = true;
-    private final static double increaseSizeRate = 0.4;
-    private final static double decreaseSizeRate = 0.7;
-    private final static int maxTransformerValue = 6;
-    private final static int maxGeneLength = 10;
+    private final static boolean elitism = false;
+    private final static double increaseSizeRate = 0.7; //0.6, 0.7, 0.8
 
-    private final static int popSize = 5;
-    private static int maxSteadyGenerations = 2;//50;
-    private static int maxTimeInMin = 30;//900;
+
+    private final static int maxTransformerValue = 6;
+    private final static int maxGeneLength = 20;
+    private final static int popSize = 10;
+    private static int maxSteadyGenerations = 25;
+    private static int maxTimeInMin = 900;
     private final static Logger logger = LoggerFactory.getLogger(Main.class);
 
     /**
@@ -63,7 +64,7 @@ public class Main {
         boolean converged = false;
         RandomGenerator random = new SplittableRandom(10110);
         String GA_parameters = GeneticAlgorithm.initializeParameters(uniformRate, mutationRate, tournamentSize, elitism, increaseSizeRate,
-                decreaseSizeRate, maxTransformerValue, maxGeneLength, random);
+                maxTransformerValue, maxGeneLength, random);
         logger.info("GA parameters: " + GA_parameters);
 
         // Create an initial population
@@ -76,6 +77,7 @@ public class Main {
             MetamorphicIndividual best = new MetamorphicIndividual();
             double bestFitness = best.getFitness();
             logger.info("Initial fitness without transformations: " + bestFitness);
+            logger.info("The metric results corresponding to the transformations are: " + Arrays.toString(best.getMetrics()));
 
             // check best against pareto
             GenotypeSupport.addToParetoOptimum(best.getMetrics());
@@ -103,6 +105,7 @@ public class Main {
 
                 logger.info("Generation: " + generationCount + " Fittest: " + myPop.getFittest().getFitness() + " Gene:");
                 logger.info(best.toString());
+
                 myPop = GeneticAlgorithm.evolvePopulation(myPop);
                 logger.debug("Population of generation " + generationCount + " = " + myPop);
             }
@@ -117,7 +120,9 @@ public class Main {
             logger.info(best.toString());
 
             GeneticAlgorithm.checkPareto(myPop);
+            logger.info("Metrics are: " + Arrays.toString(GenotypeSupport.getMetrics().toArray()));
             logger.info("Pareto set: " + displayPareto(GenotypeSupport.getPareto()));
+            getVariance();
 
             long code2vecTime = GenotypeSupport.getTotalCode2vevTime();
             int code2vecSec = (int) (code2vecTime % 60);
@@ -182,4 +187,32 @@ public class Main {
         return out.substring(0, out.length()-2) + "}";
     }
 
+    private static void getVariance() {
+        double[] variance = new double[GenotypeSupport.getActiveMetrics()];
+        double[] means = new double[GenotypeSupport.getActiveMetrics()];
+        double[] sum = new double[GenotypeSupport.getActiveMetrics()];
+        int size = GenotypeSupport.metricLookup.values().size();
+
+        for(int i = 0; i < GenotypeSupport.getActiveMetrics(); i++)
+            sum[i] = 0;
+        for(double[] value: GenotypeSupport.metricLookup.values()) {
+            for (int i = 0; i < GenotypeSupport.getActiveMetrics(); i++) {
+                sum[i] += value[i];
+            }
+        }
+        for(int i = 0; i < GenotypeSupport.getActiveMetrics(); i++)
+            means[i] = sum[i]/size;
+        logger.info("The metric means are: " + Arrays.toString(means));
+
+        for(int i = 0; i < GenotypeSupport.getActiveMetrics(); i++)
+            sum[i] = 0;
+        for(double[] value: GenotypeSupport.metricLookup.values()) {
+            for (int i = 0; i < GenotypeSupport.getActiveMetrics(); i++) {
+                sum[i] += Math.pow((value[i] - means[i]), 2);
+            }
+        }
+        for(int i = 0; i < GenotypeSupport.getActiveMetrics(); i++)
+            variance[i] = sum[i]/(size-1);
+        logger.info("The metric variance are: " + Arrays.toString(variance));
+    }
 }

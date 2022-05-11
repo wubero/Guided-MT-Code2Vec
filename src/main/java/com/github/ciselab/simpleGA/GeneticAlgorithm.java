@@ -1,7 +1,8 @@
 package com.github.ciselab.simpleGA;
 
-import com.github.ciselab.lampion.core.transformations.transformers.BaseTransformer;
 import com.github.ciselab.support.GenotypeSupport;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.random.RandomGenerator;
 
@@ -16,7 +17,6 @@ public class GeneticAlgorithm {
     private static int tournamentSize;
     private static boolean elitism;
     private static double increaseSizeRate;
-    private static double decreaseSizeRate;
     private static int maxTransformerValue;
     private static int maxGeneLength;
     private static RandomGenerator randomGenerator;
@@ -29,26 +29,24 @@ public class GeneticAlgorithm {
      * @param tSize the tournament size.
      * @param elite elitism.
      * @param increaseRate the increase rate.
-     * @param decreaseRate the decrease rate.
      * @param maxValue the maximum transformer value.
      * @param maxLength the maximum individual length.
      * @param r the random generator.
      * @return the parameters in a string for the logger.
      */
     public static String initializeParameters(double uRate, double mRate, int tSize, boolean elite, double increaseRate,
-                                              double decreaseRate, int maxValue, int maxLength, RandomGenerator r) {
+                                              int maxValue, int maxLength, RandomGenerator r) {
         uniformRate = uRate;
         mutationRate = mRate;
         tournamentSize = tSize;
         elitism = elite;
         increaseSizeRate = increaseRate;
-        decreaseSizeRate = decreaseRate;
         maxTransformerValue = maxValue;
         maxGeneLength = maxLength;
         randomGenerator = r;
         return String.format("{uniform rate: %g, mutation rate: %g, tournament size: %d, elitism: %b, increase rate: %g," +
-                " decrease rate: %g, max transformer value: %d, max gene length: %d}",
-                uRate, mRate, tSize, elite, increaseRate, decreaseRate, maxValue, maxLength);
+                " max transformer value: %d, max gene length: %d}",
+                uRate, mRate, tSize, elite, increaseRate, maxValue, maxLength);
     }
 
     /**
@@ -73,17 +71,23 @@ public class GeneticAlgorithm {
         }
         // Loop over the population size and create new individuals with
         // crossover
-        for (int i = elitismOffset; i < pop.size(); i++) {
+        int index = elitismOffset;
+        while (index < newPopulation.size()) {
             MetamorphicIndividual indiv1 = tournamentSelection(pop, randomGenerator);
             MetamorphicIndividual indiv2 = tournamentSelection(pop, randomGenerator);
-            MetamorphicIndividual newIndiv = crossover(indiv1, indiv2);
-            newPopulation.saveIndividual(i, newIndiv);
+            List<MetamorphicIndividual> newIndivs = crossover(indiv1, indiv2);
+            newPopulation.saveIndividual(index, newIndivs.get(0));
+            index++;
+            if (index < newPopulation.size()) {
+                newPopulation.saveIndividual(index, newIndivs.get(1));
+                index++;
+            }
         }
 
         // Mutate population
         for (int i = elitismOffset; i < newPopulation.size(); i++) {
-            mutate(newPopulation.getIndividual(i));
-            refactorSize(newPopulation.getIndividual(i));
+            if( Math.random() <= mutationRate)
+                mutate(newPopulation.getIndividual(i));
         }
 
         // Check if fitness is already known
@@ -97,13 +101,13 @@ public class GeneticAlgorithm {
     }
 
     /**
-     * Increase the size of an individual by one if the size is not already at the max size.
-     * @param indiv The individual to increase the size of.
+     * Mutate the current individual
+     * @param indiv The individual to increase or decrease the size of.
      */
-    private static void refactorSize(MetamorphicIndividual indiv) {
+    private static void mutate(MetamorphicIndividual indiv) {
         if (Math.random() <= increaseSizeRate) {
             indiv.increase(maxGeneLength, randomGenerator, maxTransformerValue);
-        } else if (Math.random() <= decreaseSizeRate) {
+        } else {
             indiv.decrease(randomGenerator);
         }
     }
@@ -114,39 +118,26 @@ public class GeneticAlgorithm {
      * @param indiv2 the second metamorphic individual.
      * @return the new metamorphic individual.
      */
-    private static MetamorphicIndividual crossover(MetamorphicIndividual indiv1, MetamorphicIndividual indiv2) {
+    private static List<MetamorphicIndividual> crossover(MetamorphicIndividual indiv1, MetamorphicIndividual indiv2) {
         MetamorphicIndividual newSol = new MetamorphicIndividual();
+        MetamorphicIndividual newSol2 = new MetamorphicIndividual();
+        List<MetamorphicIndividual> l = new ArrayList<>();
         // Loop through genes
         for (int i = 0; i < indiv1.getLength(); i++) {
             // Crossover
             if (Math.random() <= uniformRate) {
                 newSol.addGene(indiv1.getGene(i));
+                if (i < indiv2.getLength())
+                    newSol2.addGene(indiv2.getGene(i));
             } else {
                 if (i < indiv2.getLength())
                     newSol.addGene(indiv2.getGene(i));
+                newSol2.addGene(indiv1.getGene(i));
             }
         }
-        return newSol;
-    }
-
-    /**
-     * Mutate a metamorphic individual by changing a transformer in its genotype.
-     * @param indiv the metamorphic individual to mutate.
-     */
-    private static void mutate(MetamorphicIndividual indiv) {
-        // Loop through genes
-        for (int i = 0; i < indiv.getLength(); i++) {
-            if (Math.random() <= mutationRate) {
-                // Create random gene
-                int key = (int) (Math.random() * maxTransformerValue);
-                BaseTransformer transformer = indiv.createGene(key, randomGenerator);
-                indiv.setGene(i, transformer);
-            }
-        }
-        if (GenotypeSupport.getMetricResult(indiv.getTransformers()).isPresent()) {
-            double[] metrics = GenotypeSupport.getMetricResult(indiv.getTransformers()).get();
-            indiv.setMetrics(metrics);
-        }
+        l.add(newSol);
+        l.add(newSol2);
+        return l;
     }
 
     /**

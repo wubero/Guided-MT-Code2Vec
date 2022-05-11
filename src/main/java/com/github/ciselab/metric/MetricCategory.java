@@ -10,6 +10,5 @@ public enum MetricCategory {
     Precision,
     Recall,
     Prediction_length,
-    Edit_distance,
-    Input_length
+    Edit_distance
 }

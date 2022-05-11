@@ -41,7 +41,7 @@ public class MetamorphicIndividual {
         metrics = new double[GenotypeSupport.getActiveMetrics()];
         this.length = length;
         for(int i = 0; i < length; i++) {
-            int key = r.nextInt(1, maxTransformerValue+1);
+            int key = r.nextInt(0, maxTransformerValue+1);
             int seed = r.nextInt();
             transformers.add(createTransformers(key, seed));
         }
@@ -112,7 +112,17 @@ public class MetamorphicIndividual {
                 String oldDir = GenotypeSupport.getDir(transformers).get() + "/test";
                 String name = GenotypeSupport.runTransformations(t, oldDir);
                 GenotypeSupport.runCode2vec(name);
-                metrics = calculateMetric(name);
+                double[] primary = calculateMetric();
+                double[] secondary = secondaryMetrics(name);
+                int j = 0;
+                for(int i = 0; i < metrics.length; i++) {
+                    if(i < primary.length)
+                        metrics[i] = primary[i];
+                    else {
+                        metrics[i] = secondary[j];
+                        j++;
+                    }
+                }
                 fitness = calculateFitness(metrics);
                 transformers.add(newTransformer);
                 GenotypeSupport.storeFiles(transformers, name, metrics);
@@ -165,7 +175,17 @@ public class MetamorphicIndividual {
         if (fitness < 0.0) {
             String name = GenotypeSupport.runTransformations(transformers, GenotypeSupport.getCurrentDataset());
             GenotypeSupport.runCode2vec(name);
-            metrics = calculateMetric(name);
+            double[] primary = calculateMetric();
+            double[] secondary = secondaryMetrics(name);
+            int j = 0;
+            for(int i = 0; i < metrics.length; i++) {
+                if(i < primary.length)
+                    metrics[i] = primary[i];
+                else {
+                    metrics[i] = secondary[j];
+                    j++;
+                }
+            }
             fitness = calculateFitness(metrics);
             GenotypeSupport.fillFitness(transformers, metrics);
         }
@@ -199,17 +219,34 @@ public class MetamorphicIndividual {
     }
 
     /**
+     * Calculate secondary metrics for Pareto front.
+     * @param dataset the dataset.
+     * @return the array with secondary metric scores.
+     */
+    private double[] secondaryMetrics(String dataset) {
+        List<Metric> metrics = GenotypeSupport.getSecondaryMetrics();
+        double[] scores = new double[metrics.size()];
+        for(int i = 0; i < metrics.size(); i++) {
+            double score = 0;
+            if(metrics.get(i).getName().contains("Input_length")) {
+                InputLength.setDataSet(dataset);
+                score = metrics.get(i).CalculateScore();
+            } else if(metrics.get(i).getName().contains("Number_of_transformations"))
+                score = length;
+            scores[i] = score;
+        }
+        return scores;
+    }
+
+    /**
      * Calculate the scores for each metric.
      * @return a list of scores.
      */
-    private static double[] calculateMetric(String dataset) {
+    private double[] calculateMetric() {
         List<Metric> metrics = GenotypeSupport.getMetrics();
         double[] scores = new double[metrics.size()];
         for(int i = 0; i < metrics.size(); i++) {
-            if(metrics.get(i).getName().contains("Input_length"))
-                InputLength.setDataSet(dataset);
             double score = metrics.get(i).CalculateScore();
-            System.out.println(metrics.get(i).getName() + ": " + score);
             scores[i] = score;
         }
         return scores;
@@ -220,10 +257,10 @@ public class MetamorphicIndividual {
      * @param metrics the list of metrics.
      * @return The global fitness.
      */
-    private static double calculateFitness(double[] metrics) {
+    private double calculateFitness(double[] metrics) {
         List<Float> weights = GenotypeSupport.getWeights();
         double output = 0;
-        for(int i = 0; i < metrics.length; i++) {
+        for(int i = 0; i < weights.size(); i++) {
             output += metrics[i]*weights.get(i);
         }
         return output;
@@ -235,7 +272,7 @@ public class MetamorphicIndividual {
      * @param seed the transformer seed.
      * @return a transformer that extends the BaseTransformer.
      */
-    private static BaseTransformer createTransformers(Integer key, Integer seed) {
+    private BaseTransformer createTransformers(Integer key, Integer seed) {
         switch (key) {
             case 0:
                 return new IfTrueTransformer(seed);

@@ -18,8 +18,8 @@ public class GeneticAlgorithmTest {
 
     @Test
     public void initializeParametersTest() {
-        String real = GeneticAlgorithm.initializeParameters(0.7, 0.01, 3, true, 0.4, 0.7, 6, 10, new SplittableRandom(101010));
-        String expected = "{uniform rate: 0.700000, mutation rate: 0.0100000, tournament size: 3, elitism: true, increase rate: 0.400000, decrease rate: 0.700000, max transformer value: 6, max gene length: 10}";
+        String real = GeneticAlgorithm.initializeParameters(0.7, 0.01, 3, true, 0.4, 6, 10, new SplittableRandom(101010));
+        String expected = "{uniform rate: 0.700000, mutation rate: 0.0100000, tournament size: 3, elitism: true, increase rate: 0.400000, max transformer value: 6, max gene length: 10}";
         assertEquals(expected, real);
     }
 

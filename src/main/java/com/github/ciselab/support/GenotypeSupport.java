@@ -7,6 +7,7 @@ import com.github.ciselab.lampion.core.transformations.TransformerRegistry;
 import com.github.ciselab.lampion.core.transformations.transformers.BaseTransformer;
 import com.github.ciselab.metric.Metric;
 import com.github.ciselab.metric.MetricCategory;
+import com.github.ciselab.metric.SecondaryMetrics;
 import com.github.ciselab.metric.metrics.EditDistance;
 import com.github.ciselab.metric.metrics.F1_score;
 import com.github.ciselab.metric.metrics.InputLength;
@@ -15,6 +16,7 @@ import com.github.ciselab.metric.metrics.Percentage_MRR;
 import com.github.ciselab.metric.metrics.Precision;
 import com.github.ciselab.metric.metrics.PredictionLength;
 import com.github.ciselab.metric.metrics.Recall;
+import com.github.ciselab.metric.metrics.Transformations;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -58,6 +60,7 @@ public class GenotypeSupport {
     private static long transformations = 1;
     private static final Properties prop = new Properties();
     private static final List<Metric> metricList = new ArrayList<>();
+    private static final List<Metric> secondaryMetrics = new ArrayList<>();
     private static final List<Float> metricWeights = new ArrayList<>();
 
     public static Map<List<BaseTransformer>, String> fileLookup = new HashMap<>();
@@ -92,6 +95,14 @@ public class GenotypeSupport {
      */
     public static int getActiveMetrics(){
         return activeMetrics;
+    }
+
+    /**
+     * Get secondary metrics.
+     * @return a list of secondary metrics.
+     */
+    public static List<Metric> getSecondaryMetrics() {
+        return secondaryMetrics;
     }
 
     /**
@@ -260,9 +271,13 @@ public class GenotypeSupport {
         for(MetricCategory i: MetricCategory.values()) {
             metricWeights.add(Float.parseFloat(prop.getProperty(i.name())));
         }
+        for(SecondaryMetrics metric: SecondaryMetrics.values()) {
+            if(prop.getProperty(metric.name()).equals("1"))
+                secondaryMetrics.add(createMetric(metric.name()));
+        }
         removeZeroWeights();
         normalizeWeights();
-        activeMetrics = metricWeights.size();
+        activeMetrics = metricWeights.size() + secondaryMetrics.size();
         return prop;
     }
 
@@ -394,6 +409,8 @@ public class GenotypeSupport {
                 return new InputLength();
             case "Prediction_length":
                 return new PredictionLength();
+            case "Number_of_transformations":
+                return new Transformations();
             default:
                 logger.error("Metric name not a correct metric.");
                 throw new IllegalArgumentException("Metric name not a correct metric.");

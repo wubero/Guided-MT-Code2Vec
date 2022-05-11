@@ -14,13 +14,13 @@ public class EditDistance extends Metric {
     @Override
     public double CalculateScore() {
         List<String> lines = readPredictions(filePath);
-        double score = 0;
+        float score = 0;
         for(String i: lines) {
             if(i.contains("Original") && i.contains("predicted")) {
                 String[] t = i.split(", ");
                 String original = t[0].split(": ")[1];
                 String predicted = t[1].split(": ")[1];
-                score += editDistance(original, predicted);
+                score += 1/(editDistance(original, predicted)+1); // when the editdistance is larger the resulting score will be lower.
             }
         }
         return score/lines.size();

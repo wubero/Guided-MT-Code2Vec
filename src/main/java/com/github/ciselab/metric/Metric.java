@@ -1,5 +1,6 @@
 package com.github.ciselab.metric;
 
+import com.github.ciselab.support.GenotypeSupport;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -10,7 +11,7 @@ public abstract class Metric implements Comparable<Metric> {
 
     protected double score;
     protected String name;
-    protected final String defaultPath = "C:/Users/Ruben-pc/Documents/Master_thesis/Guided-MT-Code2Vec/code2vec/results.txt";
+    protected final String defaultPath = GenotypeSupport.dir_path + "/code2vec/results.txt";
 
     public Metric(String metricName) {
         this.name = metricName;

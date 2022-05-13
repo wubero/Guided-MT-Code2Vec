@@ -1,6 +1,7 @@
 package com.github.ciselab.metric.metrics;
 
 import com.github.ciselab.metric.Metric;
+import com.github.ciselab.support.GenotypeSupport;
 import java.util.List;
 
 /**
@@ -9,7 +10,7 @@ import java.util.List;
  */
 public class F1_score extends Metric {
 
-    private final String filePath = "C:\\Users\\Ruben-pc\\Documents\\Master_thesis\\Guided-MT-Code2Vec\\code2vec\\F1_score_log.txt";
+    private final String filePath = GenotypeSupport.dir_path + "/code2vec/F1_score_log.txt";
 
     public F1_score() {
         super("F1_score");

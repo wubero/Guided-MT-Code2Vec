@@ -1,11 +1,12 @@
 package com.github.ciselab.metric.metrics;
 
 import com.github.ciselab.metric.Metric;
+import com.github.ciselab.support.GenotypeSupport;
 import java.util.List;
 
 public class EditDistance extends Metric {
 
-    private final String filePath = "C:\\Users\\Ruben-pc\\Documents\\Master_thesis\\Guided-MT-Code2Vec\\code2vec\\predicted_words.txt";
+    private final String filePath = GenotypeSupport.dir_path + "code2vec/predicted_words.txt";
 
     public EditDistance() {
         super("Edit_distance");

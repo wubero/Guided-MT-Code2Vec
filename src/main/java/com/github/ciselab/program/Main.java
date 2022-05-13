@@ -33,8 +33,8 @@ public class Main {
     private final static int maxTransformerValue = 6;
     private final static int maxGeneLength = 20;
     private final static int popSize = 10;
-    private static int maxSteadyGenerations = 25;
-    private static int maxTimeInMin = 900;
+    private static int maxSteadyGenerations = 1;
+    private static int maxTimeInMin = 30;
     private final static Logger logger = LoggerFactory.getLogger(Main.class);
 
     /**

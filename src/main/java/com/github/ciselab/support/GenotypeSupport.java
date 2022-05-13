@@ -48,9 +48,10 @@ import spoon.reflect.CtModel;
 public class GenotypeSupport {
 
     public static final String path_bash = "C:/Program Files/Git/bin/bash.exe";
-    public static final String resultFile =  "C:/Users/Ruben-pc/Documents/Master_thesis/Guided-MT-Code2Vec/code2vec/log.txt";
-    public static String configFile = "C:/Users/Ruben-pc/Documents/Master_thesis/Guided-MT-Code2Vec/src/main/resources/config.properties";
-    public static final String dataDir = "C:/Users/Ruben-pc/Documents/Master_thesis/Guided-MT-Code2Vec/code2vec/data/";
+    public static final String dir_path = System.getProperty("user.dir").replace("\\", "/");
+    public static final String resultFile =  dir_path + "/code2vec/log.txt";
+    public static String configFile = dir_path + "/src/main/resources/config.properties";
+    public static final String dataDir = dir_path + "/code2vec/data/";
     private final static String currentDataset = "generation_0";
 
     public static boolean maximize = true;

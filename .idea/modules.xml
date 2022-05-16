@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/OptimizedCode2Vec.iml" filepath="$PROJECT_DIR$/.idea/OptimizedCode2Vec.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/Guided-MT-Code2Vec.iml" filepath="$PROJECT_DIR$/.idea/Guided-MT-Code2Vec.iml" />
     </modules>
   </component>
 </project>

@@ -33,7 +33,7 @@ public abstract class Metric implements Comparable<Metric> {
             }
             bf.close();
         } catch(IOException e) {
-            System.out.println("Couldn't read file");
+            System.out.println("Couldn't read file of path: " + filePath);
         }
         return predictions;
     }

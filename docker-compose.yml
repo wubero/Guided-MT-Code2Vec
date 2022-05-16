@@ -1,0 +1,19 @@
+version: '1.0'
+
+# This is a mirror of the normal docker-compose but with a built-in-built.
+
+services:
+  guided-mt-code2vec:
+    build:
+      context: ""
+      dockerfile: Dockerfile
+      args:
+        Guided-MT-Code2Vec_VERSION: 1.0
+      image: ciselab/Guided-MT-Code2Vec:latest
+      volumes:
+        - ./compose_output:/app/genetic_output
+        - ./src/test/resources/code_files:/app/genetic_input
+      environment:
+        target: /app/genetic_input
+        output: /app/genetic_output
+        configfile: /config/config.properties

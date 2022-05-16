@@ -32,10 +32,12 @@ public class Main {
 
     private final static int maxTransformerValue = 6;
     private final static int maxGeneLength = 20;
-    private final static int popSize = 10;
+    private static int popSize = 10;
     private static int maxSteadyGenerations = 1;
     private static int maxTimeInMin = 30;
     private final static Logger logger = LoggerFactory.getLogger(Main.class);
+
+    private static String logDir;
 
     /**
      * The main method for the Guided-MT-Code2Vec project.
@@ -44,16 +46,37 @@ public class Main {
     public static void main(String[] args) {
 
         logger.info("Guided-MT started");
+        if(args.length == 0) {
+            logger.info("No arguments found - loading default values");
+        } else if (args.length == 3) {
+            logger.info("Received four arguments - Config input: " + args[0] + ", data input: " + args[1]
+                    + " and output: " + args[2]);
+            GenotypeSupport.setConfigFile(args[0]);
+            GenotypeSupport.setDataDir(args[1]);
+            logDir = args[2];
+
+        } else {
+            logger.error("Received an unknown amount of arguments");
+            return;
+        }
         logger.info("Configuration: " + GenotypeSupport.initializeFields().toString());
         runSimpleGA();
     }
 
     /**
-     * Setter for all GA parameters, used in the tests.
+     * Setter for the max steady generations stopping criteria, used in the tests.
      * @param generations the maximum number of steady generations.
      */
     public static void setMaxGenerations(int generations) {
         maxSteadyGenerations = generations;
+    }
+
+    /**
+     * Setter for the population size, used in tests.
+     * @param pop the population size.
+     */
+    public static void setPopSize(int pop) {
+        popSize = pop;
     }
 
     /**
@@ -72,7 +95,11 @@ public class Main {
             MetamorphicPopulation myPop = new MetamorphicPopulation(popSize, random, maxTransformerValue, true);
             logger.debug("Initial population: " + myPop);
 
-            FileWriter myWriter = new FileWriter("GA_results.txt");
+            FileWriter myWriter;
+            if (logDir.isEmpty())
+                myWriter = new FileWriter("GA_results.txt");
+            else
+                myWriter = new FileWriter(logDir + "/GA_results.txt");
 
             MetamorphicIndividual best = new MetamorphicIndividual();
             double bestFitness = best.getFitness();

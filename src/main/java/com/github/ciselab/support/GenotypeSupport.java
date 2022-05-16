@@ -49,10 +49,9 @@ public class GenotypeSupport {
 
     public static final String path_bash = "C:/Program Files/Git/bin/bash.exe";
     public static final String dir_path = System.getProperty("user.dir").replace("\\", "/");
-    public static final String resultFile =  dir_path + "/code2vec/log.txt";
     public static String configFile = dir_path + "/src/main/resources/config.properties";
-    public static final String dataDir = dir_path + "/code2vec/data/";
-    private final static String currentDataset = "generation_0";
+    public static String dataDir = dir_path + "/code2vec/data/";
+    private static final String currentDataset = "generation_0";
 
     public static boolean maximize = true;
     private static long seed = 200;
@@ -96,6 +95,10 @@ public class GenotypeSupport {
      */
     public static int getActiveMetrics(){
         return activeMetrics;
+    }
+
+    public static void setDataDir(String data) {
+        dataDir = data;
     }
 
     /**

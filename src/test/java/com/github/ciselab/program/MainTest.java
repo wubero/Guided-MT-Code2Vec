@@ -70,6 +70,7 @@ public class MainTest {
     @Test
     public void mainIntegrationTest() {
         Main.setMaxGenerations(2);
+        Main.setPopSize(1);
         Main.runSimpleGA();
     }
 }

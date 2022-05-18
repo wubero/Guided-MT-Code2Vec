@@ -2,6 +2,6 @@
 
 echo "Starting the Guided-MT-Code2Vec Container"
 
-java -jar Guided-MT-Code2Vec.jar ${configfile} ${target} ${output}
+java -jar Guided-MT-Code2Vec.jar ${configfile} ${targetDir} ${outputDir}
 
-tail -f /dev/null
+#tail -f /dev/null

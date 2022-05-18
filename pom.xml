@@ -3,7 +3,6 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
     <groupId>com.github.ciselab</groupId>
     <artifactId>Guided-MT-Code2Vec</artifactId>
     <version>1.0-SNAPSHOT</version>
@@ -24,11 +23,6 @@
         <dependency>
             <groupId>com.github.ciselab</groupId>
             <artifactId>Lampion-Core</artifactId>
-            <version>1.4-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>com.github.ciselab</groupId>
-            <artifactId>Lampion-CLI</artifactId>
             <version>1.4-SNAPSHOT</version>
         </dependency>
         <dependency>
@@ -114,6 +108,18 @@
                 <version>3.10.0</version>
             </plugin>
 
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.1.1</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <mainClass>com.github.ciselab.program.Main</mainClass>
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 </project>

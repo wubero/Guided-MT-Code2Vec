@@ -1,8 +1,9 @@
 package com.github.ciselab.support;
 
-import com.github.ciselab.lampion.cli.program.App;
 import com.github.ciselab.lampion.core.program.Engine;
 import com.github.ciselab.lampion.core.program.EngineResult;
+import com.github.ciselab.lampion.core.transformations.EmptyTransformationResult;
+import com.github.ciselab.lampion.core.transformations.TransformationResult;
 import com.github.ciselab.lampion.core.transformations.TransformerRegistry;
 import com.github.ciselab.lampion.core.transformations.transformers.BaseTransformer;
 import com.github.ciselab.metric.Metric;
@@ -23,6 +24,10 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -34,6 +39,7 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.Random;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spoon.Launcher;
@@ -97,8 +103,30 @@ public class GenotypeSupport {
         return activeMetrics;
     }
 
+    /**
+     * Replace contents in dataDir with the contents in data.
+     * @param data the new data.
+     */
     public static void setDataDir(String data) {
-        dataDir = data;
+        try {
+            String path = dataDir + "generation_0";
+            File dir = new File(path);
+            File[] files = dir.listFiles();
+            if (files != null) {
+                for (File file : files) {
+                    file.delete();
+                }
+            }
+            File newDir = new File(data);
+            File[] newFiles = newDir.listFiles();
+            if (newFiles != null) {
+                for (File f : newFiles) {
+                    Files.copy(Paths.get(f.getAbsolutePath()), Paths.get(path + "/" + f.getName()));
+                }
+            }
+        } catch (IOException e) {
+            logger.warn("Files couldn't be moved to data directory");
+        }
     }
 
     /**
@@ -469,12 +497,33 @@ public class GenotypeSupport {
         launcher.getFactory().getEnvironment().setAutoImports(true);
         //Further steps are in the method below.
         EngineResult result = engine.run(codeRoot);
-        App.WriteAST(result, launcher);
+        WriteAST(result, launcher);
 
         long diff = (System.currentTimeMillis() - start) / 1000;
         totalTransformationTime += diff;
         logger.info("Transformations of this individual took: " + diff + " seconds");
         return outputSet;
+    }
+
+    /**
+     * Write the ast to file.
+     * @param engineResult the engine result that we write to file.
+     * @param launcher the launcher.
+     * @return the list of transformation results.
+     */
+    public static List<TransformationResult> WriteAST(EngineResult engineResult, Launcher launcher) {
+        if (engineResult.getWriteJavaOutput()) {
+            logger.debug("Starting to pretty-print  altered files to " + engineResult.getOutputDirectory());
+            launcher.setSourceOutputDirectory(engineResult.getOutputDirectory());
+            launcher.prettyprint();
+        } else {
+            logger.info("Writing the java files has been disabled for this run.");
+        }
+
+        List<TransformationResult> finishedResults = engineResult.getTransformationResults().stream().filter((l) -> {
+            return !l.equals(new EmptyTransformationResult());
+        }).collect(Collectors.toList());
+        return finishedResults;
     }
 
     /**

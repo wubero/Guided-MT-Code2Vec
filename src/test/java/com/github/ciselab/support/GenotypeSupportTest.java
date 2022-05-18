@@ -1,12 +1,14 @@
 package com.github.ciselab.support;
 
 import com.github.ciselab.lampion.core.transformations.transformers.BaseTransformer;
+import com.github.ciselab.lampion.core.transformations.transformers.IfTrueTransformer;
 import com.github.ciselab.lampion.core.transformations.transformers.RandomParameterNameTransformer;
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
@@ -15,6 +17,7 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import static com.github.ciselab.support.GenotypeSupport.isIn;
+import static com.github.ciselab.support.GenotypeSupport.setDataDir;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class GenotypeSupportTest {
@@ -82,26 +85,42 @@ public class GenotypeSupportTest {
     @Tag("Slow")
     @Tag("File")
     @Test
-    public void runTransformationsTest() {
+    public void runTransformationsTest() throws IOException {
         List<BaseTransformer> transformers = new ArrayList<>();
-        String name = GenotypeSupport.runTransformations(transformers, "generation_0");
+        transformers.add(new IfTrueTransformer(1234));
+        File[] files = new File("src/test/resources/code_files").listFiles();
+        File directory = new File(GenotypeSupport.dataDir + "code_files");
+        if(!directory.exists())
+            directory.mkdir();
+        if(files!=null) {
+            for(File file: files) {
+                Files.copy(Paths.get(file.getAbsolutePath()), Paths.get(directory.getAbsolutePath() + "/" + file.getName()));
+            }
+        }
+        String name = GenotypeSupport.runTransformations(transformers, "code_files");
         assertTrue(GenotypeSupport.getDir(transformers).isPresent());
         assertEquals(GenotypeSupport.getDir(transformers).get(), name);
-        assertTrue(GenotypeSupport.getTotalTransformationTime() > 0);
-        GenotypeSupport.removeOtherDirs();
     }
 
     @Tag("Slow")
     @Tag("File")
     @Test
-    public void runCode2vecInferenceTest() {
+    public void runCode2vecInferenceTest() throws IOException {
         GenotypeSupport.setConfigFile("src/test/resources/config.properties");
         GenotypeSupport.initializeFields();
         List<BaseTransformer> transformers = new ArrayList<>();
-        String name = GenotypeSupport.runTransformations(transformers, "generation_0");
+        File[] files = new File("src/test/resources/code_files").listFiles();
+        File directory = new File(GenotypeSupport.dataDir + "code_files");
+        if(!directory.exists())
+            directory.mkdir();
+        if(files!=null) {
+            for(File file: files) {
+                Files.copy(Paths.get(file.getAbsolutePath()), Paths.get(directory.getAbsolutePath() + "/" + file.getName()));
+            }
+        }
+        String name = GenotypeSupport.runTransformations(transformers, "code_files");
         GenotypeSupport.runCode2vec(name);
         assertTrue(GenotypeSupport.getTotalCode2vevTime() > 0);
-        GenotypeSupport.removeOtherDirs();
     }
 
     @Test
@@ -182,5 +201,19 @@ public class GenotypeSupportTest {
         assertEquals(1, GenotypeSupport.getPareto().size());
         GenotypeSupport.addToParetoOptimum(new double[]{5.0, 5.0});
         assertEquals(1, GenotypeSupport.getPareto().size());
+    }
+
+    @Test
+    public void setDataDirTest() {
+        File[] files = new File("src/test/resources/code_files").listFiles();
+        if(files!=null) {
+            int l = files.length;
+            setDataDir(GenotypeSupport.dir_path + "/src/test/resources/code_files");
+            File[] dataFiles = new File(GenotypeSupport.dataDir + "generation_0").listFiles();
+            assertNotNull(dataFiles);
+            assertEquals(l, dataFiles.length);
+        } else {
+            fail("This directory shouldn't be empty");
+        }
     }
 }

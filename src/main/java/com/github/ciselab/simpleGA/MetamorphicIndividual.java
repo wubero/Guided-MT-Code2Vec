@@ -11,12 +11,11 @@ import com.github.ciselab.lampion.core.transformations.transformers.RenameVariab
 import com.github.ciselab.metric.Metric;
 import com.github.ciselab.metric.metrics.InputLength;
 import com.github.ciselab.support.GenotypeSupport;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.random.RandomGenerator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * This class creates a metamorphic individual for the metamorphic population.
@@ -24,7 +23,7 @@ import org.slf4j.LoggerFactory;
  */
 public class MetamorphicIndividual {
 
-    private static Logger logger = LoggerFactory.getLogger(MetamorphicIndividual.class);
+    private static Logger logger = LogManager.getLogger(MetamorphicIndividual.class);
     private int length = 0;
     private List<BaseTransformer> transformers = new ArrayList<>();
     private double fitness = -1;

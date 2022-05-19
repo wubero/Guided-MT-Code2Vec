@@ -1,7 +1,6 @@
 package com.github.ciselab.support;
 
 import com.github.ciselab.lampion.core.transformations.transformers.BaseTransformer;
-import com.github.ciselab.lampion.core.transformations.transformers.IfTrueTransformer;
 import com.github.ciselab.lampion.core.transformations.transformers.RandomParameterNameTransformer;
 import java.io.File;
 import java.io.IOException;
@@ -13,6 +12,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
@@ -21,6 +21,12 @@ import static com.github.ciselab.support.GenotypeSupport.setDataDir;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class GenotypeSupportTest {
+
+    @BeforeEach
+    public void setUp() {
+        GenotypeSupport.setConfigFile("src/test/resources/config.properties");
+        GenotypeSupport.initializeFields();
+    }
 
     @AfterEach
     public void after() {
@@ -87,7 +93,6 @@ public class GenotypeSupportTest {
     @Test
     public void runTransformationsTest() throws IOException {
         List<BaseTransformer> transformers = new ArrayList<>();
-        transformers.add(new IfTrueTransformer(1234));
         File[] files = new File("src/test/resources/code_files").listFiles();
         File directory = new File(GenotypeSupport.dataDir + "code_files");
         if(!directory.exists())

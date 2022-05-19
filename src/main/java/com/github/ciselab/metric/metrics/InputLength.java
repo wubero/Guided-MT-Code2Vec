@@ -3,14 +3,13 @@ package com.github.ciselab.metric.metrics;
 import com.github.ciselab.metric.Metric;
 import com.github.ciselab.support.GenotypeSupport;
 import java.io.File;
-import java.io.IOException;
 import java.util.List;
 
 public class InputLength extends Metric {
 
     private final String filePath = GenotypeSupport.dir_path + "/code2vec/data/";
 
-    private static String dataset;
+    private String dataset;
 
     public InputLength() {
         super("Input_length");
@@ -35,7 +34,7 @@ public class InputLength extends Metric {
         return 0;
     }
 
-    public static void setDataSet(String dir) {
+    public void setDataSet(String dir) {
         dataset = dir;
     }
 }

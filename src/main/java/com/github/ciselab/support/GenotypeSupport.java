@@ -68,6 +68,7 @@ public class GenotypeSupport {
     private static final List<Metric> metricList = new ArrayList<>();
     private static final List<Metric> secondaryMetrics = new ArrayList<>();
     private static final List<Float> metricWeights = new ArrayList<>();
+    private static Boolean[] objectives;
 
     public static Map<List<BaseTransformer>, String> fileLookup = new HashMap<>();
     public static Map<List<BaseTransformer>, double[]> metricLookup = new HashMap<>();
@@ -101,6 +102,14 @@ public class GenotypeSupport {
      */
     public static int getActiveMetrics(){
         return activeMetrics;
+    }
+
+    /**
+     * Get the objectives of all the metrics.
+     * @return the objective array.
+     */
+    public static Boolean[] getObjectives() {
+        return objectives;
     }
 
     /**
@@ -159,6 +168,9 @@ public class GenotypeSupport {
      */
     public static void setMaximize(boolean max) {
         maximize = max;
+        for(int i = 0; i < metricWeights.size(); i++) {
+            objectives[i] = max;
+        }
     }
 
     /**
@@ -304,12 +316,26 @@ public class GenotypeSupport {
             metricWeights.add(Float.parseFloat(prop.getProperty(i.name())));
         }
         for(SecondaryMetrics metric: SecondaryMetrics.values()) {
-            if(prop.getProperty(metric.name()).equals("1"))
-                secondaryMetrics.add(createMetric(metric.name()));
+            if(prop.getProperty(metric.name()).equals("1")) {
+                Metric m = createMetric(metric.name());
+                m.setObjective("max");
+                secondaryMetrics.add(m);
+            } else if(prop.getProperty(metric.name()).equals("-1")) {
+                Metric m = createMetric(metric.name());
+                m.setObjective("min");
+                secondaryMetrics.add(m);
+            }
         }
         removeZeroWeights();
         normalizeWeights();
         activeMetrics = metricWeights.size() + secondaryMetrics.size();
+        objectives = new Boolean[activeMetrics];
+        for(int i = 0; i < activeMetrics; i++) {
+            if(i < metricWeights.size())
+                objectives[i] = maximize;
+            else
+                objectives[i] = secondaryMetrics.get(i-metricWeights.size()).getObjective().equals("max");
+        }
         return prop;
     }
 
@@ -386,7 +412,7 @@ public class GenotypeSupport {
     private static boolean paretoDominant(double[] solutionA, double[] solutionB) {
         boolean dominant = false;
         for(int i = 0; i < solutionA.length; i++) {
-            if(maximize) {
+            if(objectives[i]) {
                 if(solutionA[i] < solutionB[i])
                     return false;
                 if(solutionA[i] > solutionB[i])

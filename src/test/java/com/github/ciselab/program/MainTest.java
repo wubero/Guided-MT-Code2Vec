@@ -69,7 +69,7 @@ public class MainTest {
     @Tag("File")
     @Test
     public void mainIntegrationTest() {
-        Main.setMaxGenerations(2);
+        Main.setMaxGenerations(1);
         Main.setPopSize(1);
         Main.runSimpleGA();
     }

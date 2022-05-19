@@ -96,7 +96,7 @@ public class Main {
             logger.debug("Initial population: " + myPop);
 
             FileWriter myWriter;
-            if (logDir.isEmpty())
+            if (logDir == null)
                 myWriter = new FileWriter("GA_results.txt");
             else
                 myWriter = new FileWriter(logDir + "/GA_results.txt");

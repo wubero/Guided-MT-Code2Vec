@@ -12,10 +12,19 @@ public abstract class Metric implements Comparable<Metric> {
     protected double score;
     protected String name;
     protected final String defaultPath = GenotypeSupport.dir_path + "/code2vec/results.txt";
+    protected String objective;
 
     public Metric(String metricName) {
         this.name = metricName;
         this.score = -1;
+    }
+
+    public void setObjective(String obj) {
+        objective = obj;
+    }
+
+    public String getObjective(){
+        return objective;
     }
 
     public String getName() {

@@ -229,7 +229,7 @@ public class MetamorphicIndividual {
         for(int i = 0; i < metrics.size(); i++) {
             double score = 0;
             if(metrics.get(i).getName().contains("Input_length")) {
-                InputLength.setDataSet(dataset);
+                ((InputLength)metrics.get(i)).setDataSet(dataset);
                 score = metrics.get(i).CalculateScore();
             } else if(metrics.get(i).getName().contains("Number_of_transformations"))
                 score = length;

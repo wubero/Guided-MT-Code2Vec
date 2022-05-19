@@ -9,11 +9,12 @@ import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalTime;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Set;
 import java.util.SplittableRandom;
 import java.util.random.RandomGenerator;
-import org.slf4j.Logger;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -35,7 +36,7 @@ public class Main {
     private static int popSize = 10;
     private static int maxSteadyGenerations = 1;
     private static int maxTimeInMin = 30;
-    private final static Logger logger = LoggerFactory.getLogger(Main.class);
+    private final static Logger logger = LogManager.getLogger(Main.class);
 
     private static String logDir;
 

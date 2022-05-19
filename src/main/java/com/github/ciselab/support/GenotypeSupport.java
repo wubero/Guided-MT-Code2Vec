@@ -40,7 +40,9 @@ import java.util.Properties;
 import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.slf4j.Logger;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.slf4j.LoggerFactory;
 import spoon.Launcher;
 import spoon.reflect.CtModel;
@@ -75,7 +77,7 @@ public class GenotypeSupport {
     private static Set<double[]> pareto = new HashSet<>();
     private static int activeMetrics = 0;
 
-    private final static Logger logger = LoggerFactory.getLogger(GenotypeSupport.class);
+    private final static Logger logger = LogManager.getLogger(GenotypeSupport.class);
 
     private static long totalCode2vecTime = 0;
     private static long totalTransformationTime = 0;

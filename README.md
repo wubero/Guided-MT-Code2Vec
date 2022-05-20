@@ -1,9 +1,17 @@
 # Guided-MT-Code2vec
 This repository works with genetic programming to optimize metrics for code2vec method name prediction.
-The rough architecture for this is depicted in the image below. (This will be updated asap)
+The architecture for this is depicted in the image below.
 ![Architecture plan](./src/main/resources/Thesis_pipeline.png)
 
 This is still under development
+
+## Cloning the repository
+In this project recursive repositories are used. This means that before you try to build the project you should clone both the repositories.
+For this simple run the following command in your git bash:
+
+```sh
+git clone --recursive -j8 https://github.com/wubero/Guided-MT-Code2Vec.git
+```
 
 ## Build & Run
 

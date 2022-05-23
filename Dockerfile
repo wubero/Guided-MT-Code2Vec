@@ -11,6 +11,7 @@ LABEL vcs="https://github/wubero/Guided-MT-Code2Vec"
 RUN apt-get update
 RUN apt install openjdk-17-jdk -y
 RUN apt install maven -y
+RUN apt install bash -y
 
 COPY . /app/Guided-MT-Code2Vec/
 WORKDIR /app/Guided-MT-Code2Vec/code2vec
@@ -22,7 +23,7 @@ WORKDIR /app/Lampion/Transformers/Java
 RUN git fetch && git checkout 81d8361953ca3565dae34f6e77ba6ba944a031c7 && mvn -P nofiles -DskipShade install
 
 WORKDIR /app/Guided-MT-Code2Vec
-RUN mvn -P nofiles install verify
+RUN mvn -P nofiles install package verify
 
 # Copy entrypoint & sample config file
 COPY src/main/resources/Docker/entrypoint.sh /app/Guided-MT-Code2Vec/
@@ -32,6 +33,6 @@ ENV targetDir="/app/Guided-MT-Code2Vec/genetic_input"
 ENV configfile="/config/config.properties"
 ENV outputDir="/app/Guided-MT-Code2Vec/genetic_output"
 
-RUN mv target/Guided-MT-Code2Vec-${Guided_MT_Code2Vec_VERSION}.jar Guided-MT-Code2Vec.jar
+RUN mv target/Guided-MT-Code2Vec-jar-with-dependencies.jar Guided-MT-Code2Vec.jar
 RUN chmod +x ./entrypoint.sh
 ENTRYPOINT ["bash","./entrypoint.sh"]

@@ -15,7 +15,7 @@
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
-      <module name="Guided-MT-Code2Vec" options="--add-modules java.base" />
+      <module name="Guided-MT-Code2Vec" options="" />
     </option>
   </component>
 </project>

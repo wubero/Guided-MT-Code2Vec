@@ -37,6 +37,7 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.Random;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -51,7 +52,7 @@ import spoon.reflect.CtModel;
  */
 public class GenotypeSupport {
 
-    public static final String path_bash = "C:/Program Files/Git/bin/bash.exe";
+    public static String path_bash = "bash";
     public static final String dir_path = System.getProperty("user.dir").replace("\\", "/");
     public static String configFile = dir_path + "/src/main/resources/config.properties";
     public static String dataDir = dir_path + "/code2vec/data/";
@@ -307,6 +308,8 @@ public class GenotypeSupport {
             transformations = Long.parseLong((String)prop.get("transformations"));
             logger.warn("This program uses the amount of transformations an individual has so this field will be ignored.");
         }
+        if(prop.get("bash") != null)
+            path_bash = (String)prop.get("bash");
         for(MetricCategory metricCategory: MetricCategory.values()) {
             metricList.add(createMetric(metricCategory.name()));
         }
@@ -606,8 +609,7 @@ public class GenotypeSupport {
      * @param comm the command to be run.
      */
     private static void runCode2VecCommand(String comm) {
-        String command = "cd code2vec/" + " && " + comm + " && exit";
-        runBashCommand(command, 0);
+        runBashCommand(comm, 0);
     }
 
     /**
@@ -617,6 +619,7 @@ public class GenotypeSupport {
     private static void runBashCommand(String command, Integer countFailed) {
         try {
             ProcessBuilder processBuilder = new ProcessBuilder();
+            processBuilder.directory(new File(dir_path + "/code2vec/"));
             processBuilder.command(path_bash, "-c", command);
 
             Process process = processBuilder.start();
@@ -624,7 +627,7 @@ public class GenotypeSupport {
             BufferedReader reader=new BufferedReader(new InputStreamReader(
                     process.getInputStream()));
             String line;
-            while((line = reader.readLine()) != null) {
+            while(reader.ready() && (line = reader.readLine()) != null) {
                 System.out.println(line);
             }
 
@@ -632,7 +635,8 @@ public class GenotypeSupport {
             if (exitVal == 0) {
                 System.out.println(" --- Command run successfully");
             } else {
-                if(countFailed < 3) {
+                if(countFailed < 5) {
+                    TimeUnit.SECONDS.sleep(1);
                     runBashCommand(command, countFailed+1);
                 } else {
                     System.out.println("The command: " + command + "\n Will not run, quiting the system.");

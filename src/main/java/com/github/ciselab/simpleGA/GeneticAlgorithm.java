@@ -12,15 +12,15 @@ import java.util.random.RandomGenerator;
 public class GeneticAlgorithm {
 
     /* GA parameters */
-    private static double uniformRate;
-    private static double mutationRate;
-    private static int tournamentSize;
-    private static boolean elitism;
-    private static double increaseSizeRate;
-    private static int maxTransformerValue;
-    private static int maxGeneLength;
-    private static RandomGenerator randomGenerator;
-
+    private double uniformRate;
+    private double mutationRate;
+    private int tournamentSize;
+    private boolean elitism;
+    private double increaseSizeRate;
+    private int maxTransformerValue;
+    private int maxGeneLength;
+    private RandomGenerator randomGenerator;
+    private GenotypeSupport genotypeSupport;
 
     /**
      * Initialize all GA parameters.
@@ -34,7 +34,7 @@ public class GeneticAlgorithm {
      * @param r the random generator.
      * @return the parameters in a string for the logger.
      */
-    public static String initializeParameters(double uRate, double mRate, int tSize, boolean elite, double increaseRate,
+    public String initializeParameters(double uRate, double mRate, int tSize, boolean elite, double increaseRate,
                                               int maxValue, int maxLength, RandomGenerator r) {
         uniformRate = uRate;
         mutationRate = mRate;
@@ -49,13 +49,18 @@ public class GeneticAlgorithm {
                 uRate, mRate, tSize, elite, increaseRate, maxValue, maxLength);
     }
 
+    public GeneticAlgorithm(GenotypeSupport gen) {
+        genotypeSupport = gen;
+    }
+
     /**
      * This method creates the next population with crossover and mutation.
      * @param pop the current population.
      * @return the new metamorphic population
      */
-    public static MetamorphicPopulation evolvePopulation(MetamorphicPopulation pop) {
-        MetamorphicPopulation newPopulation = new MetamorphicPopulation(pop.size(), randomGenerator, maxTransformerValue, false);
+    public MetamorphicPopulation evolvePopulation(MetamorphicPopulation pop) {
+        MetamorphicPopulation newPopulation = new MetamorphicPopulation(pop.size(),
+                randomGenerator, maxTransformerValue, false, genotypeSupport);
 
         // Keep our best individual
         if (elitism) {
@@ -92,7 +97,7 @@ public class GeneticAlgorithm {
 
         // Check if fitness is already known
         for(MetamorphicIndividual i : newPopulation.individuals) {
-            Optional<double[]> metrics = GenotypeSupport.getMetricResult(i.getTransformers());
+            Optional<double[]> metrics = genotypeSupport.getMetricResult(i.getTransformers());
             if(metrics.isPresent()) {
                 i.setMetrics(metrics.get());
             }
@@ -104,7 +109,7 @@ public class GeneticAlgorithm {
      * Mutate the current individual
      * @param indiv The individual to increase or decrease the size of.
      */
-    private static void mutate(MetamorphicIndividual indiv) {
+    private void mutate(MetamorphicIndividual indiv) {
         if (Math.random() <= increaseSizeRate) {
             indiv.increase(maxGeneLength, randomGenerator, maxTransformerValue);
         } else {
@@ -118,9 +123,9 @@ public class GeneticAlgorithm {
      * @param indiv2 the second metamorphic individual.
      * @return the new metamorphic individual.
      */
-    private static List<MetamorphicIndividual> crossover(MetamorphicIndividual indiv1, MetamorphicIndividual indiv2) {
-        MetamorphicIndividual newSol = new MetamorphicIndividual();
-        MetamorphicIndividual newSol2 = new MetamorphicIndividual();
+    private List<MetamorphicIndividual> crossover(MetamorphicIndividual indiv1, MetamorphicIndividual indiv2) {
+        MetamorphicIndividual newSol = new MetamorphicIndividual(genotypeSupport);
+        MetamorphicIndividual newSol2 = new MetamorphicIndividual(genotypeSupport);
         List<MetamorphicIndividual> l = new ArrayList<>();
         // Loop through genes
         for (int i = 0; i < indiv1.getLength(); i++) {
@@ -147,9 +152,10 @@ public class GeneticAlgorithm {
      * @param random the random generator used in this run.
      * @return the new metamorphic individual.
      */
-    private static MetamorphicIndividual tournamentSelection(MetamorphicPopulation pop, RandomGenerator random) {
+    private MetamorphicIndividual tournamentSelection(MetamorphicPopulation pop, RandomGenerator random) {
         // Create a tournament population
-        MetamorphicPopulation tournament = new MetamorphicPopulation(tournamentSize, random, maxTransformerValue, false);
+        MetamorphicPopulation tournament = new MetamorphicPopulation(tournamentSize, random,
+                maxTransformerValue, false, genotypeSupport);
         // For each place in the tournament get a random individual
         for (int i = 0; i < tournamentSize; i++) {
             int randomId = (int) (Math.random() * pop.size());
@@ -163,10 +169,10 @@ public class GeneticAlgorithm {
      * Check population with the current Pareto set.
      * @param population the population
      */
-    public static void checkPareto(MetamorphicPopulation population) {
+    public void checkPareto(MetamorphicPopulation population) {
         for(int i = 0; i < population.size(); i++) {
             double[] solution = population.getIndividual(i).getMetrics();
-            GenotypeSupport.addToParetoOptimum(solution);
+            genotypeSupport.addToParetoOptimum(solution);
         }
     }
 }

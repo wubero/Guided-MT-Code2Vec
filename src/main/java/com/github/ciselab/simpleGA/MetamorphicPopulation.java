@@ -6,6 +6,7 @@ import java.util.random.RandomGenerator;
 public class MetamorphicPopulation {
 
     MetamorphicIndividual[] individuals;
+    GenotypeSupport genotypeSupport;
 
     /**
      * Initialize Metamorphic population, the initial population will be half of length 1 and half of length 2.
@@ -15,17 +16,19 @@ public class MetamorphicPopulation {
      * @param maxValue the maximum transformer value.
      * @param initialize whether the population should be initialized or just created as an object.
      */
-    public MetamorphicPopulation(int popSize, RandomGenerator r, int maxValue, boolean initialize) {
+    public MetamorphicPopulation(int popSize, RandomGenerator r, int maxValue, boolean initialize
+            , GenotypeSupport gen) {
+        genotypeSupport = gen;
         individuals = new MetamorphicIndividual[popSize];
         if(initialize) {
             int cutOff = popSize/2;
             for (int i = 0; i < cutOff; i++) {
-                MetamorphicIndividual individual = new MetamorphicIndividual();
+                MetamorphicIndividual individual = new MetamorphicIndividual(genotypeSupport);
                 individual.createIndividual(r, 1, maxValue);
                 saveIndividual(i, individual);
             }
             for (int j = cutOff; j < popSize; j++) {
-                MetamorphicIndividual individual = new MetamorphicIndividual();
+                MetamorphicIndividual individual = new MetamorphicIndividual(genotypeSupport);
                 individual.createIndividual(r, 2, maxValue);
                 saveIndividual(j, individual);
             }
@@ -58,7 +61,7 @@ public class MetamorphicPopulation {
         MetamorphicIndividual fittest = individuals[0];
         // Loop through individuals to find fittest
         for (int i = 1; i < size(); i++) {
-            if(GenotypeSupport.maximize) {
+            if(genotypeSupport.getMaximize()) {
                 if (fittest.getFitness() < getIndividual(i).getFitness())
                     fittest = getIndividual(i);
             } else {
@@ -82,6 +85,9 @@ public class MetamorphicPopulation {
         String output = "MetamorphicPopulation{";
         for (MetamorphicIndividual indiv: individuals)
             output += indiv.toString() + ", ";
-        return output.substring(0, output.length()-2) + "}";
+        if(!output.equals("MetamorphicPopulation{"))
+            return output.substring(0, output.length()-2) + "}";
+        else
+            return output;
     }
 }

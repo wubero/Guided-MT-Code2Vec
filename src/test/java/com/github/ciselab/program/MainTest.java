@@ -14,40 +14,41 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class MainTest {
 
+    private GenotypeSupport genotypeSupport = new GenotypeSupport();
     @BeforeEach
     public void setUp() {
-        GenotypeSupport.setConfigFile("src/test/resources/config.properties");
-        GenotypeSupport.initializeFields();
+        genotypeSupport.setConfigFile("src/test/resources/config.properties");
+        genotypeSupport.initializeFields();
     }
 
     @AfterEach
     public void after() {
-        GenotypeSupport.removeOtherDirs();
+        genotypeSupport.removeOtherDirs();
     }
 
     @Test
     public void isFitterTest_isFitter() {
         RandomGenerator r = new SplittableRandom(101010);
-        MetamorphicPopulation pop = new MetamorphicPopulation(1, r, 6, false);
-        MetamorphicIndividual indiv = new MetamorphicIndividual();
+        MetamorphicPopulation pop = new MetamorphicPopulation(1, r, 6, false, genotypeSupport);
+        MetamorphicIndividual indiv = new MetamorphicIndividual(genotypeSupport);
         indiv.createIndividual(r, 1, 6);
         pop.saveIndividual(0, indiv);
         indiv.setFitness(0.5);
         double best = -1;
-        GenotypeSupport.setMaximize(true);
+        genotypeSupport.setMaximize(true);
         assertTrue(Main.isFitter(pop, best));
     }
 
     @Test
     public void isFitterTest_isNotFitter() {
         RandomGenerator r = new SplittableRandom(101010);
-        MetamorphicPopulation pop = new MetamorphicPopulation(1, r, 6, false);
-        MetamorphicIndividual indiv = new MetamorphicIndividual();
+        MetamorphicPopulation pop = new MetamorphicPopulation(1, r, 6, false, genotypeSupport);
+        MetamorphicIndividual indiv = new MetamorphicIndividual(genotypeSupport);
         indiv.createIndividual(r, 1, 6);
         pop.saveIndividual(0, indiv);
         indiv.setFitness(0.5);
         double best = 1;
-        GenotypeSupport.setMaximize(true);
+        genotypeSupport.setMaximize(true);
         assertFalse(Main.isFitter(pop, best));
     }
 

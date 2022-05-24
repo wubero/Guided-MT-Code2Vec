@@ -52,38 +52,49 @@ import spoon.reflect.CtModel;
  */
 public class GenotypeSupport {
 
-    public static String path_bash = "bash";
+    public String path_bash = "C:/Program Files/Git/bin/bash.exe";
     public static final String dir_path = System.getProperty("user.dir").replace("\\", "/");
-    public static String configFile = dir_path + "/src/main/resources/config.properties";
-    public static String dataDir = dir_path + "/code2vec/data/";
-    private static final String currentDataset = "generation_0";
+    public String configFile = dir_path + "/src/main/resources/config.properties";
+    public String dataDir = dir_path + "/code2vec/data/";
+    private final String currentDataset = "generation_0";
 
-    public static boolean maximize = true;
-    private static long seed = 200;
-    private static boolean removeAllComments = false;
-    private static Engine.TransformationScope transformationScope = Engine.TransformationScope.global;
-    private static long transformations = 1;
-    private static final Properties prop = new Properties();
-    private static final List<Metric> metricList = new ArrayList<>();
-    private static final List<Metric> secondaryMetrics = new ArrayList<>();
-    private static final List<Float> metricWeights = new ArrayList<>();
-    private static Boolean[] objectives;
+    private boolean maximize = true;
+    private long seed = 200;
+    private boolean removeAllComments = false;
+    private Engine.TransformationScope transformationScope = Engine.TransformationScope.global;
+    private final Properties prop = new Properties();
+    private final List<Metric> metricList = new ArrayList<>();
+    private final List<Metric> secondaryMetrics = new ArrayList<>();
+    private final List<Float> metricWeights = new ArrayList<>();
+    private Boolean[] objectives;
 
-    public static Map<List<BaseTransformer>, String> fileLookup = new HashMap<>();
-    public static Map<List<BaseTransformer>, double[]> metricLookup = new HashMap<>();
-    private static Set<double[]> pareto = new HashSet<>();
-    private static int activeMetrics = 0;
+    public Map<List<BaseTransformer>, String> fileLookup = new HashMap<>();
+    public Map<List<BaseTransformer>, double[]> metricLookup = new HashMap<>();
+    private Set<double[]> pareto = new HashSet<>();
+    private int activeMetrics = 0;
 
-    private final static Logger logger = LogManager.getLogger(GenotypeSupport.class);
+    private final Logger logger;
 
-    private static long totalCode2vecTime = 0;
-    private static long totalTransformationTime = 0;
+    private long totalCode2vecTime = 0;
+    private long totalTransformationTime = 0;
+
+    public GenotypeSupport(){
+        logger = LogManager.getLogger(GenotypeSupport.class);
+    }
+
+    public Map<List<BaseTransformer>, double[]> getMetricLookup() {
+        return metricLookup;
+    }
+
+    public boolean getMaximize() {
+        return maximize;
+    }
 
     /**
      * Get the base seed used for this run.
      * @return the seed.
      */
-    public static long getSeed() {
+    public long getSeed() {
         return seed;
     }
 
@@ -91,7 +102,7 @@ public class GenotypeSupport {
      * Setter for the config file field.
      * @param config the string to set.
      */
-    public static void setConfigFile(String config) {
+    public void setConfigFile(String config) {
         configFile = config;
     }
 
@@ -99,15 +110,19 @@ public class GenotypeSupport {
      * Get the amount of active metrics.
      * @return the amount of active metrics.
      */
-    public static int getActiveMetrics(){
+    public int getActiveMetrics(){
         return activeMetrics;
+    }
+
+    public String getDataDir() {
+        return dataDir;
     }
 
     /**
      * Get the objectives of all the metrics.
      * @return the objective array.
      */
-    public static Boolean[] getObjectives() {
+    public Boolean[] getObjectives() {
         return objectives;
     }
 
@@ -115,7 +130,7 @@ public class GenotypeSupport {
      * Replace contents in dataDir with the contents in data.
      * @param data the new data.
      */
-    public static void setDataDir(String data) {
+    public void setDataDir(String data) {
         try {
             String path = dataDir + "generation_0";
             File dir = new File(path);
@@ -141,7 +156,7 @@ public class GenotypeSupport {
      * Get secondary metrics.
      * @return a list of secondary metrics.
      */
-    public static List<Metric> getSecondaryMetrics() {
+    public List<Metric> getSecondaryMetrics() {
         return secondaryMetrics;
     }
 
@@ -149,7 +164,7 @@ public class GenotypeSupport {
      * Getter for the Pareto set.
      * @return the Pareto set.
      */
-    public static Set<double[]> getPareto() {
+    public Set<double[]> getPareto() {
         return pareto;
     }
 
@@ -157,7 +172,7 @@ public class GenotypeSupport {
      * Set the pareto set.
      * @param newPareto the new pareto set.
      */
-    public static void setPareto(Set<double[]> newPareto) {
+    public void setPareto(Set<double[]> newPareto) {
         pareto = newPareto;
     }
 
@@ -165,7 +180,7 @@ public class GenotypeSupport {
      * Setter for the maximize field
      * @param max the boolean to set.
      */
-    public static void setMaximize(boolean max) {
+    public void setMaximize(boolean max) {
         maximize = max;
         for(int i = 0; i < metricWeights.size(); i++) {
             objectives[i] = max;
@@ -176,7 +191,7 @@ public class GenotypeSupport {
      * Get the current dataset used as a baseline.
      * @return the dataset.
      */
-    public static String getCurrentDataset() {
+    public String getCurrentDataset() {
         return currentDataset;
     }
 
@@ -184,7 +199,7 @@ public class GenotypeSupport {
      * Get total time spent of Coded2vec inference.
      * @return the total time spent.
      */
-    public static long getTotalCode2vevTime(){
+    public long getTotalCode2vevTime(){
         return totalCode2vecTime;
     }
 
@@ -192,7 +207,7 @@ public class GenotypeSupport {
      * Get total time spent on transformations operations.
      * @return the total time spent.
      */
-    public static long getTotalTransformationTime() {
+    public long getTotalTransformationTime() {
         return totalTransformationTime;
     }
 
@@ -200,7 +215,7 @@ public class GenotypeSupport {
      * Get the initialized metrics.
      * @return the list of metrics.
      */
-    public static List<Metric> getMetrics() {
+    public List<Metric> getMetrics() {
         return metricList;
     }
 
@@ -208,7 +223,7 @@ public class GenotypeSupport {
      * Get the metric weights.
      * @return the list of metric weights.
      */
-    public static List<Float> getWeights() {
+    public List<Float> getWeights() {
         return metricWeights;
     }
 
@@ -217,7 +232,7 @@ public class GenotypeSupport {
      * @param genotype the list of transformers.
      * @return the directory string if it exists, null otherwise.
      */
-    public static Optional<String> getDir(List<BaseTransformer> genotype) {
+    public Optional<String> getDir(List<BaseTransformer> genotype) {
         String file = fileLookup.get(genotype);
         return Optional.ofNullable(file);
     }
@@ -227,7 +242,7 @@ public class GenotypeSupport {
      * @param indiv the individual.
      * @param fitness the fitness score.
      */
-    public static void fillFitness(List<BaseTransformer> indiv, double[] fitness) {
+    public void fillFitness(List<BaseTransformer> indiv, double[] fitness) {
         metricLookup.put(indiv, fitness);
     }
 
@@ -236,7 +251,7 @@ public class GenotypeSupport {
      * @param genotype the genotype.
      * @return the fitness score.
      */
-    public static Optional<double[]> getMetricResult(List<BaseTransformer> genotype) {
+    public Optional<double[]> getMetricResult(List<BaseTransformer> genotype) {
         double[] file = metricLookup.get(genotype);
         return Optional.ofNullable(file);
     }
@@ -247,7 +262,7 @@ public class GenotypeSupport {
      * @param fileName the file name.
      * @param score the fitness score.
      */
-    public static void storeFiles(List<BaseTransformer> genotype, String fileName, double[] score) {
+    public void storeFiles(List<BaseTransformer> genotype, String fileName, double[] score) {
         fileLookup.put(genotype, fileName);
         metricLookup.put(genotype, score);
     }
@@ -255,7 +270,7 @@ public class GenotypeSupport {
     /**
      * Remove previously used directories.
      */
-    public static void removeOtherDirs() {
+    public void removeOtherDirs() {
         File toDelete = new File(dataDir);
         File[] entries = toDelete.listFiles();
         if (entries != null) {
@@ -271,7 +286,7 @@ public class GenotypeSupport {
      * Delete directory and all its contents.
      * @param directoryToBeDeleted the directory to be deleted.
      */
-    private static void deleteDirectory(File directoryToBeDeleted) {
+    private void deleteDirectory(File directoryToBeDeleted) {
         File[] allContents = directoryToBeDeleted.listFiles();
         if (allContents != null) {
             for (File file : allContents) {
@@ -284,7 +299,7 @@ public class GenotypeSupport {
     /**
      * Initialize global fields with config file data.
      */
-    public static Properties initializeFields() {
+    public Properties initializeFields() {
         try (InputStream input = new FileInputStream(configFile)) {
 
             // load a properties file
@@ -303,10 +318,6 @@ public class GenotypeSupport {
             transformationScope = Engine.TransformationScope.valueOf(prop.getProperty("transformationscope"));
             if(!prop.getProperty("transformationscope").equals("global"))
                 logger.warn("Transformation scope is not global, this might not be desired.");
-        }
-        if(prop.get("transformations") != null) {
-            transformations = Long.parseLong((String)prop.get("transformations"));
-            logger.warn("This program uses the amount of transformations an individual has so this field will be ignored.");
         }
         if(prop.get("bash") != null)
             path_bash = (String)prop.get("bash");
@@ -343,7 +354,7 @@ public class GenotypeSupport {
     /**
      * Clear the lists for the next tests.
      */
-    public static void clearLists() {
+    public void clearLists() {
         metricWeights.clear();
         metricList.clear();
     }
@@ -351,7 +362,7 @@ public class GenotypeSupport {
     /**
      * Normalizes the weights and ensures that there is at least one metric enabled.
      */
-    private static void normalizeWeights() {
+    private void normalizeWeights() {
         float sum = 0;
         for(float i: metricWeights)
             sum += i;
@@ -369,7 +380,7 @@ public class GenotypeSupport {
      * Add to the Pareto set if no solution dominates the current solution.
      * @param solution the current solution.
      */
-    public static void addToParetoOptimum(double[] solution) {
+    public void addToParetoOptimum(double[] solution) {
         if(isIn(pareto, solution))
             return;
         for(double[] i: pareto) {
@@ -394,7 +405,7 @@ public class GenotypeSupport {
      * @param find the element.
      * @return Whether the set has the find element in it.
      */
-    public static boolean isIn(Set<double[]> set, double[] find) {
+    public boolean isIn(Set<double[]> set, double[] find) {
         Iterator<double[]> i = set.iterator();
         while(i.hasNext()) {
             if(Arrays.equals(i.next(), find)){
@@ -410,7 +421,7 @@ public class GenotypeSupport {
      * @param solutionB a solution.
      * @return whether solutionA is pareto dominant over solutionB.
      */
-    private static boolean paretoDominant(double[] solutionA, double[] solutionB) {
+    private boolean paretoDominant(double[] solutionA, double[] solutionB) {
         boolean dominant = false;
         for(int i = 0; i < solutionA.length; i++) {
             if(objectives[i]) {
@@ -432,7 +443,7 @@ public class GenotypeSupport {
      * Remove all metrics that have a weight of zero.
      * These do not have to be calculated or initialized.
      */
-    private static void removeZeroWeights() {
+    private void removeZeroWeights() {
         List<Integer> toRemove = new ArrayList<>();
         for(int i = 0; i < metricWeights.size(); i++) {
             if(metricWeights.get(i) <= 0) {
@@ -450,7 +461,7 @@ public class GenotypeSupport {
      * @param name the metric name.
      * @return The new metric.
      */
-    private static Metric createMetric(String name) {
+    private Metric createMetric(String name) {
         switch (name) {
             case "MRR":
                 return new MRR();
@@ -480,7 +491,7 @@ public class GenotypeSupport {
      * Generate random string for the intermediate dataset names name.
      * @return the directory name.
      */
-    private static String generateRandomString() {
+    private String generateRandomString() {
         String options = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
         int maxLength = 5;
         Random r =  new Random();
@@ -500,7 +511,7 @@ public class GenotypeSupport {
      * @param input the input directory.
      * @return the directory which the transformation .java files are in.
      */
-    public static String runTransformations(List<BaseTransformer> transformers, String input) {
+    public String runTransformations(List<BaseTransformer> transformers, String input) {
         long start = System.currentTimeMillis();
         TransformerRegistry registry = new TransformerRegistry("fromGA");
         for(BaseTransformer i: transformers) {
@@ -524,7 +535,7 @@ public class GenotypeSupport {
         launcher.getFactory().getEnvironment().setAutoImports(true);
         //Further steps are in the method below.
         EngineResult result = engine.run(codeRoot);
-        WriteAST(result, launcher);
+        writeAST(result, launcher);
 
         long diff = (System.currentTimeMillis() - start) / 1000;
         totalTransformationTime += diff;
@@ -536,9 +547,8 @@ public class GenotypeSupport {
      * Write the ast to file.
      * @param engineResult the engine result that we write to file.
      * @param launcher the launcher.
-     * @return the list of transformation results.
      */
-    public static List<TransformationResult> WriteAST(EngineResult engineResult, Launcher launcher) {
+    public void writeAST(EngineResult engineResult, Launcher launcher) {
         if (engineResult.getWriteJavaOutput()) {
             logger.debug("Starting to pretty-print  altered files to " + engineResult.getOutputDirectory());
             launcher.setSourceOutputDirectory(engineResult.getOutputDirectory());
@@ -546,11 +556,6 @@ public class GenotypeSupport {
         } else {
             logger.info("Writing the java files has been disabled for this run.");
         }
-
-        List<TransformationResult> finishedResults = engineResult.getTransformationResults().stream().filter((l) -> {
-            return !l.equals(new EmptyTransformationResult());
-        }).collect(Collectors.toList());
-        return finishedResults;
     }
 
     /**
@@ -558,7 +563,8 @@ public class GenotypeSupport {
      * This includes first preprocessing the code files and then evaluating the model.
      * @param dataset The name of the dataset.
      */
-    public static void runCode2vec(String dataset) {
+    public void runCode2vec(String dataset) {
+        logger.info("Starting code2vec inference");
         long start = System.currentTimeMillis();
         String path = dataDir + dataset;
         removeSubDirs(new File(path + "/test"), new File(path + "/test"));
@@ -581,7 +587,7 @@ public class GenotypeSupport {
      * Create the correct directories for the code2vec application.
      * @param path path to the dataset.
      */
-    private static void createDirs(String path) {
+    private void createDirs(String path) {
         File valDir = new File(path + "/validation");
         File trainingDir = new File(path + "/training");
         valDir.mkdir();
@@ -593,13 +599,16 @@ public class GenotypeSupport {
      * @param toDir the main target directory.
      * @param currDir the directory we are currently in.
      */
-    private static void removeSubDirs(File toDir, File currDir) {
-        for (File file: currDir.listFiles()) {
-            if (file.isDirectory()) {
-                removeSubDirs(toDir, file);
-                file.delete();
-            } else {
-                file.renameTo(new File(toDir, file.getName()));
+    private void removeSubDirs(File toDir, File currDir) {
+        File[] files = currDir.listFiles();
+        if(files!=null) {
+            for (File file : files) {
+                if (file.isDirectory()) {
+                    removeSubDirs(toDir, file);
+                    file.delete();
+                } else {
+                    file.renameTo(new File(toDir, file.getName()));
+                }
             }
         }
     }
@@ -608,7 +617,7 @@ public class GenotypeSupport {
      * This method runs a command from the code2vec directory.
      * @param comm the command to be run.
      */
-    private static void runCode2VecCommand(String comm) {
+    private void runCode2VecCommand(String comm) {
         runBashCommand(comm, 0);
     }
 
@@ -616,7 +625,7 @@ public class GenotypeSupport {
      * This method runs a given command in git bash and prints the results.
      * @param command the command to be run in git bash.
      */
-    private static void runBashCommand(String command, Integer countFailed) {
+    private void runBashCommand(String command, Integer countFailed) {
         try {
             ProcessBuilder processBuilder = new ProcessBuilder();
             processBuilder.directory(new File(dir_path + "/code2vec/"));

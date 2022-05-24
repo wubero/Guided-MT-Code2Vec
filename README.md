@@ -57,3 +57,9 @@ by executing the filePicker.sh script located in ./scripts. To do this only the 
 - Maven
 - Jdk 17
 - Python 3.9
+
+## Troubleshooting
+If the bash commands in the program are not working you might need to adjust the file endings of 
+the shell scripts in the code2vec folder. You can do this by running the dos2unix command in 
+something like git bash. This will readjust the file endings and make sure that the docker build 
+runs smoothly.

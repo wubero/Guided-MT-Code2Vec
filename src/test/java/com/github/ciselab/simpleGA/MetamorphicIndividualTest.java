@@ -17,21 +17,23 @@ import org.junit.jupiter.api.Test;
 public class MetamorphicIndividualTest {
 
     RandomGenerator r = new SplittableRandom(101010);
+    private GenotypeSupport genotypeSupport;
 
     @BeforeEach
     public void setUp() {
-        GenotypeSupport.setConfigFile("src/test/resources/config.properties");
-        GenotypeSupport.initializeFields();
+        genotypeSupport = new GenotypeSupport();
+        genotypeSupport.setConfigFile("src/test/resources/config.properties");
+        genotypeSupport.initializeFields();
     }
 
     @AfterEach
     public void after() {
-        GenotypeSupport.removeOtherDirs();
+        genotypeSupport.removeOtherDirs();
     }
 
     @Test
     public void createIndividualTest() {
-        MetamorphicIndividual individual = new MetamorphicIndividual();
+        MetamorphicIndividual individual = new MetamorphicIndividual(genotypeSupport);
         assertTrue(individual.getTransformers().isEmpty());
         individual.createIndividual(r, 2, 6);
         assertFalse(individual.getTransformers().isEmpty());
@@ -39,7 +41,7 @@ public class MetamorphicIndividualTest {
 
     @Test
     public void increaseIndividualLength() {
-        MetamorphicIndividual individual = new MetamorphicIndividual();
+        MetamorphicIndividual individual = new MetamorphicIndividual(genotypeSupport);
         individual.createIndividual(r, 2, 6);
         assertEquals(individual.getTransformers().size(), 2);
         individual.increase(10, r, 6);
@@ -48,7 +50,7 @@ public class MetamorphicIndividualTest {
 
     @Test
     public void decreaseIndividualLength() {
-        MetamorphicIndividual individual = new MetamorphicIndividual();
+        MetamorphicIndividual individual = new MetamorphicIndividual(genotypeSupport);
         individual.createIndividual(r, 2, 6);
         assertEquals(individual.getTransformers().size(), 2);
         individual.decrease(r);
@@ -59,7 +61,7 @@ public class MetamorphicIndividualTest {
     @Tag("File")
     @Test
     public void extendExistingDirectory_withTransformerTest() {
-        MetamorphicIndividual individual = new MetamorphicIndividual();
+        MetamorphicIndividual individual = new MetamorphicIndividual(genotypeSupport);
         individual.createIndividual(r, 2, 6);
         individual.getFitness();
         individual.addGene(individual.createGene(3, r));

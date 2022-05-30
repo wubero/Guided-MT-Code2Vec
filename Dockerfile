@@ -1,4 +1,4 @@
-FROM python:3.9 as builder
+FROM python:3.9.13 as builder
 
 ARG Guided_MT_Code2Vec_VERSION="1.0-SNAPSHOT"
 LABEL maintainer="rmar@live.nl"
@@ -8,7 +8,10 @@ LABEL org.opencontainers.image.source="https://github/wubero/Guided-MT-Code2Vec"
 LABEL url="https://github/wubero/Guided-MT-Code2Vec"
 LABEL vcs="https://github/wubero/Guided-MT-Code2Vec"
 
-RUN apt-get update && apt install openjdk-17-jdk -y && apt install maven -y && apt install bash -y
+RUN apt-get update
+RUN apt install openjdk-17-jdk -y
+RUN apt install maven -y
+RUN apt install bash -y
 
 COPY . /app/Guided-MT-Code2Vec/
 WORKDIR /app/Guided-MT-Code2Vec/code2vec

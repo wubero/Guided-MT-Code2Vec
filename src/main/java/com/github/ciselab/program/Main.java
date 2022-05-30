@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalTime;
 import java.util.Arrays;
+import java.util.Properties;
 import java.util.Set;
 import java.util.SplittableRandom;
 import java.util.random.RandomGenerator;
@@ -22,18 +23,18 @@ import org.apache.logging.log4j.Logger;
 public class Main {
 
     // GA parameters
-    private final static double uniformRate = 0.7; // 0.7, 0.8, 0.9
-    private final static double mutationRate = 0.3; //0.2, 0.3, 0.4
+    private final static double uniformRate = 0.7; // 0.6, 0.7
+    private final static double mutationRate = 0.4; //0.3, 0.4
     private final static int tournamentSize = 4;
     private final static boolean elitism = false;
-    private final static double increaseSizeRate = 0.7; //0.6, 0.7, 0.8
+    private final static double increaseSizeRate = 0.6; //0.6, 0.7, 0.8
 
 
     private final static int maxTransformerValue = 6; // Its including 0, so 7 transformers
     private final static int maxGeneLength = 20;
-    private static int popSize = 3;
-    private static int maxSteadyGenerations = 1;
-    private static int maxTimeInMin = 30;
+    private static int popSize = 10;
+    private static int maxSteadyGenerations = 35;
+    private static int maxTimeInMin = 900;
     private final static Logger logger = LogManager.getLogger(Main.class);
     private static GenotypeSupport genotypeSupport = new GenotypeSupport();
 
@@ -59,8 +60,9 @@ public class Main {
             logger.error("Received an unknown amount of arguments");
             return;
         }
-        logger.info("Configuration: " + genotypeSupport.initializeFields().toString());
-        runSimpleGA();
+        Properties prop = genotypeSupport.initializeFields();
+        logger.info("Configuration: " + prop.toString());
+        runSimpleGA(prop);
     }
 
     /**
@@ -82,11 +84,11 @@ public class Main {
     /**
      * Run the custom simple genetic algorithm created for variable length chromosomes.
      */
-    public static void runSimpleGA() {
+    public static void runSimpleGA(Properties properties) {
         LocalTime start = LocalTime.now();
         GeneticAlgorithm geneticAlgorithm = new GeneticAlgorithm(genotypeSupport);
         boolean converged = false;
-        RandomGenerator random = new SplittableRandom(10110);
+        RandomGenerator random = new SplittableRandom(Long.parseLong(properties.getProperty("seed")));
         String GA_parameters = geneticAlgorithm.initializeParameters(uniformRate, mutationRate, tournamentSize, elitism, increaseSizeRate,
                 maxTransformerValue, maxGeneLength, random);
         logger.info("GA parameters: " + GA_parameters);
@@ -140,15 +142,15 @@ public class Main {
                 logger.info("Terminated because too many steady generations.");
             else
                 logger.info("Terminated because total minutes increased max.");
-            logger.info("Generation used: " + generationCount);
-            logger.info("Max fitness: " + best.getFitness());
-            logger.info("Best individual: ");
-            logger.info(best.toString());
+            myWriter.write("Generation used: " + generationCount + "\n");
+            myWriter.write("Max fitness: " + best.getFitness() + "\n");
+            myWriter.write("Best individual: " + "\n");
+            myWriter.write(best.toString() + "\n");
 
             geneticAlgorithm.checkPareto(myPop);
             myWriter.write("Metrics are: " + Arrays.toString(genotypeSupport.getMetrics().toArray()) + "\n");
             myWriter.write("Pareto set: " + displayPareto(genotypeSupport.getPareto()) + "\n");
-            getVariance();
+            getVariance(myWriter);
 
             long code2vecTime = genotypeSupport.getTotalCode2vevTime();
             int code2vecSec = (int) (code2vecTime % 60);
@@ -213,7 +215,7 @@ public class Main {
         return out.substring(0, out.length()-2) + "}";
     }
 
-    private static void getVariance() {
+    private static void getVariance(FileWriter writer) throws IOException {
         double[] variance = new double[genotypeSupport.getActiveMetrics()];
         double[] means = new double[genotypeSupport.getActiveMetrics()];
         double[] sum = new double[genotypeSupport.getActiveMetrics()];
@@ -228,7 +230,7 @@ public class Main {
         }
         for(int i = 0; i < genotypeSupport.getActiveMetrics(); i++)
             means[i] = sum[i]/size;
-        logger.info("The metric means are: " + Arrays.toString(means));
+        writer.write("The metric means are: " + Arrays.toString(means));
 
         for(int i = 0; i < genotypeSupport.getActiveMetrics(); i++)
             sum[i] = 0;
@@ -239,6 +241,6 @@ public class Main {
         }
         for(int i = 0; i < genotypeSupport.getActiveMetrics(); i++)
             variance[i] = sum[i]/(size-1);
-        logger.info("The metric variance are: " + Arrays.toString(variance));
+        writer.write("The metric variance are: " + Arrays.toString(variance));
     }
 }

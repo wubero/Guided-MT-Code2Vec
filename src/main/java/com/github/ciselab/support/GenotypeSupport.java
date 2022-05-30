@@ -310,7 +310,10 @@ public class GenotypeSupport {
         if(prop.get("Optimization_objective") != null)
             maximize = prop.get("Optimization_objective").equals("max");
         if(prop.get("seed") != null)
-            seed = Long.parseLong((String) prop.get("seed"));
+            if(Long.parseLong(prop.getProperty("seed")) == -1)
+                seed = new Random().nextLong();
+            else
+                seed = Long.parseLong((String) prop.get("seed"));
         if(prop.get("removeAllComments")!=null){
             removeAllComments = Boolean.parseBoolean((String) prop.get("removeAllComments"));
         }

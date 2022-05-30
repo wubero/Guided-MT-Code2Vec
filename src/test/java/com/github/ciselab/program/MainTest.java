@@ -4,6 +4,7 @@ import com.github.ciselab.simpleGA.MetamorphicIndividual;
 import com.github.ciselab.simpleGA.MetamorphicPopulation;
 import com.github.ciselab.support.GenotypeSupport;
 import java.time.LocalTime;
+import java.util.Properties;
 import java.util.SplittableRandom;
 import java.util.random.RandomGenerator;
 import org.junit.jupiter.api.AfterEach;
@@ -15,10 +16,12 @@ import static org.junit.jupiter.api.Assertions.*;
 public class MainTest {
 
     private GenotypeSupport genotypeSupport = new GenotypeSupport();
+    private Properties prop;
+
     @BeforeEach
     public void setUp() {
         genotypeSupport.setConfigFile("src/test/resources/config.properties");
-        genotypeSupport.initializeFields();
+        prop = genotypeSupport.initializeFields();
     }
 
     @AfterEach
@@ -72,6 +75,6 @@ public class MainTest {
     public void mainIntegrationTest() {
         Main.setMaxGenerations(1);
         Main.setPopSize(1);
-        Main.runSimpleGA();
+        Main.runSimpleGA(prop);
     }
 }

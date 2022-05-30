@@ -9,11 +9,11 @@ public class PredictionLength extends Metric {
     private final String filePath = GenotypeSupport.dir_path + "/code2vec/predicted_words.txt";
 
     public PredictionLength() {
-        super("Prediction_length");
+        super("PredictionLength");
     }
 
     @Override
-    public double CalculateScore() {
+    public double calculateScore() {
         // Original: render, predicted: get|logs
         List<String> lines = readPredictions(filePath);
         double score = 0;

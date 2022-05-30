@@ -9,11 +9,11 @@ public class EditDistance extends Metric {
     private final String filePath = GenotypeSupport.dir_path + "/code2vec/predicted_words.txt";
 
     public EditDistance() {
-        super("Edit_distance");
+        super("EditDistance");
     }
 
     @Override
-    public double CalculateScore() {
+    public double calculateScore() {
         List<String> lines = readPredictions(filePath);
         float score = 0;
         for(String i: lines) {

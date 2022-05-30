@@ -12,11 +12,11 @@ public class InputLength extends Metric {
     private String dataset;
 
     public InputLength() {
-        super("Input_length");
+        super("InputLength");
     }
 
     @Override
-    public double CalculateScore() {
+    public double calculateScore() {
         if(dataset != null) {
             // should read all files not the dataset...
             int count = 0;
@@ -28,7 +28,7 @@ public class InputLength extends Metric {
                 }
                 return count;
             } catch(NullPointerException e) {
-                System.out.println("Couldn't get files input length set to 0.");
+                logger.debug("Couldn't get files input length set to 0.");
             }
         }
         return 0;

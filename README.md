@@ -1,11 +1,14 @@
 # Guided-MT-Code2vec
 This repository works with genetic programming to optimize metrics for code2vec method name prediction.
 The architecture for this is depicted in the image below.
-![Architecture plan](./src/main/resources/Thesis_pipeline.png)
+![Architecture plan](Resources/Thesis_pipeline.png)
 
-This is still under development
+This project is part of my master thesis and is still under development.
+I intend to actively maintain the project during the course of the master thesis which is until 01-09-2022.
+Before this date you can create an issue, and I will get back to you with an answer within the week.
+If you need to reach me after this date for questions about the project you can reach me at rmar@live.nl, and I will get back to you asap.
 
-## Cloning the repository
+## Getting started
 In this project recursive repositories are used. This means that before you try to build the project you should clone both the repositories.
 For this simple run the following command in your git bash:
 
@@ -27,7 +30,10 @@ To build an executable:
 mvn package verify
 ```
 
-## How to get started
+### Docker
+If you run the project via docker you do not need to install anything yourself.
+
+## Running Guided-MT-Code2Vec
 
 It's highly recommended that new users start by looking at both other projects that are used here, code2vec and Lampion.
 Code2Vec is used for evaluating its trained model, besides that the Lampion project is used for the Java metamorphic transformers.
@@ -50,7 +56,7 @@ wget https://s3.amazonaws.com/code2vec/data/java-small_data.tar.gz
 ```
 
 As mentioned the dataset we used is provided in ./code2vec/data. However, you can also generate your own random dataset
-by executing the filePicker.sh script located in ./scripts. To do this only the directory and target paths need to be changed.
+by executing the file_picker.sh script located in ./scripts. To do this only the directory and target paths need to be changed.
 
 ## Requirements
 

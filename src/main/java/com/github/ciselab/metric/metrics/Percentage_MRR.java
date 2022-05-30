@@ -9,11 +9,11 @@ import java.util.List;
 public class Percentage_MRR extends Metric {
 
     public Percentage_MRR() {
-        super("Percentage_MRR");
+        super("PercentageMRR");
     }
 
     @Override
-    public double CalculateScore() {
+    public double calculateScore() {
         List<String> predictions = readPredictions(defaultPath);
         double score = 0;
         for(int i = 0; i < predictions.size(); i++) {

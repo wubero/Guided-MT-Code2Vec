@@ -13,7 +13,7 @@ public class Precision extends Metric {
     }
 
     @Override
-    public double CalculateScore() {
+    public double calculateScore() {
         List<String> lines = readPredictions(filePath);
         double score = -1;
         for(String i: lines) {

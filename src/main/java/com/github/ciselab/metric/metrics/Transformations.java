@@ -4,12 +4,19 @@ import com.github.ciselab.metric.Metric;
 
 public class Transformations extends Metric {
 
+    private int length;
+
     public Transformations() {
-        super("Number_of_transformations");
+        super("NumberOfTransformations");
+        length = 0;
+    }
+
+    public void setLength(int l) {
+        length = l;
     }
 
     @Override
-    public double CalculateScore() {
-        return 0;
+    public double calculateScore() {
+        return length;
     }
 }

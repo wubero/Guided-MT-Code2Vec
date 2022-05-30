@@ -10,6 +10,7 @@ import com.github.ciselab.lampion.core.transformations.transformers.RandomParame
 import com.github.ciselab.lampion.core.transformations.transformers.RenameVariableTransformer;
 import com.github.ciselab.metric.Metric;
 import com.github.ciselab.metric.metrics.InputLength;
+import com.github.ciselab.metric.metrics.Transformations;
 import com.github.ciselab.support.GenotypeSupport;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,15 +24,13 @@ import org.apache.logging.log4j.Logger;
  */
 public class MetamorphicIndividual {
 
-    private Logger logger;
+    private Logger logger = LogManager.getLogger(MetamorphicIndividual.class);
     private GenotypeSupport genotypeSupport;
-    private int length = 0;
     private List<BaseTransformer> transformers = new ArrayList<>();
     private double fitness = -1;
     private double[] metrics;
 
     public MetamorphicIndividual (GenotypeSupport gen) {
-        logger = LogManager.getLogger(MetamorphicIndividual.class);
         genotypeSupport = gen;
         metrics = new double[genotypeSupport.getActiveMetrics()];
     }
@@ -45,7 +44,6 @@ public class MetamorphicIndividual {
     public void createIndividual(RandomGenerator r, int length, int maxTransformerValue) {
         transformers.clear();
         metrics = new double[genotypeSupport.getActiveMetrics()];
-        this.length = length;
         for(int i = 0; i < length; i++) {
             int key = r.nextInt(0, maxTransformerValue+1);
             int seed = r.nextInt();
@@ -58,7 +56,7 @@ public class MetamorphicIndividual {
      * @return the length.
      */
     public int getLength() {
-        return length;
+        return transformers.size();
     }
 
     /**
@@ -85,7 +83,6 @@ public class MetamorphicIndividual {
      */
     public void setGene(int index, BaseTransformer gene) {
         transformers.set(index, gene);
-        length = transformers.size();
         fitness = -1;
     }
 
@@ -95,7 +92,6 @@ public class MetamorphicIndividual {
      */
     public void addGene(BaseTransformer gene) {
         transformers.add(gene);
-        length++;
         fitness = -1;
     }
 
@@ -106,30 +102,15 @@ public class MetamorphicIndividual {
      * @param maxValue the maximum value for the transformer keys.
      */
     public void increase(int maxGeneLength, RandomGenerator randomGen, int maxValue) {
-        if(length < maxGeneLength) {
-            int key = randomGen.nextInt(1, maxValue+1);
-            int seed = randomGen.nextInt();
-            BaseTransformer newTransformer = createTransformers(key, seed);
-            length++;
+        if(getLength() < maxGeneLength) {
+            BaseTransformer newTransformer = createTransformers(randomGen.nextInt(1, maxValue+1), randomGen.nextInt());
             fitness = -1;
             if(genotypeSupport.getDir(transformers).isPresent()) {
                 List<BaseTransformer> t = new ArrayList<>();
                 t.add(newTransformer);
                 String oldDir = genotypeSupport.getDir(transformers).get() + "/test";
                 String name = genotypeSupport.runTransformations(t, oldDir);
-                genotypeSupport.runCode2vec(name);
-                double[] primary = calculateMetric();
-                double[] secondary = secondaryMetrics(name);
-                int j = 0;
-                for(int i = 0; i < metrics.length; i++) {
-                    if(i < primary.length)
-                        metrics[i] = primary[i];
-                    else {
-                        metrics[i] = secondary[j];
-                        j++;
-                    }
-                }
-                fitness = calculateFitness(metrics);
+                determineFitness(name);
                 transformers.add(newTransformer);
                 genotypeSupport.storeFiles(transformers, name, metrics);
             } else {
@@ -139,8 +120,28 @@ public class MetamorphicIndividual {
                     fitness = calculateFitness(metrics);
                 }
             }
-            logger.info("The gene " + this.hashCode() + " has increased its size to " + this.length);
+            logger.debug("The gene " + this.hashCode() + " has increased its size to " + this.getLength());
         }
+    }
+
+    /**
+     * Calculate fitness according to the directory name.
+     * @param name the directory name.
+     */
+    private void determineFitness(String name) {
+        genotypeSupport.runCode2vec(name);
+        double[] primary = calculateMetric();
+        double[] secondary = secondaryMetrics(name);
+        int j = 0;
+        for(int i = 0; i < metrics.length; i++) {
+            if(i < primary.length)
+                metrics[i] = primary[i];
+            else {
+                metrics[i] = secondary[j];
+                j++;
+            }
+        }
+        fitness = calculateFitness(metrics);
     }
 
     /**
@@ -148,11 +149,10 @@ public class MetamorphicIndividual {
      * @param randomGen the random generator used for this run.
      */
     public void decrease(RandomGenerator randomGen) {
-        if(length > 1) {
-            int drop = randomGen.nextInt(0, length);
+        if(getLength() > 1) {
+            int drop = randomGen.nextInt(0, getLength());
             transformers.remove(drop);
-            length--;
-            logger.info("The gene " + this.hashCode() + " has decreased its size to " + this.length);
+            logger.debug("The gene " + this.hashCode() + " has decreased its size to " + this.getLength());
             if(genotypeSupport.getMetricResult(transformers).isPresent()) {
                 metrics = genotypeSupport.getMetricResult(transformers).get();
                 fitness = calculateFitness(metrics);
@@ -175,24 +175,15 @@ public class MetamorphicIndividual {
 
     /**
      * Get the fitness of this metamorphic individual. If it does not exist calculate it.
+     * Every metric has a certain weight specified in the config. These weights are normalized for all included metrics.
+     * The score of a weight is then multiplied by its weights and added to the fitness of this individual.
+     * The resulting fitness of all metrics will be between 0 and 1.
      * @return the fitness of this metamorphic individual.
      */
     public double getFitness() {
         if (fitness < 0.0) {
             String name = genotypeSupport.runTransformations(transformers, genotypeSupport.getCurrentDataset());
-            genotypeSupport.runCode2vec(name);
-            double[] primary = calculateMetric();
-            double[] secondary = secondaryMetrics(name);
-            int j = 0;
-            for(int i = 0; i < metrics.length; i++) {
-                if(i < primary.length)
-                    metrics[i] = primary[i];
-                else {
-                    metrics[i] = secondary[j];
-                    j++;
-                }
-            }
-            fitness = calculateFitness(metrics);
+            determineFitness(name);
             genotypeSupport.fillFitness(transformers, metrics);
         }
         logger.info("The gene " + this.hashCode() + " has calculated its fitness, it is: " + fitness);
@@ -234,11 +225,13 @@ public class MetamorphicIndividual {
         double[] scores = new double[metrics.size()];
         for(int i = 0; i < metrics.size(); i++) {
             double score = 0;
-            if(metrics.get(i).getName().contains("Input_length")) {
+            if(metrics.get(i).getName().contains("InputLength")) {
                 ((InputLength)metrics.get(i)).setDataSet(dataset);
-                score = metrics.get(i).CalculateScore();
-            } else if(metrics.get(i).getName().contains("Number_of_transformations"))
-                score = length;
+                score = metrics.get(i).calculateScore();
+            } else if(metrics.get(i).getName().contains("NumberOfTransformations")) {
+                ((Transformations) metrics.get(i)).setLength(getLength());
+                score = metrics.get(i).calculateScore();
+            }
             scores[i] = score;
         }
         return scores;
@@ -252,7 +245,7 @@ public class MetamorphicIndividual {
         List<Metric> metrics = genotypeSupport.getMetrics();
         double[] scores = new double[metrics.size()];
         for(int i = 0; i < metrics.size(); i++) {
-            double score = metrics.get(i).CalculateScore();
+            double score = metrics.get(i).calculateScore();
             scores[i] = score;
         }
         return scores;

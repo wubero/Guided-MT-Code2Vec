@@ -8,6 +8,7 @@ LABEL org.opencontainers.image.source="https://github/wubero/Guided-MT-Code2Vec"
 LABEL url="https://github/wubero/Guided-MT-Code2Vec"
 LABEL vcs="https://github/wubero/Guided-MT-Code2Vec"
 
+# Install everything needed for the java code
 RUN apt-get update
 RUN apt install openjdk-17-jdk -y
 RUN apt install maven -y
@@ -26,11 +27,14 @@ WORKDIR /app/Guided-MT-Code2Vec
 RUN mvn -P nofiles install package verify
 
 # Copy entrypoint & sample config file
-COPY src/main/resources/Docker/entrypoint.sh /app/Guided-MT-Code2Vec/
-COPY src/main/resources/Docker/config.properties /config/
+COPY Docker/entrypoint.sh /app/Guided-MT-Code2Vec/
+COPY Docker/config.properties /config/
 
+# The target dir is the input directory for the java files
 ENV targetDir="/app/Guided-MT-Code2Vec/genetic_input"
+# The config file is the specified config file with all metrics and other properties
 ENV configfile="/config/config.properties"
+# The output directory is the directory where the results will be saved
 ENV outputDir="/app/Guided-MT-Code2Vec/genetic_output"
 
 RUN mv target/Guided-MT-Code2Vec-jar-with-dependencies.jar Guided-MT-Code2Vec.jar

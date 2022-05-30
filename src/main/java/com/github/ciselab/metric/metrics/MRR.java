@@ -13,7 +13,7 @@ public class MRR extends Metric {
     }
 
     @Override
-    public double CalculateScore() {
+    public double calculateScore() {
         List<String> predictions = readPredictions(defaultPath);
         float score = 0;
         for(int i = 0; i < predictions.size(); i++) {

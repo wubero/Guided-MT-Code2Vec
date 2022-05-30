@@ -5,10 +5,10 @@ package com.github.ciselab.metric;
  */
 public enum MetricCategory {
     MRR,
-    F1_score,
-    Percentage_MRR,
+    F1Score,
+    PercentageMRR,
     Precision,
     Recall,
-    Prediction_length,
-    Edit_distance
+    PredictionLength,
+    EditDistance
 }

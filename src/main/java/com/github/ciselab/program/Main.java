@@ -24,19 +24,18 @@ public class Main {
 
     // GA parameters
     private final static double uniformRate = 0.7; // 0.6, 0.7
-    private final static double mutationRate = 0.4; //0.3, 0.4
+    private final static double mutationRate = 0.4; // 0.3, 0.4
     private final static int tournamentSize = 4;
     private final static boolean elitism = false;
-    private final static double increaseSizeRate = 0.6; //0.6, 0.7, 0.8
+    private final static double increaseSizeRate = 0.6; // 0.6, 0.7, 0.8
 
-
-    private final static int maxTransformerValue = 6; // Its including 0, so 7 transformers
+    private final static int maxTransformerValue = 6; // Including 0, so 7 transformers
     private final static int maxGeneLength = 20;
     private static int popSize = 10;
     private static int maxSteadyGenerations = 35;
     private static int maxTimeInMin = 900;
     private final static Logger logger = LogManager.getLogger(Main.class);
-    private static GenotypeSupport genotypeSupport = new GenotypeSupport();
+    private static final GenotypeSupport genotypeSupport = new GenotypeSupport();
 
     private static String logDir = "";
 
@@ -129,10 +128,10 @@ public class Main {
                 logger.debug("Current Pareto set = " + displayPareto(genotypeSupport.getPareto()));
 
                 myWriter.write("Generation: " + generationCount + ", result: " + myPop.getFittest().getFitness() + "\n");
-                myWriter.write("Gene: " + best + "\n");
+                myWriter.write("Gene: " + myPop.getFittest() + "\n");
 
                 logger.info("Generation: " + generationCount + " Fittest: " + myPop.getFittest().getFitness() + " Gene:");
-                logger.info(best.toString());
+                logger.info(myPop.getFittest().toString());
 
                 myPop = geneticAlgorithm.evolvePopulation(myPop);
                 logger.debug("Population of generation " + generationCount + " = " + myPop);
@@ -145,7 +144,7 @@ public class Main {
             myWriter.write("Generation used: " + generationCount + "\n");
             myWriter.write("Max fitness: " + best.getFitness() + "\n");
             myWriter.write("Best individual: " + "\n");
-            myWriter.write(best.toString() + "\n");
+            myWriter.write(best + "\n");
 
             geneticAlgorithm.checkPareto(myPop);
             myWriter.write("Metrics are: " + Arrays.toString(genotypeSupport.getMetrics().toArray()) + "\n");
@@ -230,7 +229,7 @@ public class Main {
         }
         for(int i = 0; i < genotypeSupport.getActiveMetrics(); i++)
             means[i] = sum[i]/size;
-        writer.write("The metric means are: " + Arrays.toString(means));
+        writer.write("The metric means are: " + Arrays.toString(means) + "\n");
 
         for(int i = 0; i < genotypeSupport.getActiveMetrics(); i++)
             sum[i] = 0;
@@ -241,6 +240,6 @@ public class Main {
         }
         for(int i = 0; i < genotypeSupport.getActiveMetrics(); i++)
             variance[i] = sum[i]/(size-1);
-        writer.write("The metric variance are: " + Arrays.toString(variance));
+        writer.write("The metric variance are: " + Arrays.toString(variance) + "\n");
     }
 }

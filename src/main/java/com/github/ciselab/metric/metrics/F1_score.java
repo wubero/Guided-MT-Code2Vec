@@ -13,11 +13,11 @@ public class F1_score extends Metric {
     private final String filePath = GenotypeSupport.dir_path + "/code2vec/F1_score_log.txt";
 
     public F1_score() {
-        super("F1_score");
+        super("F1Score");
     }
 
     @Override
-    public double CalculateScore() {
+    public double calculateScore() {
         List<String> lines = readPredictions(filePath);
         double score = -1;
         for(String i: lines) {

@@ -2,8 +2,6 @@ package com.github.ciselab.support;
 
 import com.github.ciselab.lampion.core.program.Engine;
 import com.github.ciselab.lampion.core.program.EngineResult;
-import com.github.ciselab.lampion.core.transformations.EmptyTransformationResult;
-import com.github.ciselab.lampion.core.transformations.TransformationResult;
 import com.github.ciselab.lampion.core.transformations.TransformerRegistry;
 import com.github.ciselab.lampion.core.transformations.transformers.BaseTransformer;
 import com.github.ciselab.metric.Metric;
@@ -18,12 +16,10 @@ import com.github.ciselab.metric.metrics.Precision;
 import com.github.ciselab.metric.metrics.PredictionLength;
 import com.github.ciselab.metric.metrics.Recall;
 import com.github.ciselab.metric.metrics.Transformations;
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -37,8 +33,6 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.Random;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import spoon.Launcher;
@@ -52,11 +46,11 @@ import spoon.reflect.CtModel;
  */
 public class GenotypeSupport {
 
-    public String path_bash = "C:/Program Files/Git/bin/bash.exe";
     public static final String dir_path = System.getProperty("user.dir").replace("\\", "/");
     public String configFile = dir_path + "/src/main/resources/config.properties";
     public String dataDir = dir_path + "/code2vec/data/";
     private final String currentDataset = "generation_0";
+    private final BashRunner bashRunner = new BashRunner();
 
     private boolean maximize = true;
     private long seed = 200;
@@ -73,14 +67,10 @@ public class GenotypeSupport {
     private Set<double[]> pareto = new HashSet<>();
     private int activeMetrics = 0;
 
-    private final Logger logger;
+    private final Logger logger = LogManager.getLogger(GenotypeSupport.class);
 
     private long totalCode2vecTime = 0;
     private long totalTransformationTime = 0;
-
-    public GenotypeSupport(){
-        logger = LogManager.getLogger(GenotypeSupport.class);
-    }
 
     public Map<List<BaseTransformer>, double[]> getMetricLookup() {
         return metricLookup;
@@ -323,7 +313,7 @@ public class GenotypeSupport {
                 logger.warn("Transformation scope is not global, this might not be desired.");
         }
         if(prop.get("bash") != null)
-            path_bash = (String)prop.get("bash");
+            bashRunner.setPath_bash((String) prop.get("bash"));
         for(MetricCategory metricCategory: MetricCategory.values()) {
             metricList.add(createMetric(metricCategory.name()));
         }
@@ -369,7 +359,6 @@ public class GenotypeSupport {
         float sum = 0;
         for(float i: metricWeights)
             sum += i;
-        System.out.println(sum);
         if(sum > 0.0) {
             for (int j = 0; j < metricWeights.size(); j++)
                 metricWeights.set(j, metricWeights.get(j) / sum);
@@ -468,21 +457,21 @@ public class GenotypeSupport {
         switch (name) {
             case "MRR":
                 return new MRR();
-            case "F1_score":
+            case "F1Score":
                 return new F1_score();
-            case "Percentage_MRR":
+            case "PercentageMRR":
                 return new Percentage_MRR();
             case "Precision":
                 return new Precision();
             case "Recall":
                 return new Recall();
-            case "Edit_distance":
+            case "EditDistance":
                 return new EditDistance();
-            case "Input_length":
+            case "InputLength":
                 return new InputLength();
-            case "Prediction_length":
+            case "PredictionLength":
                 return new PredictionLength();
-            case "Number_of_transformations":
+            case "NumberOfTransformations":
                 return new Transformations();
             default:
                 logger.error("Metric name not a correct metric.");
@@ -574,11 +563,11 @@ public class GenotypeSupport {
         createDirs(path);
         // Preprocessing file.
         String preprocess = "source preprocess.sh " + path + " " + dataset;
-        runCode2VecCommand(preprocess);
+        bashRunner.runCommand(preprocess);
         // Evaluating code2vec model with preprocessed files.
         String testData = "data/" + dataset + "/" + dataset + ".test.c2v";
         String eval = "python3 code2vec.py --load models/java14_model/saved_model_iter8.release --test " + testData + " --logs-path eval_log.txt";
-        runCode2VecCommand(eval);
+        bashRunner.runCommand(eval);
         // The evaluation writes to the result.txt file
 
         long diff = (System.currentTimeMillis() - start) / 1000;
@@ -613,52 +602,6 @@ public class GenotypeSupport {
                     file.renameTo(new File(toDir, file.getName()));
                 }
             }
-        }
-    }
-
-    /**
-     * This method runs a command from the code2vec directory.
-     * @param comm the command to be run.
-     */
-    private void runCode2VecCommand(String comm) {
-        runBashCommand(comm, 0);
-    }
-
-    /**
-     * This method runs a given command in git bash and prints the results.
-     * @param command the command to be run in git bash.
-     */
-    private void runBashCommand(String command, Integer countFailed) {
-        try {
-            ProcessBuilder processBuilder = new ProcessBuilder();
-            processBuilder.directory(new File(dir_path + "/code2vec/"));
-            processBuilder.command(path_bash, "-c", command);
-
-            Process process = processBuilder.start();
-
-            BufferedReader reader=new BufferedReader(new InputStreamReader(
-                    process.getInputStream()));
-            String line;
-            while(reader.ready() && (line = reader.readLine()) != null) {
-                System.out.println(line);
-            }
-
-            int exitVal = process.waitFor();
-            if (exitVal == 0) {
-                System.out.println(" --- Command run successfully");
-            } else {
-                if(countFailed < 5) {
-                    TimeUnit.SECONDS.sleep(1);
-                    runBashCommand(command, countFailed+1);
-                } else {
-                    System.out.println("The command: " + command + "\n Will not run, quiting the system.");
-                    System.exit(0);
-                }
-            }
-        } catch (IOException | InterruptedException e) {
-            System.out.println(" --- Interruption in RunCommand: " + e);
-            // Restore interrupted state
-            Thread.currentThread().interrupt();
         }
     }
 }

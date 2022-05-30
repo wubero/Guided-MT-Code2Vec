@@ -6,6 +6,8 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public abstract class Metric implements Comparable<Metric> {
 
@@ -13,6 +15,7 @@ public abstract class Metric implements Comparable<Metric> {
     protected String name;
     protected final String defaultPath = GenotypeSupport.dir_path + "/code2vec/results.txt";
     protected String objective;
+    protected final Logger logger = LogManager.getLogger(Metric.class);
 
     public Metric(String metricName) {
         this.name = metricName;
@@ -42,12 +45,12 @@ public abstract class Metric implements Comparable<Metric> {
             }
             bf.close();
         } catch(IOException e) {
-            System.out.println("Couldn't read file of path: " + filePath);
+            logger.debug("Couldn't read file of path: " + filePath);
         }
         return predictions;
     }
 
-    public abstract double CalculateScore();
+    public abstract double calculateScore();
 
     @Override
     public int compareTo(Metric other) {

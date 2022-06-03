@@ -32,7 +32,7 @@ public class GenotypeSupportTest {
 
     @AfterEach
     public void after() {
-        genotypeSupport.removeOtherDirs();
+        FileManagement.removeOtherDirs(genotypeSupport.getDataDir());
     }
 
     @Tag("File")
@@ -43,7 +43,7 @@ public class GenotypeSupportTest {
         myDir.mkdir();
         assertTrue(myDir.exists());
         assertTrue(currDir.exists());
-        genotypeSupport.removeOtherDirs();
+        FileManagement.removeOtherDirs(genotypeSupport.getDataDir());
         assertFalse(myDir.exists());
         assertTrue(currDir.exists());
     }

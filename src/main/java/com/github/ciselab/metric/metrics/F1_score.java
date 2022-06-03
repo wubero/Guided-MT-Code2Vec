@@ -1,7 +1,6 @@
 package com.github.ciselab.metric.metrics;
 
 import com.github.ciselab.metric.Metric;
-import com.github.ciselab.support.GenotypeSupport;
 import java.util.List;
 
 /**
@@ -10,15 +9,13 @@ import java.util.List;
  */
 public class F1_score extends Metric {
 
-    private final String filePath = GenotypeSupport.dir_path + "/code2vec/F1_score_log.txt";
-
-    public F1_score() {
-        super("F1Score");
+    public F1_score(String resultPath) {
+        super("F1Score", resultPath);
     }
 
     @Override
     public double calculateScore() {
-        List<String> lines = readPredictions(filePath);
+        List<String> lines = readPredictions(path);
         double score = -1;
         for(String i: lines) {
             if(i.contains("F1")) {

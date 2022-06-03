@@ -3,6 +3,7 @@ package com.github.ciselab.simpleGA;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
+import com.github.ciselab.support.FileManagement;
 import com.github.ciselab.support.GenotypeSupport;
 import java.util.SplittableRandom;
 import java.util.random.RandomGenerator;
@@ -18,7 +19,7 @@ public class GeneticAlgorithmTest {
 
     @AfterEach
     public void after() {
-        genotypeSupport.removeOtherDirs();
+        FileManagement.removeOtherDirs(genotypeSupport.getDataDir());
     }
 
     @Test

@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.github.ciselab.support.FileManagement;
 import com.github.ciselab.support.GenotypeSupport;
 import java.util.SplittableRandom;
 import java.util.random.RandomGenerator;
@@ -23,7 +24,7 @@ public class MetamorphicPopulationTest {
 
     @AfterEach
     public void after() {
-        genotypeSupport.removeOtherDirs();
+        FileManagement.removeOtherDirs(genotypeSupport.getDataDir());
     }
 
     @Test

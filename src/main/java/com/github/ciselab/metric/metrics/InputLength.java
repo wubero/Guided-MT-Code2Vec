@@ -7,12 +7,10 @@ import java.util.List;
 
 public class InputLength extends Metric {
 
-    private final String filePath = GenotypeSupport.dir_path + "/code2vec/data/";
-
     private String dataset;
 
-    public InputLength() {
-        super("InputLength");
+    public InputLength(String resultPath) {
+        super("InputLength", resultPath);
     }
 
     @Override
@@ -21,7 +19,7 @@ public class InputLength extends Metric {
             // should read all files not the dataset...
             int count = 0;
             try {
-                File file = new File(filePath + dataset + "/test");
+                File file = new File(path + dataset + "/test");
                 for (File i : file.listFiles()) {
                     List<String> lines = readPredictions(i.getPath());
                     count += lines.size();

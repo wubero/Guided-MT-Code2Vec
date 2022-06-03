@@ -2,6 +2,7 @@ package com.github.ciselab.program;
 
 import com.github.ciselab.simpleGA.MetamorphicIndividual;
 import com.github.ciselab.simpleGA.MetamorphicPopulation;
+import com.github.ciselab.support.FileManagement;
 import com.github.ciselab.support.GenotypeSupport;
 import java.time.LocalTime;
 import java.util.Properties;
@@ -26,7 +27,7 @@ public class MainTest {
 
     @AfterEach
     public void after() {
-        genotypeSupport.removeOtherDirs();
+        FileManagement.removeOtherDirs(genotypeSupport.getDataDir());
     }
 
     @Test

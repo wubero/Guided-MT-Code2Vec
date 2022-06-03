@@ -258,35 +258,6 @@ public class GenotypeSupport {
     }
 
     /**
-     * Remove previously used directories.
-     */
-    public void removeOtherDirs() {
-        File toDelete = new File(dataDir);
-        File[] entries = toDelete.listFiles();
-        if (entries != null) {
-            for (File entry : entries) {
-                if (!entry.getName().equals(currentDataset)) {
-                    deleteDirectory(entry);
-                }
-            }
-        }
-    }
-
-    /**
-     * Delete directory and all its contents.
-     * @param directoryToBeDeleted the directory to be deleted.
-     */
-    private void deleteDirectory(File directoryToBeDeleted) {
-        File[] allContents = directoryToBeDeleted.listFiles();
-        if (allContents != null) {
-            for (File file : allContents) {
-                deleteDirectory(file);
-            }
-        }
-        directoryToBeDeleted.delete();
-    }
-
-    /**
      * Initialize global fields with config file data.
      */
     public Properties initializeFields() {
@@ -342,14 +313,6 @@ public class GenotypeSupport {
                 objectives[i] = secondaryMetrics.get(i-metricWeights.size()).getObjective().equals("max");
         }
         return prop;
-    }
-
-    /**
-     * Clear the lists for the next tests.
-     */
-    public void clearLists() {
-        metricWeights.clear();
-        metricList.clear();
     }
 
     /**
@@ -456,21 +419,21 @@ public class GenotypeSupport {
     private Metric createMetric(String name) {
         switch (name) {
             case "MRR":
-                return new MRR();
+                return new MRR(dir_path + "/code2vec/results.txt");
             case "F1Score":
-                return new F1_score();
+                return new F1_score(dir_path + "/code2vec/F1_score_log.txt");
             case "PercentageMRR":
-                return new Percentage_MRR();
+                return new Percentage_MRR(dir_path + "/code2vec/results.txt");
             case "Precision":
-                return new Precision();
+                return new Precision(dir_path + "/code2vec/F1_score_log.txt");
             case "Recall":
-                return new Recall();
+                return new Recall(dir_path + "/code2vec/F1_score_log.txt");
             case "EditDistance":
-                return new EditDistance();
+                return new EditDistance(dir_path + "/code2vec/predicted_words.txt");
             case "InputLength":
-                return new InputLength();
+                return new InputLength(dir_path + "/code2vec/data/");
             case "PredictionLength":
-                return new PredictionLength();
+                return new PredictionLength(dir_path + "/code2vec/predicted_words.txt");
             case "NumberOfTransformations":
                 return new Transformations();
             default:
@@ -527,27 +490,12 @@ public class GenotypeSupport {
         launcher.getFactory().getEnvironment().setAutoImports(true);
         //Further steps are in the method below.
         EngineResult result = engine.run(codeRoot);
-        writeAST(result, launcher);
+        FileManagement.writeAST(result, launcher);
 
         long diff = (System.currentTimeMillis() - start) / 1000;
         totalTransformationTime += diff;
         logger.info("Transformations of this individual took: " + diff + " seconds");
         return outputSet;
-    }
-
-    /**
-     * Write the ast to file.
-     * @param engineResult the engine result that we write to file.
-     * @param launcher the launcher.
-     */
-    public void writeAST(EngineResult engineResult, Launcher launcher) {
-        if (engineResult.getWriteJavaOutput()) {
-            logger.debug("Starting to pretty-print  altered files to " + engineResult.getOutputDirectory());
-            launcher.setSourceOutputDirectory(engineResult.getOutputDirectory());
-            launcher.prettyprint();
-        } else {
-            logger.info("Writing the java files has been disabled for this run.");
-        }
     }
 
     /**
@@ -559,8 +507,8 @@ public class GenotypeSupport {
         logger.info("Starting code2vec inference");
         long start = System.currentTimeMillis();
         String path = dataDir + dataset;
-        removeSubDirs(new File(path + "/test"), new File(path + "/test"));
-        createDirs(path);
+        FileManagement.removeSubDirs(new File(path + "/test"), new File(path + "/test"));
+        FileManagement.createDirs(path);
         // Preprocessing file.
         String preprocess = "source preprocess.sh " + path + " " + dataset;
         bashRunner.runCommand(preprocess);
@@ -573,35 +521,5 @@ public class GenotypeSupport {
         long diff = (System.currentTimeMillis() - start) / 1000;
         totalCode2vecTime += diff;
         logger.info("Code2vec inference of this generation took: " + diff + " seconds");
-    }
-
-    /**
-     * Create the correct directories for the code2vec application.
-     * @param path path to the dataset.
-     */
-    private void createDirs(String path) {
-        File valDir = new File(path + "/validation");
-        File trainingDir = new File(path + "/training");
-        valDir.mkdir();
-        trainingDir.mkdir();
-    }
-
-    /**
-     * Moves all files from subdirectories to the main target directory.
-     * @param toDir the main target directory.
-     * @param currDir the directory we are currently in.
-     */
-    private void removeSubDirs(File toDir, File currDir) {
-        File[] files = currDir.listFiles();
-        if(files!=null) {
-            for (File file : files) {
-                if (file.isDirectory()) {
-                    removeSubDirs(toDir, file);
-                    file.delete();
-                } else {
-                    file.renameTo(new File(toDir, file.getName()));
-                }
-            }
-        }
     }
 }

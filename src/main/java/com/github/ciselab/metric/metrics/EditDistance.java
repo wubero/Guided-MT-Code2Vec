@@ -1,20 +1,17 @@
 package com.github.ciselab.metric.metrics;
 
 import com.github.ciselab.metric.Metric;
-import com.github.ciselab.support.GenotypeSupport;
 import java.util.List;
 
 public class EditDistance extends Metric {
 
-    private final String filePath = GenotypeSupport.dir_path + "/code2vec/predicted_words.txt";
-
-    public EditDistance() {
-        super("EditDistance");
+    public EditDistance(String resultPath) {
+        super("EditDistance", resultPath);
     }
 
     @Override
     public double calculateScore() {
-        List<String> lines = readPredictions(filePath);
+        List<String> lines = readPredictions(path);
         float score = 0;
         for(String i: lines) {
             if(i.contains("Original") && i.contains("predicted")) {

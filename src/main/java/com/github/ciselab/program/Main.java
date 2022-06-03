@@ -3,6 +3,7 @@ package com.github.ciselab.program;
 import com.github.ciselab.simpleGA.GeneticAlgorithm;
 import com.github.ciselab.simpleGA.MetamorphicIndividual;
 import com.github.ciselab.simpleGA.MetamorphicPopulation;
+import com.github.ciselab.support.FileManagement;
 import com.github.ciselab.support.GenotypeSupport;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -161,7 +162,7 @@ public class Main {
             int transitionMin = (int) ((transitionTime / 60)%60);
             myWriter.write("Total time spent on Transformation operations was " + transitionMin + " minutes and " + transitionSec + " seconds." + "\n");
 
-            genotypeSupport.removeOtherDirs();
+            FileManagement.removeOtherDirs(genotypeSupport.getDataDir());
             logger.info("Clean up other files.");
 
             myWriter.close();

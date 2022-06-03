@@ -1,6 +1,8 @@
 version: '3.3'
 
 # This is a mirror of the normal docker-compose but with a built-in-built.
+# If you want to create your own run you should adjust the paths in the environment variables in the Dockerfile.
+# The config file should be adjusted according to which metrics you want to use and whether you want to max- or minimize them.
 
 services:
   guided-mt-code2vec:

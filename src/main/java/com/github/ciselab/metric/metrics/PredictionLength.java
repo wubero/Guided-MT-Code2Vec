@@ -1,21 +1,18 @@
 package com.github.ciselab.metric.metrics;
 
 import com.github.ciselab.metric.Metric;
-import com.github.ciselab.support.GenotypeSupport;
 import java.util.List;
 
 public class PredictionLength extends Metric {
 
-    private final String filePath = GenotypeSupport.dir_path + "/code2vec/predicted_words.txt";
-
-    public PredictionLength() {
-        super("PredictionLength");
+    public PredictionLength(String resultPath) {
+        super("PredictionLength", resultPath);
     }
 
     @Override
     public double calculateScore() {
         // Original: render, predicted: get|logs
-        List<String> lines = readPredictions(filePath);
+        List<String> lines = readPredictions(path);
         double score = 0;
         for(String i: lines) {
             if(i.contains("predicted")) {

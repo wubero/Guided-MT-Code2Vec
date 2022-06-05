@@ -227,12 +227,14 @@ public class MetamorphicIndividual {
         List<Metric> metrics = metricCache.getSecondaryMetrics();
         double[] scores = new double[metrics.size()];
         for(int i = 0; i < metrics.size(); i++) {
-            double score = 0;
+            double score;
             if(metrics.get(i).getName().contains("InputLength")) {
                 ((InputLength)metrics.get(i)).setDataSet(dataset);
                 score = metrics.get(i).calculateScore();
             } else if(metrics.get(i).getName().contains("NumberOfTransformations")) {
                 ((Transformations) metrics.get(i)).setLength(getLength());
+                score = metrics.get(i).calculateScore();
+            } else {
                 score = metrics.get(i).calculateScore();
             }
             scores[i] = score;

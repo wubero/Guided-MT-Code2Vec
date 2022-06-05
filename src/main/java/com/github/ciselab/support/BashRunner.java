@@ -40,8 +40,9 @@ public class BashRunner {
             BufferedReader reader=new BufferedReader(new InputStreamReader(
                     process.getInputStream()));
             String line;
-            while(reader.ready() && (line = reader.readLine()) != null) {
-                logger.debug(line);
+            while((line = reader.readLine()) != null) {
+                // Can be used for debugging the code2vec commands.
+//                logger.debug(line);
             }
 
             int exitVal = process.waitFor();

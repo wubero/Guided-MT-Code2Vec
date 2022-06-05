@@ -9,6 +9,5 @@ public enum MetricCategory {
     PercentageMRR,
     Precision,
     Recall,
-    PredictionLength,
     EditDistance
 }

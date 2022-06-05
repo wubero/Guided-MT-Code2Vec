@@ -5,5 +5,6 @@ package com.github.ciselab.metric;
  */
 public enum SecondaryMetrics {
     InputLength,
+    PredictionLength,
     NumberOfTransformations
 }

@@ -1,0 +1,4 @@
+Original: inc|level, predicted 1st: inc|level, score: 27
+Original: dec|level, predicted 1st: dec|level, score: 27
+		 predicted correctly at rank: 3, score: 16
+Original: language|version, predicted 1st: language|version, score: 31

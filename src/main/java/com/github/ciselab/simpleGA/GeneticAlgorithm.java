@@ -1,6 +1,7 @@
 package com.github.ciselab.simpleGA;
 
 import com.github.ciselab.support.GenotypeSupport;
+import com.github.ciselab.support.MetricCache;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -8,6 +9,8 @@ import java.util.random.RandomGenerator;
 
 /**
  * The metamorphic algorithm performs the evolution of the metamorphic populations.
+ * A beginners guide to genetic algorithms can be found at
+ * https://www.geeksforgeeks.org/simple-genetic-algorithm-sga/#:~:text=Simple%20Genetic%20Algorithm%20(SGA)%20is,each%20of%20the%20solutions%2Findividuals.
  */
 public class GeneticAlgorithm {
 
@@ -20,7 +23,8 @@ public class GeneticAlgorithm {
     private int maxTransformerValue;
     private int maxGeneLength;
     private RandomGenerator randomGenerator;
-    private GenotypeSupport genotypeSupport;
+    private final GenotypeSupport genotypeSupport;
+    private final MetricCache metricCache;
 
     /**
      * Initialize all GA parameters.
@@ -51,6 +55,7 @@ public class GeneticAlgorithm {
 
     public GeneticAlgorithm(GenotypeSupport gen) {
         genotypeSupport = gen;
+        metricCache = gen.getMetricCache();
     }
 
     /**
@@ -78,13 +83,13 @@ public class GeneticAlgorithm {
         // crossover
         int index = elitismOffset;
         while (index < newPopulation.size()) {
-            MetamorphicIndividual indiv1 = tournamentSelection(pop, randomGenerator);
-            MetamorphicIndividual indiv2 = tournamentSelection(pop, randomGenerator);
-            List<MetamorphicIndividual> newIndivs = crossover(indiv1, indiv2);
-            newPopulation.saveIndividual(index, newIndivs.get(0));
+            MetamorphicIndividual individual1 = tournamentSelection(pop, randomGenerator);
+            MetamorphicIndividual individual2 = tournamentSelection(pop, randomGenerator);
+            List<MetamorphicIndividual> newIndividuals = crossover(individual1, individual2);
+            newPopulation.saveIndividual(index, newIndividuals.get(0));
             index++;
             if (index < newPopulation.size()) {
-                newPopulation.saveIndividual(index, newIndivs.get(1));
+                newPopulation.saveIndividual(index, newIndividuals.get(1));
                 index++;
             }
         }
@@ -97,7 +102,7 @@ public class GeneticAlgorithm {
 
         // Check if fitness is already known
         for(MetamorphicIndividual i : newPopulation.individuals) {
-            Optional<double[]> metrics = genotypeSupport.getMetricResult(i.getTransformers());
+            Optional<double[]> metrics = metricCache.getMetricResult(i.getTransformers());
             if(metrics.isPresent()) {
                 i.setMetrics(metrics.get());
             }
@@ -107,37 +112,37 @@ public class GeneticAlgorithm {
 
     /**
      * Mutate the current individual
-     * @param indiv The individual to increase or decrease the size of.
+     * @param individual The individual to increase or decrease the size of.
      */
-    private void mutate(MetamorphicIndividual indiv) {
+    private void mutate(MetamorphicIndividual individual) {
         if (Math.random() <= increaseSizeRate) {
-            indiv.increase(maxGeneLength, randomGenerator, maxTransformerValue);
+            individual.increase(maxGeneLength, randomGenerator, maxTransformerValue);
         } else {
-            indiv.decrease(randomGenerator);
+            individual.decrease(randomGenerator);
         }
     }
 
     /**
      * Crossover two metamorphic individuals.
-     * @param indiv1 the first metamorphic individual.
-     * @param indiv2 the second metamorphic individual.
+     * @param individual1 the first metamorphic individual.
+     * @param individual2 the second metamorphic individual.
      * @return the new metamorphic individual.
      */
-    private List<MetamorphicIndividual> crossover(MetamorphicIndividual indiv1, MetamorphicIndividual indiv2) {
+    private List<MetamorphicIndividual> crossover(MetamorphicIndividual individual1, MetamorphicIndividual individual2) {
         MetamorphicIndividual newSol = new MetamorphicIndividual(genotypeSupport);
         MetamorphicIndividual newSol2 = new MetamorphicIndividual(genotypeSupport);
         List<MetamorphicIndividual> l = new ArrayList<>();
         // Loop through genes
-        for (int i = 0; i < indiv1.getLength(); i++) {
+        for (int i = 0; i < individual1.getLength(); i++) {
             // Crossover
             if (Math.random() <= uniformRate) {
-                newSol.addGene(indiv1.getGene(i));
-                if (i < indiv2.getLength())
-                    newSol2.addGene(indiv2.getGene(i));
+                newSol.addGene(individual1.getGene(i));
+                if (i < individual2.getLength())
+                    newSol2.addGene(individual2.getGene(i));
             } else {
-                if (i < indiv2.getLength())
-                    newSol.addGene(indiv2.getGene(i));
-                newSol2.addGene(indiv1.getGene(i));
+                if (i < individual2.getLength())
+                    newSol.addGene(individual2.getGene(i));
+                newSol2.addGene(individual1.getGene(i));
             }
         }
         l.add(newSol);

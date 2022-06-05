@@ -5,21 +5,21 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 import com.github.ciselab.support.FileManagement;
 import com.github.ciselab.support.GenotypeSupport;
+import com.github.ciselab.support.MetricCache;
 import java.util.SplittableRandom;
 import java.util.random.RandomGenerator;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 public class GeneticAlgorithmTest {
 
-    private GenotypeSupport genotypeSupport = new GenotypeSupport();
+    private MetricCache cache = new MetricCache();
+    private GenotypeSupport genotypeSupport = new GenotypeSupport(cache);
     private GeneticAlgorithm geneticAlgorithm = new GeneticAlgorithm(genotypeSupport);
 
     @AfterEach
     public void after() {
-        FileManagement.removeOtherDirs(genotypeSupport.getDataDir());
+        FileManagement.removeOtherDirs(FileManagement.dataDir);
     }
 
     @Test

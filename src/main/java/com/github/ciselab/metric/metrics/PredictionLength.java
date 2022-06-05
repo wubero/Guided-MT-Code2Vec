@@ -15,7 +15,7 @@ public class PredictionLength extends Metric {
         List<String> lines = readPredictions(path);
         double score = 0;
         for(String i: lines) {
-            if(i.contains("predicted")) {
+            if(i.contains("predicted") && i.contains("Original")) {
                 String predicted = i.split(": ")[2];
                 for(int j = 0; j < predicted.length(); j++) {
                     if(predicted.charAt(j) != '|')

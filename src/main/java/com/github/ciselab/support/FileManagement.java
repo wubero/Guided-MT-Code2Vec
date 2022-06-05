@@ -1,10 +1,11 @@
 package com.github.ciselab.support;
 
-import com.github.ciselab.lampion.core.program.EngineResult;
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import spoon.Launcher;
 
 /**
  * This class does all the file management for this project.
@@ -12,19 +13,31 @@ import spoon.Launcher;
 public class FileManagement {
 
     private static final Logger logger = LogManager.getLogger(FileManagement.class);
+    public static String dataDir = GenotypeSupport.dir_path + "/code2vec/data/";
 
     /**
-     * Write the ast to file.
-     * @param engineResult the engine result that we write to file.
-     * @param launcher the launcher.
+     * Replace contents in dataDir with the contents in data.
+     * @param data the new data.
      */
-    public static void writeAST(EngineResult engineResult, Launcher launcher) {
-        if (engineResult.getWriteJavaOutput()) {
-            logger.debug("Starting to pretty-print  altered files to " + engineResult.getOutputDirectory());
-            launcher.setSourceOutputDirectory(engineResult.getOutputDirectory());
-            launcher.prettyprint();
-        } else {
-            logger.info("Writing the java files has been disabled for this run.");
+    public static void setDataDir(String data) {
+        try {
+            String path = dataDir + "generation_0";
+            File dir = new File(path);
+            File[] files = dir.listFiles();
+            if (files != null) {
+                for (File file : files) {
+                    file.delete();
+                }
+            }
+            File newDir = new File(data);
+            File[] newFiles = newDir.listFiles();
+            if (newFiles != null) {
+                for (File f : newFiles) {
+                    Files.copy(Paths.get(f.getAbsolutePath()), Paths.get(path + "/" + f.getName()));
+                }
+            }
+        } catch (IOException e) {
+            logger.warn("Files couldn't be moved to data directory");
         }
     }
 
@@ -32,11 +45,12 @@ public class FileManagement {
      * Create the correct directories for the code2vec application.
      * @param path path to the dataset.
      */
-    public static void createDirs(String path) {
+    public static boolean createDirs(String path) {
         File valDir = new File(path + "/validation");
         File trainingDir = new File(path + "/training");
-        valDir.mkdir();
-        trainingDir.mkdir();
+        boolean val = valDir.mkdir();
+        boolean train = trainingDir.mkdir();
+        return val && train;
     }
 
     /**

@@ -13,7 +13,7 @@ import org.apache.logging.log4j.Logger;
 /**
  * The abstract class for a metric.
  */
-public abstract class Metric implements Comparable<Metric> {
+public abstract class Metric {
 
     protected double score;
     protected String name;
@@ -35,10 +35,14 @@ public abstract class Metric implements Comparable<Metric> {
     public Metric(String metricName, String resultPath) {
         name = metricName;
         score = -1;
-        if(new File(resultPath).isDirectory())
+        if(new File(resultPath).exists())
             path = resultPath;
         else
             logger.error("Path does not exist: " + resultPath);
+    }
+
+    public String getPath() {
+        return path;
     }
 
     public void setPath(String path) {
@@ -83,14 +87,4 @@ public abstract class Metric implements Comparable<Metric> {
      * @return the score for this metric.
      */
     public abstract double calculateScore();
-
-    @Override
-    public int compareTo(Metric other) {
-        if(this.score > other.score)
-            return 0;
-        else if(score < other.score)
-            return 1;
-        else
-            return -1;
-    }
 }

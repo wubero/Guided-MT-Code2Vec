@@ -6,8 +6,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.github.ciselab.lampion.core.transformations.transformers.AddNeutralElementTransformer;
 import com.github.ciselab.lampion.core.transformations.transformers.IfTrueTransformer;
+import com.github.ciselab.support.ConfigManager;
 import com.github.ciselab.support.FileManagement;
 import com.github.ciselab.support.GenotypeSupport;
+import com.github.ciselab.support.MetricCache;
 import java.util.SplittableRandom;
 import java.util.random.RandomGenerator;
 import org.junit.jupiter.api.AfterEach;
@@ -22,14 +24,15 @@ public class MetamorphicIndividualTest {
 
     @BeforeEach
     public void setUp() {
-        genotypeSupport = new GenotypeSupport();
-        genotypeSupport.setConfigFile("src/test/resources/config.properties");
-        genotypeSupport.initializeFields();
+        genotypeSupport = new GenotypeSupport(new MetricCache());
+        ConfigManager configManager = genotypeSupport.getConfigManager();
+        configManager.setConfigFile("src/test/resources/config.properties");
+        configManager.initializeFields();
     }
 
     @AfterEach
     public void after() {
-        FileManagement.removeOtherDirs(genotypeSupport.getDataDir());
+        FileManagement.removeOtherDirs(FileManagement.dataDir);
     }
 
     @Test

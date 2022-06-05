@@ -4,8 +4,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.github.ciselab.support.ConfigManager;
 import com.github.ciselab.support.FileManagement;
 import com.github.ciselab.support.GenotypeSupport;
+import com.github.ciselab.support.MetricCache;
 import java.util.SplittableRandom;
 import java.util.random.RandomGenerator;
 import org.junit.jupiter.api.AfterEach;
@@ -16,15 +18,17 @@ public class MetamorphicPopulationTest {
 
     RandomGenerator r = new SplittableRandom(101010);
     GenotypeSupport genotypeSupport;
+    ConfigManager configManager;
 
     @BeforeEach
     public void setUp() {
-        genotypeSupport = new GenotypeSupport();
+        genotypeSupport = new GenotypeSupport(new MetricCache());
+        configManager = genotypeSupport.getConfigManager();
     }
 
     @AfterEach
     public void after() {
-        FileManagement.removeOtherDirs(genotypeSupport.getDataDir());
+        FileManagement.removeOtherDirs(FileManagement.dataDir);
     }
 
     @Test
@@ -32,7 +36,7 @@ public class MetamorphicPopulationTest {
         int popSize = 3;
         MetamorphicPopulation population = new MetamorphicPopulation(popSize, r, 6, false, genotypeSupport);
         double bestFitness = -1;
-        genotypeSupport.setMaximize(true);
+        configManager.setMaximize(true);
         for(int i = 0; i < popSize; i++) {
             MetamorphicIndividual individual = new MetamorphicIndividual(genotypeSupport);
             individual.createIndividual(r, 2, 6);
@@ -51,7 +55,7 @@ public class MetamorphicPopulationTest {
         int popSize = 3;
         MetamorphicPopulation population = new MetamorphicPopulation(popSize, r, 6, false, genotypeSupport);
         double bestFitness = 10;
-        genotypeSupport.setMaximize(false);
+        configManager.setMaximize(false);
         for(int i = 0; i < popSize; i++) {
             MetamorphicIndividual individual = new MetamorphicIndividual(genotypeSupport);
             individual.createIndividual(r, 2, 6);

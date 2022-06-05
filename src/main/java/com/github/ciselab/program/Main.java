@@ -3,8 +3,10 @@ package com.github.ciselab.program;
 import com.github.ciselab.simpleGA.GeneticAlgorithm;
 import com.github.ciselab.simpleGA.MetamorphicIndividual;
 import com.github.ciselab.simpleGA.MetamorphicPopulation;
+import com.github.ciselab.support.ConfigManager;
 import com.github.ciselab.support.FileManagement;
 import com.github.ciselab.support.GenotypeSupport;
+import com.github.ciselab.support.MetricCache;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.time.Duration;
@@ -14,6 +16,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.SplittableRandom;
 import java.util.random.RandomGenerator;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -36,7 +39,9 @@ public class Main {
     private static int maxSteadyGenerations = 35;
     private static int maxTimeInMin = 900;
     private final static Logger logger = LogManager.getLogger(Main.class);
-    private static final GenotypeSupport genotypeSupport = new GenotypeSupport();
+    private static final MetricCache cache = new MetricCache();
+    private static final GenotypeSupport genotypeSupport = new GenotypeSupport(cache);
+    private static final ConfigManager configManager = genotypeSupport.getConfigManager();
 
     private static String logDir = "";
 
@@ -52,15 +57,15 @@ public class Main {
         } else if (args.length == 3) {
             logger.info("Received four arguments - Config input: " + args[0] + ", data input: " + args[1]
                     + " and output: " + args[2]);
-            genotypeSupport.setConfigFile(args[0]);
-            genotypeSupport.setDataDir(args[1]);
+            configManager.setConfigFile(args[0]);
+            FileManagement.setDataDir(args[1]);
             logDir = args[2] + "/";
 
         } else {
             logger.error("Received an unknown amount of arguments");
             return;
         }
-        Properties prop = genotypeSupport.initializeFields();
+        Properties prop = configManager.initializeFields();
         logger.info("Configuration: " + prop.toString());
         runSimpleGA(prop);
     }
@@ -148,9 +153,11 @@ public class Main {
             myWriter.write(best + "\n");
 
             geneticAlgorithm.checkPareto(myPop);
-            myWriter.write("Metrics are: " + Arrays.toString(genotypeSupport.getMetrics().toArray()) + "\n");
+            myWriter.write("Metrics are: " + Arrays.toString(cache.getMetrics().toArray()) + "\n");
             myWriter.write("Pareto set: " + displayPareto(genotypeSupport.getPareto()) + "\n");
-            getVariance(myWriter);
+            Pair<double[], double[]> variance = cache.getStatistics();
+            myWriter.write("The metric means are: " + Arrays.toString(variance.getLeft()) + "\n");
+            myWriter.write("The metric standard deviation are: " + Arrays.toString(variance.getRight()) + "\n");
 
             long code2vecTime = genotypeSupport.getTotalCode2vevTime();
             int code2vecSec = (int) (code2vecTime % 60);
@@ -162,7 +169,7 @@ public class Main {
             int transitionMin = (int) ((transitionTime / 60)%60);
             myWriter.write("Total time spent on Transformation operations was " + transitionMin + " minutes and " + transitionSec + " seconds." + "\n");
 
-            FileManagement.removeOtherDirs(genotypeSupport.getDataDir());
+            FileManagement.removeOtherDirs(FileManagement.dataDir);
             logger.info("Clean up other files.");
 
             myWriter.close();
@@ -178,7 +185,7 @@ public class Main {
      * @return whether the population is fitter.
      */
     public static boolean isFitter(MetamorphicPopulation pop, double best) {
-        if(genotypeSupport.getMaximize()) {
+        if(configManager.getMaximize()) {
             return pop.getFittest().getFitness() > best;
         } else {
             return pop.getFittest().getFitness() < best;
@@ -213,34 +220,5 @@ public class Main {
         for(double[] i: pareto)
             out += Arrays.toString(i) + ", ";
         return out.substring(0, out.length()-2) + "}";
-    }
-
-    private static void getVariance(FileWriter writer) throws IOException {
-        double[] variance = new double[genotypeSupport.getActiveMetrics()];
-        double[] means = new double[genotypeSupport.getActiveMetrics()];
-        double[] sum = new double[genotypeSupport.getActiveMetrics()];
-        int size = genotypeSupport.getMetricLookup().values().size();
-
-        for(int i = 0; i < genotypeSupport.getActiveMetrics(); i++)
-            sum[i] = 0;
-        for(double[] value: genotypeSupport.getMetricLookup().values()) {
-            for (int i = 0; i < genotypeSupport.getActiveMetrics(); i++) {
-                sum[i] += value[i];
-            }
-        }
-        for(int i = 0; i < genotypeSupport.getActiveMetrics(); i++)
-            means[i] = sum[i]/size;
-        writer.write("The metric means are: " + Arrays.toString(means) + "\n");
-
-        for(int i = 0; i < genotypeSupport.getActiveMetrics(); i++)
-            sum[i] = 0;
-        for(double[] value: genotypeSupport.metricLookup.values()) {
-            for (int i = 0; i < genotypeSupport.getActiveMetrics(); i++) {
-                sum[i] += Math.pow((value[i] - means[i]), 2);
-            }
-        }
-        for(int i = 0; i < genotypeSupport.getActiveMetrics(); i++)
-            variance[i] = sum[i]/(size-1);
-        writer.write("The metric variance are: " + Arrays.toString(variance) + "\n");
     }
 }

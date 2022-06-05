@@ -2,8 +2,10 @@ package com.github.ciselab.program;
 
 import com.github.ciselab.simpleGA.MetamorphicIndividual;
 import com.github.ciselab.simpleGA.MetamorphicPopulation;
+import com.github.ciselab.support.ConfigManager;
 import com.github.ciselab.support.FileManagement;
 import com.github.ciselab.support.GenotypeSupport;
+import com.github.ciselab.support.MetricCache;
 import java.time.LocalTime;
 import java.util.Properties;
 import java.util.SplittableRandom;
@@ -16,18 +18,20 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class MainTest {
 
-    private GenotypeSupport genotypeSupport = new GenotypeSupport();
+    private final MetricCache cache = new MetricCache();
+    private final GenotypeSupport genotypeSupport = new GenotypeSupport(cache);
+    private final ConfigManager configManager = genotypeSupport.getConfigManager();
     private Properties prop;
 
     @BeforeEach
     public void setUp() {
-        genotypeSupport.setConfigFile("src/test/resources/config.properties");
-        prop = genotypeSupport.initializeFields();
+        configManager.setConfigFile("src/test/resources/config.properties");
+        prop = configManager.initializeFields();
     }
 
     @AfterEach
     public void after() {
-        FileManagement.removeOtherDirs(genotypeSupport.getDataDir());
+        FileManagement.removeOtherDirs(FileManagement.dataDir);
     }
 
     @Test
@@ -39,7 +43,7 @@ public class MainTest {
         pop.saveIndividual(0, indiv);
         indiv.setFitness(0.5);
         double best = -1;
-        genotypeSupport.setMaximize(true);
+        configManager.setMaximize(true);
         assertTrue(Main.isFitter(pop, best));
     }
 
@@ -52,7 +56,7 @@ public class MainTest {
         pop.saveIndividual(0, indiv);
         indiv.setFitness(0.5);
         double best = 1;
-        genotypeSupport.setMaximize(true);
+        configManager.setMaximize(true);
         assertFalse(Main.isFitter(pop, best));
     }
 

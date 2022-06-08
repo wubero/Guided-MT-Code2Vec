@@ -2,34 +2,14 @@ package com.github.ciselab.support;
 
 import static com.github.ciselab.support.FileManagement.dataDir;
 
-import com.github.ciselab.lampion.core.program.Engine;
 import com.github.ciselab.lampion.core.program.EngineResult;
 import com.github.ciselab.lampion.core.transformations.TransformerRegistry;
 import com.github.ciselab.lampion.core.transformations.transformers.BaseTransformer;
-import com.github.ciselab.metric.Metric;
-import com.github.ciselab.metric.MetricCategory;
-import com.github.ciselab.metric.SecondaryMetrics;
-import com.github.ciselab.metric.metrics.EditDistance;
-import com.github.ciselab.metric.metrics.F1_score;
-import com.github.ciselab.metric.metrics.InputLength;
-import com.github.ciselab.metric.metrics.MRR;
-import com.github.ciselab.metric.metrics.Percentage_MRR;
-import com.github.ciselab.metric.metrics.Precision;
-import com.github.ciselab.metric.metrics.PredictionLength;
-import com.github.ciselab.metric.metrics.Recall;
-import com.github.ciselab.metric.metrics.Transformations;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Properties;
 import java.util.Random;
-import java.util.Set;
+
+import com.github.ciselab.program.Engine;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import spoon.Launcher;
@@ -49,8 +29,6 @@ public class GenotypeSupport {
     private final MetricCache metricCache;
     private final ConfigManager configManager;
 
-    private Set<double[]> pareto = new HashSet<>();
-
     private final Logger logger = LogManager.getLogger(GenotypeSupport.class);
 
     private long totalCode2vecTime = 0;
@@ -69,14 +47,6 @@ public class GenotypeSupport {
         return configManager;
     }
 
-    public Set<double[]> getPareto() {
-        return pareto;
-    }
-
-    public void setPareto(Set<double[]> newPareto) {
-        pareto = newPareto;
-    }
-
     public String getCurrentDataset() {
         return currentDataset;
     }
@@ -87,69 +57,6 @@ public class GenotypeSupport {
 
     public long getTotalTransformationTime() {
         return totalTransformationTime;
-    }
-
-    /**
-     * Add to the Pareto set if no solution dominates the current solution.
-     * @param solution the current solution.
-     */
-    public void addToParetoOptimum(double[] solution) {
-        if(isIn(pareto, solution))
-            return;
-        for(double[] i: pareto) {
-            if (paretoDominant(i, solution)) {
-                return;
-            }
-        }
-        List<double[]> toRemove = new ArrayList<>();
-        for(double[] i: pareto) {
-            // if solution is dominant over i then delete i
-            if (paretoDominant(solution, i)) {
-                toRemove.add(i);
-            }
-        }
-        toRemove.forEach(pareto::remove);
-        pareto.add(solution);
-    }
-
-    /**
-     * Support method to see if a set has a certain element in it.
-     * @param set the set.
-     * @param find the element.
-     * @return Whether the set has the find element in it.
-     */
-    public boolean isIn(Set<double[]> set, double[] find) {
-        Iterator<double[]> i = set.iterator();
-        while(i.hasNext()) {
-            if(Arrays.equals(i.next(), find)){
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
-     * Check if solutionA is Pareto dominant over solutionB.
-     * @param solutionA a solution.
-     * @param solutionB a solution.
-     * @return whether solutionA is pareto dominant over solutionB.
-     */
-    private boolean paretoDominant(double[] solutionA, double[] solutionB) {
-        boolean dominant = false;
-        for(int i = 0; i < solutionA.length; i++) {
-            if(metricCache.getObjectives()[i]) {
-                if(solutionA[i] < solutionB[i])
-                    return false;
-                if(solutionA[i] > solutionB[i])
-                    dominant = true;
-            } else {
-                if(solutionA[i] > solutionB[i])
-                    return false;
-                if(solutionA[i] < solutionB[i])
-                    dominant = true;
-            }
-        }
-        return dominant;
     }
 
     /**

@@ -23,6 +23,10 @@ public class FileManagement {
         try {
             String path = dataDir + "generation_0";
             File dir = new File(path);
+            if(!dir.exists()) {
+                if(dir.mkdirs())
+                    logger.info("Created directory necessary for the data.");
+            }
             File[] files = dir.listFiles();
             if (files != null) {
                 for (File file : files) {
@@ -38,6 +42,7 @@ public class FileManagement {
             }
         } catch (IOException e) {
             logger.warn("Files couldn't be moved to data directory");
+            e.printStackTrace();
         }
     }
 

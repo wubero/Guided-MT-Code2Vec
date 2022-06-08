@@ -19,6 +19,14 @@ and has a branch where the transformers and engine are split from the rest of th
 This means I could import this part on its own without having to import and build the rest.
 If you also want to create your own transformer or learn more about the existing transformer please look at the Lampion repository.
 
+## Code2Vec
+I decided to use the code2vec models through command line commands instead of adjusting the code 
+to have different inputs. Code2vec preprocesses and evaluates the model through these commands. 
+I did this for easy debugging and logging through the result files. There were however some 
+basic changes made for logging different results such as certainty of a prediction so that I can 
+use this for the metrics. The code2vec commands are executed in the GenotypeSupport class 
+through bash.
+
 ## Genetic search
 In this project I made the decision to create a custom genetic search algorithm instead of using a library for this.
 All libraries I looked at did not support variable length for the genotypes. 
@@ -32,3 +40,19 @@ The permutation chromosome can pick random items from the specified list and put
 However, it doesn't support a variable length within one run. It also doesn't support having items occur twice in the new individuals. 
 For these reasons using the permutation, chromosome was also not an option. 
 Because of these issues, I decided to implement a simple custom genetic algorithm that could deal with variable chromosome length.
+
+## Metrics
+The metrics this project uses are chosen to reflect the performance of the model. The following metrics are implemented in this project:
+1. MRR
+2. F1-score
+3. Recall
+4. Precision
+5. Edit distance
+6. Prediction length
+7. Number of transformers
+8. Input length
+9. Percentage_MRR
+
+Percentage_MRR is a custom metric that penalizes the certainty of the code2vec model based on the MRR metric. The formula for this are illustrated 
+below in the following diagram:
+![Percentage_MRR formula](../Resources/Percentage_MRR.png)

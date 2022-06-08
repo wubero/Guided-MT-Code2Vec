@@ -17,7 +17,7 @@ public class InputLengthTest {
     public void calculateScoreTest() {
         InputLength metric = new InputLength(GenotypeSupport.dir_path + "/src/test/resources/");
         metric.setDataSet("input_test");
-        assertEquals(49, metric.calculateScore());
+        assertEquals(102, metric.calculateScore());
     }
 
     @Test

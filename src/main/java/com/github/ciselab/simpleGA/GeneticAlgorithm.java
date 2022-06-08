@@ -2,6 +2,8 @@ package com.github.ciselab.simpleGA;
 
 import com.github.ciselab.support.GenotypeSupport;
 import com.github.ciselab.support.MetricCache;
+import com.github.ciselab.support.Pareto;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -15,7 +17,7 @@ import java.util.random.RandomGenerator;
 public class GeneticAlgorithm {
 
     /* GA parameters */
-    private double uniformRate;
+    private double crossoverRate;
     private double mutationRate;
     private int tournamentSize;
     private boolean elitism;
@@ -25,6 +27,7 @@ public class GeneticAlgorithm {
     private RandomGenerator randomGenerator;
     private final GenotypeSupport genotypeSupport;
     private final MetricCache metricCache;
+    private final Pareto pareto;
 
     /**
      * Initialize all GA parameters.
@@ -40,7 +43,7 @@ public class GeneticAlgorithm {
      */
     public String initializeParameters(double uRate, double mRate, int tSize, boolean elite, double increaseRate,
                                               int maxValue, int maxLength, RandomGenerator r) {
-        uniformRate = uRate;
+        crossoverRate = uRate;
         mutationRate = mRate;
         tournamentSize = tSize;
         elitism = elite;
@@ -53,9 +56,10 @@ public class GeneticAlgorithm {
                 uRate, mRate, tSize, elite, increaseRate, maxValue, maxLength);
     }
 
-    public GeneticAlgorithm(GenotypeSupport gen) {
+    public GeneticAlgorithm(GenotypeSupport gen, Pareto pareto) {
         genotypeSupport = gen;
         metricCache = gen.getMetricCache();
+        this.pareto = pareto;
     }
 
     /**
@@ -135,7 +139,7 @@ public class GeneticAlgorithm {
         // Loop through genes
         for (int i = 0; i < individual1.getLength(); i++) {
             // Crossover
-            if (Math.random() <= uniformRate) {
+            if (Math.random() <= crossoverRate) {
                 newSol.addGene(individual1.getGene(i));
                 if (i < individual2.getLength())
                     newSol2.addGene(individual2.getGene(i));
@@ -177,7 +181,7 @@ public class GeneticAlgorithm {
     public void checkPareto(MetamorphicPopulation population) {
         for(int i = 0; i < population.size(); i++) {
             double[] solution = population.getIndividual(i).getMetrics();
-            genotypeSupport.addToParetoOptimum(solution);
+            pareto.addToParetoOptimum(solution);
         }
     }
 }

@@ -80,6 +80,6 @@ public class MainTest {
     public void mainIntegrationTest() {
         Main.setMaxGenerations(1);
         Main.setPopSize(1);
-        Main.runSimpleGA(prop);
+        Main.runSimpleGA();
     }
 }

@@ -1,0 +1,22 @@
+version: '3.3'
+
+# This is a mirror of the normal docker-compose but with a built-in-built.
+# If you want to create your own run you should adjust the paths in the environment variables in the Dockerfile.
+# The config file should be adjusted according to which metrics you want to use and whether you want to max- or minimize them.
+
+services:
+  guided-mt-code2vec:
+    build:
+      context: ../../
+      dockerfile: Dockerfile
+      args:
+        Guided-MT-Code2Vec_VERSION: 1.0-SNAPSHOT
+    image: ciselab/guided-mt-code2vec:latest
+    volumes:
+      - ../compose_output/MRR/seed7:/app/Guided-MT-Code2Vec/genetic_output
+      - ../experiment_data:/app/Guided-MT-Code2Vec/genetic_input
+      - ./MRR.properties:/config/config.properties
+    environment:
+      target: /app/Guided-MT-Code2Vec/genetic_input
+      output: /app/Guided-MT-Code2Vec/genetic_output
+      configfile: /config/config.properties

@@ -35,10 +35,7 @@ public abstract class Metric {
     public Metric(String metricName, String resultPath) {
         name = metricName;
         score = -1;
-        if(new File(resultPath).exists())
-            path = resultPath;
-        else
-            logger.error("Path does not exist: " + resultPath);
+        path = resultPath;
     }
 
     public String getPath() {
@@ -77,7 +74,7 @@ public abstract class Metric {
             }
             bf.close();
         } catch(IOException e) {
-            logger.debug("Couldn't read file of path: " + filePath);
+            logger.error("Couldn't read file of path: " + filePath);
         }
         return predictions;
     }

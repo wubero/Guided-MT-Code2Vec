@@ -31,7 +31,7 @@ public class ConfigManager {
     public String configFile = dir_path + "/src/main/resources/config.properties";
     private long seed = 200;
     private boolean removeAllComments = false;
-    private TransformationScope transformationScope = TransformationScope.global;
+    private TransformationScope transformationScope = TransformationScope.perClass;
     private boolean maximize = true;
     private final Logger logger = LogManager.getLogger(ConfigManager.class);
 
@@ -80,9 +80,10 @@ public class ConfigManager {
         if(prop.get("Optimization_objective") != null)
             maximize = prop.get("Optimization_objective").equals("max");
         if(prop.get("seed") != null)
-            if(Long.parseLong(prop.getProperty("seed")) == -1)
+            if(prop.getProperty("seed").equals("-1")) {
+                logger.info("Generation random seed because no valid seed was given");
                 seed = new Random().nextLong();
-            else
+            } else
                 seed = Long.parseLong((String) prop.get("seed"));
         if(prop.get("removeAllComments")!=null){
             removeAllComments = Boolean.parseBoolean((String) prop.get("removeAllComments"));
@@ -90,7 +91,7 @@ public class ConfigManager {
         if(prop.get("transformationscope") != null){
             transformationScope = TransformationScope.valueOf(prop.getProperty("transformationscope"));
             if(!prop.getProperty("transformationscope").equals("global"))
-                logger.warn("Transformation scope is not global, this might not be desired.");
+                logger.debug("Transformation scope is not global, this might not be desired.");
         }
         if(prop.get("bash") != null)
             bashRunner.setPath_bash((String) prop.get("bash"));

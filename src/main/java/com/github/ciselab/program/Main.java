@@ -3,10 +3,8 @@ package com.github.ciselab.program;
 import com.github.ciselab.simpleGA.GeneticAlgorithm;
 import com.github.ciselab.simpleGA.MetamorphicIndividual;
 import com.github.ciselab.simpleGA.MetamorphicPopulation;
-import com.github.ciselab.support.ConfigManager;
-import com.github.ciselab.support.FileManagement;
-import com.github.ciselab.support.GenotypeSupport;
-import com.github.ciselab.support.MetricCache;
+import com.github.ciselab.support.*;
+
 import java.io.FileWriter;
 import java.io.IOException;
 import java.time.Duration;
@@ -31,7 +29,7 @@ public class Main {
     private final static double mutationRate = 0.4; // 0.3, 0.4
     private final static int tournamentSize = 4;
     private final static boolean elitism = false;
-    private final static double increaseSizeRate = 0.6; // 0.6, 0.7, 0.8
+    private final static double increaseSizeRate = 0.7; // 0.6, 0.7, 0.8
 
     private final static int maxTransformerValue = 6; // Including 0, so 7 transformers
     private final static int maxGeneLength = 20;
@@ -40,6 +38,7 @@ public class Main {
     private static int maxTimeInMin = 900;
     private final static Logger logger = LogManager.getLogger(Main.class);
     private static final MetricCache cache = new MetricCache();
+    private static final Pareto pareto = new Pareto(cache);
     private static final GenotypeSupport genotypeSupport = new GenotypeSupport(cache);
     private static final ConfigManager configManager = genotypeSupport.getConfigManager();
 
@@ -55,7 +54,7 @@ public class Main {
         if(args.length == 0) {
             logger.info("No arguments found - loading default values");
         } else if (args.length == 3) {
-            logger.info("Received four arguments - Config input: " + args[0] + ", data input: " + args[1]
+            logger.info("Received three arguments - Config input: " + args[0] + ", data input: " + args[1]
                     + " and output: " + args[2]);
             configManager.setConfigFile(args[0]);
             FileManagement.setDataDir(args[1]);
@@ -65,9 +64,8 @@ public class Main {
             logger.error("Received an unknown amount of arguments");
             return;
         }
-        Properties prop = configManager.initializeFields();
-        logger.info("Configuration: " + prop.toString());
-        runSimpleGA(prop);
+        logger.info("Configuration: " + configManager.initializeFields());
+        runSimpleGA();
     }
 
     /**
@@ -89,22 +87,22 @@ public class Main {
     /**
      * Run the custom simple genetic algorithm created for variable length chromosomes.
      */
-    public static void runSimpleGA(Properties properties) {
+    public static void runSimpleGA() {
         LocalTime start = LocalTime.now();
-        GeneticAlgorithm geneticAlgorithm = new GeneticAlgorithm(genotypeSupport);
+        GeneticAlgorithm geneticAlgorithm = new GeneticAlgorithm(genotypeSupport, pareto);
         boolean converged = false;
-        RandomGenerator random = new SplittableRandom(Long.parseLong(properties.getProperty("seed")));
+        RandomGenerator random = new SplittableRandom(configManager.getSeed());
         String GA_parameters = geneticAlgorithm.initializeParameters(uniformRate, mutationRate, tournamentSize, elitism, increaseSizeRate,
                 maxTransformerValue, maxGeneLength, random);
         logger.info("GA parameters: " + GA_parameters);
 
         // Create an initial population
         try {
+            FileWriter myWriter = new FileWriter(logDir + "GA_results.txt");
             MetamorphicPopulation myPop = new MetamorphicPopulation(popSize, random,
                     maxTransformerValue, true, genotypeSupport);
             logger.debug("Initial population: " + myPop);
-
-            FileWriter myWriter = new FileWriter(logDir + "GA_results.txt");
+            myWriter.write("Initial population: " + myPop + "\n");
 
             MetamorphicIndividual best = new MetamorphicIndividual(genotypeSupport);
             double bestFitness = best.getFitness();
@@ -113,15 +111,19 @@ public class Main {
             logger.info("The metric results corresponding to the transformations are: " + Arrays.toString(best.getMetrics()));
 
             // check best against pareto
-            genotypeSupport.addToParetoOptimum(best.getMetrics());
+            pareto.addToParetoOptimum(best.getMetrics());
 
             // Evolve our population until we reach an optimum solution
             int generationCount = 0;
             int steadyGens = 0;
+            int averageSizeSum = 0;
             while (!converged && timeDiffSmaller(start)) {
 
                 generationCount++;
                 logger.info("Generation " + generationCount);
+                myWriter.write("Generation " + generationCount + " has an average population size" +
+                        " of " + myPop.getAverageSize() + "\n");
+                averageSizeSum += myPop.getAverageSize();
                 if (isFitter(myPop, bestFitness)) {
                     bestFitness = myPop.getFittest().getFitness();
                     best = myPop.getFittest();
@@ -131,7 +133,7 @@ public class Main {
                 if (steadyGens > maxSteadyGenerations)
                     converged = true;
                 geneticAlgorithm.checkPareto(myPop);
-                logger.debug("Current Pareto set = " + displayPareto(genotypeSupport.getPareto()));
+                logger.debug("Current Pareto set = " + displayPareto(pareto.getPareto()));
 
                 myWriter.write("Generation: " + generationCount + ", result: " + myPop.getFittest().getFitness() + "\n");
                 myWriter.write("Gene: " + myPop.getFittest() + "\n");
@@ -141,6 +143,8 @@ public class Main {
 
                 myPop = geneticAlgorithm.evolvePopulation(myPop);
                 logger.debug("Population of generation " + generationCount + " = " + myPop);
+                myWriter.write("Population of generation " + generationCount + " = " + myPop +
+                        "\n");
             }
             logger.info("Program finished");
             if(converged)
@@ -154,7 +158,7 @@ public class Main {
 
             geneticAlgorithm.checkPareto(myPop);
             myWriter.write("Metrics are: " + Arrays.toString(cache.getMetrics().toArray()) + "\n");
-            myWriter.write("Pareto set: " + displayPareto(genotypeSupport.getPareto()) + "\n");
+            myWriter.write("Pareto set: " + displayPareto(pareto.getPareto()) + "\n");
             Pair<double[], double[]> variance = cache.getStatistics();
             myWriter.write("The metric means are: " + Arrays.toString(variance.getLeft()) + "\n");
             myWriter.write("The metric standard deviation are: " + Arrays.toString(variance.getRight()) + "\n");
@@ -168,6 +172,8 @@ public class Main {
             int transitionSec = (int) (transitionTime % 60);
             int transitionMin = (int) ((transitionTime / 60)%60);
             myWriter.write("Total time spent on Transformation operations was " + transitionMin + " minutes and " + transitionSec + " seconds." + "\n");
+
+            myWriter.write("Average population size over entire run was " + averageSizeSum/generationCount);
 
             FileManagement.removeOtherDirs(FileManagement.dataDir);
             logger.info("Clean up other files.");

@@ -36,6 +36,18 @@ public class MetamorphicPopulation {
     }
 
     /**
+     * Get the average size of this population.
+     * @return the average size.
+     */
+    public int getAverageSize() {
+        int sum = 0;
+        for(MetamorphicIndividual i: individuals) {
+            sum += i.getLength();
+        }
+        return sum/individuals.length;
+    }
+
+    /**
      * Get a metamorphic individual based on the index.
      * @param index the population index.
      * @return the metamorphic individual.

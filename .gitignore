@@ -17,3 +17,4 @@ target/*
 *log
 scripts/.idea
 GA_results.txt
+/.idea/

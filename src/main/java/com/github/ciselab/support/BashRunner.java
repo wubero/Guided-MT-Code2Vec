@@ -42,7 +42,7 @@ public class BashRunner {
             String line;
             while((line = reader.readLine()) != null) {
                 // Can be used for debugging the code2vec commands.
-//                logger.debug(line);
+                logger.debug(line);
             }
 
             int exitVal = process.waitFor();

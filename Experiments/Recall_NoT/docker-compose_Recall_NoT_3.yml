@@ -20,3 +20,4 @@ services:
       target: /app/Guided-MT-Code2Vec/genetic_input
       output: /app/Guided-MT-Code2Vec/genetic_output
       configfile: /config/config.properties
+    container_name: guided-mt-code2vec_recall_not_3

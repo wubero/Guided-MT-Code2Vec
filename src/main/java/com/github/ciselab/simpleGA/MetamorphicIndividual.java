@@ -49,7 +49,7 @@ public class MetamorphicIndividual {
         metrics = new double[metricCache.getActiveMetrics()];
         for(int i = 0; i < length; i++) {
             int key = r.nextInt(0, maxTransformerValue+1);
-            int seed = r.nextInt();
+            int seed = Math.abs(r.nextInt());
             transformers.add(createTransformers(key, seed));
         }
     }
@@ -106,7 +106,7 @@ public class MetamorphicIndividual {
      */
     public void increase(int maxGeneLength, RandomGenerator randomGen, int maxValue) {
         if(getLength() < maxGeneLength) {
-            BaseTransformer newTransformer = createTransformers(randomGen.nextInt(1, maxValue+1), randomGen.nextInt());
+            BaseTransformer newTransformer = createTransformers(randomGen.nextInt(1, maxValue+1), Math.abs(randomGen.nextInt()));
             fitness = -1;
             if(metricCache.getDir(transformers).isPresent()) {
                 List<BaseTransformer> t = new ArrayList<>();
@@ -173,7 +173,7 @@ public class MetamorphicIndividual {
      * @return the transformer created.
      */
     public BaseTransformer createGene(int key, RandomGenerator random) {
-        return createTransformers(key, random.nextInt());
+        return createTransformers(key, Math.abs(random.nextInt()));
     }
 
     /**

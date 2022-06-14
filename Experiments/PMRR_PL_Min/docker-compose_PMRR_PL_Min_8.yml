@@ -5,7 +5,7 @@ version: '3.3'
 # The config file should be adjusted according to which metrics you want to use and whether you want to max- or minimize them.
 
 services:
-  guided-mt-code2vec:
+  guided-mt-code2vec_pmrr_pl_min_8:
     build:
       context: ../../
       dockerfile: Dockerfile

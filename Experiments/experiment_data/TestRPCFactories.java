@@ -99,13 +99,4 @@ public class TestRPCFactories {
       server.stop();
     }     
   }
-
-  public class LocalizationProtocolTestImpl implements LocalizationProtocol {
-
-    @Override
-    public LocalizerHeartbeatResponse heartbeat(LocalizerStatus status) {
-      return null;
-    }
-    
-  }
 }

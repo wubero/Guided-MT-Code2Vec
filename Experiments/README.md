@@ -47,3 +47,9 @@ parallel docker runs:
 ```sh
 source experiments.sh 2
 ```
+
+## Data
+The dataset we used for our experiments was selected by running the filePicker.sh script in the scripts folder. 
+This selects the files at random from a larger database. There were however some problems with the files, and the current transformers we are using.
+Because of these issues we were not able to use certain enums or interfaces and had to replace them with other files. This bug in the Lampion 
+project will get fixed asap.

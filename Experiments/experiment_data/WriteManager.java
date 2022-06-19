@@ -68,14 +68,6 @@ public class WriteManager {
 
   private final OpenFileCtxCache fileContextCache;
 
-  static public class MultipleCachedStreamException extends IOException {
-    private static final long serialVersionUID = 1L;
-
-    public MultipleCachedStreamException(String msg) {
-      super(msg);
-    }
-  }
-
   boolean addOpenFileStream(FileHandle h, OpenFileCtx ctx) {
     return fileContextCache.put(h, ctx);
   }

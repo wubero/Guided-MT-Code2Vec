@@ -35,7 +35,7 @@ public class Main {
     private final static int maxGeneLength = 20;
     private static int popSize = 10;
     private static int maxSteadyGenerations = 35;
-    private static int maxTimeInMin = 900;
+    private static int maxTimeInMin = 480;
     private final static Logger logger = LogManager.getLogger(Main.class);
     private static final MetricCache cache = new MetricCache();
     private static final Pareto pareto = new Pareto(cache);

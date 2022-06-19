@@ -41,6 +41,14 @@ However, it doesn't support a variable length within one run. It also doesn't su
 For these reasons using the permutation, chromosome was also not an option. 
 Because of these issues, I decided to implement a simple custom genetic algorithm that could deal with variable chromosome length.
 
+# The genetic algorithm
+The genetic algorithm that I design first gets a baseline fitness by evaluating the fitness of an empty individual (no transformations).
+It then randomly creates an initial population with individuals of length 1 or 2. This initial population gets evaluated and then evolved with 
+crossover, tournament selection and mutation. The mutation in this genetic algorithm does not only exist of mutating one gene of the individual 
+but rather increases or decreases the length of the individual by adding or removing a random transformer. Both the tournament selection and 
+crossover work as expected. The termination criteria for this genetic algorithm are based on the amount of generations that the best fitness 
+hasn't improved, and a maximum amount of time that the program can take.
+
 ## Metrics
 The metrics this project uses are chosen to reflect the performance of the model. The following metrics are implemented in this project:
 1. MRR

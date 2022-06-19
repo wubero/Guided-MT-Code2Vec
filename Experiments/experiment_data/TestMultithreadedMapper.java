@@ -75,28 +75,4 @@ public class TestMultithreadedMapper extends HadoopTestCase {
       assertTrue(ioEx || rtEx);
     }
   }
-
-  public static class IDMap extends 
-      Mapper<LongWritable, Text, LongWritable, Text> {
-    private boolean ioEx = false;
-    private boolean rtEx = false;
-
-    public void setup(Context context) {
-      ioEx = context.getConfiguration().
-               getBoolean("multithreaded.ioException", false);
-      rtEx = context.getConfiguration().
-               getBoolean("multithreaded.runtimeException", false);
-    }
-
-    public void map(LongWritable key, Text value, Context context)
-        throws IOException, InterruptedException {
-      if (ioEx) {
-        throw new IOException();
-      }
-      if (rtEx) {
-        throw new RuntimeException();
-      }
-      super.map(key, value, context);
-    }
-  }
 }

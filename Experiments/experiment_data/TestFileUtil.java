@@ -419,67 +419,6 @@ public class TestFileUtil {
     validateAndSetWritablePermissions(false, ret);
   }
 
-  /**
-   * Extend {@link File}. Same as {@link File} except for two things: (1) This
-   * treats file1Name as a very special file which is not delete-able
-   * irrespective of it's parent-dir's permissions, a peculiar file instance for
-   * testing. (2) It returns the files in alphabetically sorted order when
-   * listed.
-   * 
-   */
-  public static class MyFile extends File {
-
-    private static final long serialVersionUID = 1L;
-
-    public MyFile(File f) {
-      super(f.getAbsolutePath());
-    }
-
-    public MyFile(File parent, String child) {
-      super(parent, child);
-    }
-
-    /**
-     * Same as {@link File#delete()} except for file1Name which will never be
-     * deleted (hard-coded)
-     */
-    @Override
-    public boolean delete() {
-      LOG.info("Trying to delete myFile " + getAbsolutePath());
-      boolean bool = false;
-      if (getName().equals(file1Name)) {
-        bool = false;
-      } else {
-        bool = super.delete();
-      }
-      if (bool) {
-        LOG.info("Deleted " + getAbsolutePath() + " successfully");
-      } else {
-        LOG.info("Cannot delete " + getAbsolutePath());
-      }
-      return bool;
-    }
-
-    /**
-     * Return the list of files in an alphabetically sorted order
-     */
-    @Override
-    public File[] listFiles() {
-      final File[] files = super.listFiles();
-      if (files == null) {
-         return null;
-      }
-      List<File> filesList = Arrays.asList(files);
-      Collections.sort(filesList);
-      File[] myFiles = new MyFile[files.length];
-      int i=0;
-      for(File f : filesList) {
-        myFiles[i++] = new MyFile(f);
-      }
-      return myFiles;
-    }
-  }
-
   @Test (timeout = 30000)
   public void testFailFullyDeleteContents() throws IOException {
     if(Shell.WINDOWS) {

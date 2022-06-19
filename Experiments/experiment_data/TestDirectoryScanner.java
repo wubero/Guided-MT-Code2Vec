@@ -388,43 +388,6 @@ public class TestDirectoryScanner {
     assertNotNull(memBlock);
     assertEquals(genStamp, memBlock.getGenerationStamp());
   }
-  
-  private static class TestFsVolumeSpi implements FsVolumeSpi {
-    @Override
-    public String[] getBlockPoolList() {
-      return new String[0];
-    }
-    
-    @Override
-    public long getAvailable() throws IOException {
-      return 0;
-    }
-    
-    @Override
-    public String getBasePath() {
-      return (new File("/base")).getAbsolutePath();
-    }
-    
-    @Override
-    public String getPath(String bpid) throws IOException {
-      return (new File("/base/current/" + bpid)).getAbsolutePath();
-    }
-
-    @Override
-    public File getFinalizedDir(String bpid) throws IOException {
-      return new File("/base/current/" + bpid + "/finalized");
-    }
-
-    @Override
-    public StorageType getStorageType() {
-      return StorageType.DEFAULT;
-    }
-
-    @Override
-    public String getStorageID() {
-      return "";
-    }
-  }
 
   private final static TestFsVolumeSpi TEST_VOLUME = new TestFsVolumeSpi();
   

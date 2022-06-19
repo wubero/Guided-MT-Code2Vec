@@ -34,7 +34,7 @@ RUN pip install -r requirements.txt
 WORKDIR /app
 RUN git clone https://github.com/ciselab/Lampion.git
 WORKDIR /app/Lampion/Transformers/Java
-RUN git fetch && git checkout 81d8361953ca3565dae34f6e77ba6ba944a031c7 && mvn -P nofiles -DskipShade install
+RUN git fetch && git checkout 6ff11568d6777b936e6569be113dab01506db6ba && mvn -P nofiles -DskipShade install
 
 # Package the Guided-MT-Code2vec project.
 WORKDIR /app/Guided-MT-Code2Vec

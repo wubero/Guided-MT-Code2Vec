@@ -877,26 +877,6 @@ public class ZombieJob implements JobStory {
     return interpolator.randomValue();
   }
 
-  static private class NoValueToMakeUpRuntime extends IllegalArgumentException {
-    static final long serialVersionUID = 1L;
-
-    NoValueToMakeUpRuntime() {
-      super();
-    }
-
-    NoValueToMakeUpRuntime(String detailMessage) {
-      super(detailMessage);
-    }
-
-    NoValueToMakeUpRuntime(String detailMessage, Throwable cause) {
-      super(detailMessage, cause);
-    }
-
-    NoValueToMakeUpRuntime(Throwable cause) {
-      super(cause);
-    }
-  }
-
   private State makeUpState(int taskAttemptNumber, double[] numAttempts) {
 	  
   // if numAttempts == null we are returning FAILED.

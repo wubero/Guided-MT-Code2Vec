@@ -34,10 +34,15 @@ public class ConfigManager {
     private TransformationScope transformationScope = TransformationScope.perClass;
     private boolean maximize = true;
     private final Logger logger = LogManager.getLogger(ConfigManager.class);
+    private boolean useGA = true;
 
     public ConfigManager(MetricCache metricCache, BashRunner bashRunner) {
         this.metricCache = metricCache;
         this.bashRunner = bashRunner;
+    }
+
+    public boolean getUseGa() {
+        return useGA;
     }
 
     public long getSeed() {
@@ -77,6 +82,10 @@ public class ConfigManager {
         } catch (IOException e) {
             logger.debug("Cannot load property file.");
         }
+        if(prop.get("useGA") != null)
+            useGA = prop.get("useGA").equals("true");
+        else
+            useGA = true;
         if(prop.get("Optimization_objective") != null)
             maximize = prop.get("Optimization_objective").equals("max");
         if(prop.get("seed") != null)

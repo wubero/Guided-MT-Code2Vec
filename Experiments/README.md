@@ -26,6 +26,10 @@ be done 10 times so there are 10 docker-compose files with different output file
 21. PMRR_MRR: Minimize percentage_MRR, and minimize MRR
 22. PMRR: Minimize percentage_MRR
 
+Lastly, there is also an experiment that runs over the full test dataset that code2vec provides (F1_Total). This dataset is not included in this 
+repository because it would become very large. In the README.md of this repository it is explained how to get this dataset. You can put all files in 
+the full_data folder in this directory and then the F1_Total experiment will run.
+
 ## Adding an experiment
 If you want to add an experiment you can add a folder to this directory with the next experiment. In this folder should be a properties file 
 corresponding to the configurations you need for the experiments. When you create the docker-compose file you should change the configuration file 

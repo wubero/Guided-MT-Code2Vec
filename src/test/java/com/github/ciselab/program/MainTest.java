@@ -7,6 +7,8 @@ import com.github.ciselab.support.FileManagement;
 import com.github.ciselab.support.GenotypeSupport;
 import com.github.ciselab.support.MetricCache;
 import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 import java.util.SplittableRandom;
 import java.util.random.RandomGenerator;
@@ -81,5 +83,43 @@ public class MainTest {
         Main.setMaxGenerations(1);
         Main.setPopSize(1);
         Main.runSimpleGA();
+    }
+
+    @Test
+    public void getBestTest_maximize() {
+        configManager.setMaximize(true);
+        ArrayList<Double> arr = new ArrayList<>();
+        arr.add(1.3);
+        arr.add(0.8);
+        arr.add(3.0);
+        assertEquals(3.0, Main.getBest(arr));
+    }
+
+    @Test
+    public void getWorstTest() {
+        configManager.setMaximize(true);
+        ArrayList<Double> arr = new ArrayList<>();
+        arr.add(1.3);
+        arr.add(0.8);
+        arr.add(3.0);
+        assertEquals(0.8, Main.getWorst(arr));
+    }
+
+    @Test
+    public void getMedianTest() {
+        ArrayList<Double> arr = new ArrayList<>();
+        arr.add(1.3);
+        arr.add(0.8);
+        arr.add(3.0);
+        assertEquals(1.3, Main.getMedian(arr));
+    }
+
+    @Test
+    public void getAverageTest() {
+        ArrayList<Double> arr = new ArrayList<>();
+        arr.add(1.3);
+        arr.add(0.8);
+        arr.add(3.0);
+        assertEquals(1.7, Main.getAverage(arr));
     }
 }

@@ -15,22 +15,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.hadoop.hdfs.tools.offlineImageViewer;
+package org.apache.hadoop.fs.viewfs;
 
-import org.apache.hadoop.classification.InterfaceAudience;
-import org.apache.hadoop.classification.InterfaceStability;
 
-/**
- * Utility class for tracking descent into the structure of the
- * Visitor class (ImageVisitor, EditsVisitor etc.)
- */
-@InterfaceAudience.Private
-@InterfaceStability.Unstable
-public class DepthCounter {
-  private int depth = 0;
+import org.apache.hadoop.fs.FileContext;
+import org.apache.hadoop.fs.FileContextPermissionBase;
 
-  public void incLevel() { depth++; }
-  public void decLevel() { if(depth >= 1) depth--; }
-  public int  getLevel() { return depth; }
+import org.junit.After;
+import org.junit.Before;
+
+
+public class TestFcPermissionsLocalFs  extends FileContextPermissionBase {
+
+  @Override
+  @Before
+  public void setUp() throws Exception {
+    super.setUp();
+  }
+  
+  @Override
+  @After
+  public void tearDown() throws Exception {
+    super.tearDown();
+    ViewFsTestSetup.tearDownForViewFsLocalFs(fileContextTestHelper);
+  }
+
+  @Override
+  protected FileContext getFileContext() throws Exception {
+    return ViewFsTestSetup.setupForViewFsLocalFs(fileContextTestHelper);
+  }
 }
-

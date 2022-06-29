@@ -3,16 +3,14 @@ package com.github.ciselab.program;
 import com.github.ciselab.simpleGA.GeneticAlgorithm;
 import com.github.ciselab.simpleGA.MetamorphicIndividual;
 import com.github.ciselab.simpleGA.MetamorphicPopulation;
+import com.github.ciselab.simpleGA.RandomAlgorithm;
 import com.github.ciselab.support.*;
 
 import java.io.FileWriter;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalTime;
-import java.util.Arrays;
-import java.util.Properties;
-import java.util.Set;
-import java.util.SplittableRandom;
+import java.util.*;
 import java.util.random.RandomGenerator;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.logging.log4j.LogManager;
@@ -25,12 +23,13 @@ import org.apache.logging.log4j.Logger;
 public class Main {
 
     // GA parameters
-    private final static double uniformRate = 0.7; // 0.6, 0.7
-    private final static double mutationRate = 0.4; // 0.3, 0.4
+    private final static double uniformRate = 0.7;
+    private final static double mutationRate = 0.4;
     private final static int tournamentSize = 4;
     private final static boolean elitism = false;
-    private final static double increaseSizeRate = 0.7; // 0.6, 0.7, 0.8
+    private final static double increaseSizeRate = 0.7;
 
+    private static boolean useGA = true;
     private final static int maxTransformerValue = 6; // Including 0, so 7 transformers
     private final static int maxGeneLength = 20;
     private static int popSize = 10;
@@ -65,7 +64,11 @@ public class Main {
             return;
         }
         logger.info("Configuration: " + configManager.initializeFields());
-        runSimpleGA();
+        useGA = configManager.getUseGa();
+        if(useGA)
+            runSimpleGA();
+        else
+            runRandomAlgo();
     }
 
     /**
@@ -82,6 +85,96 @@ public class Main {
      */
     public static void setPopSize(int pop) {
         popSize = pop;
+    }
+
+    public static void runRandomAlgo() {
+        RandomAlgorithm algorithm = new RandomAlgorithm(genotypeSupport, pareto);
+        RandomGenerator random = new SplittableRandom(configManager.getSeed());
+        logger.info("Using random algorithm");
+        algorithm.initializeParameters(maxTransformerValue, maxGeneLength, random);
+
+        // Create an initial population
+        try {
+            FileWriter myWriter = new FileWriter(logDir + "GA_results.txt");
+            MetamorphicPopulation myPop = new MetamorphicPopulation(popSize, random,
+                    maxTransformerValue, false, genotypeSupport);
+            for(int i = 0; i < popSize; i++) {
+                MetamorphicIndividual newIndiv = new MetamorphicIndividual(genotypeSupport);
+                newIndiv.createIndividual(random, 1, maxTransformerValue);
+                myPop.saveIndividual(i, newIndiv);
+            }
+            logger.debug("Initial population: " + myPop);
+            myWriter.write("Initial population: " + myPop + "\n");
+
+            MetamorphicIndividual initial = new MetamorphicIndividual(genotypeSupport);
+            double bestFitness = initial.getFitness();
+            logger.info("Initial fitness without transformations: " + bestFitness);
+            myWriter.write("Initial fitness without transformations: " + bestFitness + "\n");
+            logger.info("The metric results corresponding to the transformations are: " + Arrays.toString(initial.getMetrics()));
+
+            // check best against pareto
+            pareto.addToParetoOptimum(initial.getMetrics());
+
+            ArrayList<Double> fitnesses = new ArrayList<>();
+
+            int generationCount = 0;
+            while(myPop.getAverageSize() <= maxGeneLength) {
+                ArrayList<Double> generationFitness = new ArrayList<>();
+                for(int i = 0; i < popSize; i++) {
+                    generationFitness.add(myPop.getIndividual(i).getFitness());
+                    fitnesses.add(myPop.getIndividual(i).getFitness());
+                }
+
+                generationCount++;
+                logger.info("Generation " + generationCount);
+                myWriter.write("Generation " + generationCount + " has an average population size" +
+                        " of " + myPop.getAverageSize() + "\n");
+
+                algorithm.checkPareto(myPop);
+                logger.debug("Current Pareto set = " + displayPareto(pareto.getPareto()));
+
+                myWriter.write("Generation: " + generationCount + ", best: " + getBest(generationFitness) + ", worst: " + getWorst(generationFitness) +
+                        ", average: " + getAverage(generationFitness) + ", median: " + getMedian(generationFitness) + "\n");
+
+
+                logger.info("Generation: " + generationCount + " Fittest: " + myPop.getFittest().getFitness() + " Gene:");
+                logger.info(myPop.getFittest().toString());
+
+                myPop = algorithm.nextGeneration(myPop);
+                logger.debug("Population of generation " + generationCount + " = " + myPop);
+                myWriter.write("Population of generation " + generationCount + " = " + myPop +
+                        "\n");
+            }
+            logger.info("Program finished");
+            // Report best, worst, average median
+            myWriter.write("At the end of the algorithm the results are: , best: " + getBest(fitnesses) + ", worst: " + getWorst(fitnesses) + ", " +
+                    "average: " + getAverage(fitnesses) + ", " + "median: " + getMedian(fitnesses) + "\n");
+
+
+            algorithm.checkPareto(myPop);
+            myWriter.write("Metrics are: " + Arrays.toString(cache.getMetrics().toArray()) + "\n");
+            myWriter.write("Pareto set: " + displayPareto(pareto.getPareto()) + "\n");
+            Pair<double[], double[]> variance = cache.getStatistics();
+            myWriter.write("The metric means are: " + Arrays.toString(variance.getLeft()) + "\n");
+            myWriter.write("The metric standard deviation are: " + Arrays.toString(variance.getRight()) + "\n");
+
+            long code2vecTime = genotypeSupport.getTotalCode2vevTime();
+            int code2vecSec = (int) (code2vecTime % 60);
+            int code2vecMin = (int) ((code2vecTime / 60)%60);
+            myWriter.write("Total time spent on Code2Vec inference was " + code2vecMin + " minutes and " + code2vecSec + " seconds." + "\n");
+
+            long transitionTime = genotypeSupport.getTotalTransformationTime();
+            int transitionSec = (int) (transitionTime % 60);
+            int transitionMin = (int) ((transitionTime / 60)%60);
+            myWriter.write("Total time spent on Transformation operations was " + transitionMin + " minutes and " + transitionSec + " seconds." + "\n");
+
+            FileManagement.removeOtherDirs(FileManagement.dataDir);
+            logger.info("Clean up other files.");
+
+            myWriter.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -226,5 +319,61 @@ public class Main {
         for(double[] i: pareto)
             out += Arrays.toString(i) + ", ";
         return out.substring(0, out.length()-2) + "}";
+    }
+
+    /**
+     * Get median of list of doubles.
+     * @param values the list of double values.
+     * @return the median of the list.
+     */
+    public static double getMedian(ArrayList<Double> values) {
+        Collections.sort(values);
+        if(values.size() % 2 == 1)
+            return values.get((values.size() +1 ) / 2 - 1);
+        else {
+            double lower = values.get(values.size() / 2 - 1);
+            double upper = values.get(values.size() / 2);
+
+            return (lower + upper) / 2.0;
+        }
+    }
+
+    /**
+     * Get average of list of doubles.
+     * @param values the list of double values.
+     * @return the average of the list.
+     */
+    public static double getAverage(ArrayList<Double> values) {
+        double sum = 0;
+        for(double i: values) {
+            sum += i;
+        }
+        return sum/values.size();
+    }
+
+    /**
+     * Get worst value of list.
+     * @param values the list.
+     * @return the worst value.
+     */
+    public static double getWorst(ArrayList<Double> values) {
+        Collections.sort(values);
+        if(configManager.getMaximize())
+            return values.get(0);
+        else
+            return values.get(values.size()-1);
+    }
+
+    /**
+     * Get best value of list.
+     * @param values the list.
+     * @return the best value.
+     */
+    public static double getBest(ArrayList<Double> values) {
+        Collections.sort(values);
+        if(configManager.getMaximize())
+            return values.get(values.size()-1);
+        else
+            return values.get(0);
     }
 }

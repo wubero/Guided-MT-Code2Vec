@@ -6,10 +6,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Properties;
-import java.util.Set;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
@@ -22,15 +20,15 @@ public class GenotypeSupportTest {
 
     GenotypeSupport genotypeSupport;
     MetricCache metricCache;
-    ConfigManager configManager;
+    ConfigManagement configManagement;
 
     @BeforeEach
     public void setUp() {
         metricCache = new MetricCache();
         genotypeSupport = new GenotypeSupport(metricCache);
-        configManager = genotypeSupport.getConfigManager();
-        configManager.setConfigFile("src/test/resources/config.properties");
-        configManager.initializeFields();
+        configManagement = genotypeSupport.getConfigManagement();
+        configManagement.setConfigFile("src/test/resources/config.properties");
+        configManagement.initializeFields();
     }
 
     @AfterEach
@@ -61,8 +59,8 @@ public class GenotypeSupportTest {
     @Tag("File")
     @Test
     public void runCode2vecInferenceTest() throws IOException {
-        configManager.setConfigFile("src/test/resources/config.properties");
-        configManager.initializeFields();
+        configManagement.setConfigFile("src/test/resources/config.properties");
+        configManagement.initializeFields();
         List<BaseTransformer> transformers = new ArrayList<>();
         File[] files = new File("src/test/resources/code_files").listFiles();
         File directory = new File(dataDir + "code_files");

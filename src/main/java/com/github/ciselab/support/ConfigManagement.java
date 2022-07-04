@@ -4,8 +4,8 @@ import static com.github.ciselab.support.GenotypeSupport.dir_path;
 
 import com.github.ciselab.lampion.core.program.Engine.TransformationScope;
 import com.github.ciselab.metric.Metric;
-import com.github.ciselab.metric.MetricCategory;
-import com.github.ciselab.metric.SecondaryMetrics;
+import com.github.ciselab.metric.MetricCategories.MetricCategory;
+import com.github.ciselab.metric.MetricCategories.SecondaryMetrics;
 import com.github.ciselab.metric.metrics.EditDistance;
 import com.github.ciselab.metric.metrics.F1_score;
 import com.github.ciselab.metric.metrics.InputLength;
@@ -16,7 +16,6 @@ import com.github.ciselab.metric.metrics.PredictionLength;
 import com.github.ciselab.metric.metrics.Recall;
 import com.github.ciselab.metric.metrics.Transformations;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
@@ -24,7 +23,7 @@ import java.util.Random;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class ConfigManager {
+public class ConfigManagement {
 
     private final MetricCache metricCache;
     private final BashRunner bashRunner;
@@ -33,10 +32,10 @@ public class ConfigManager {
     private boolean removeAllComments = false;
     private TransformationScope transformationScope = TransformationScope.perClass;
     private boolean maximize = true;
-    private final Logger logger = LogManager.getLogger(ConfigManager.class);
+    private final Logger logger = LogManager.getLogger(ConfigManagement.class);
     private boolean useGA = true;
 
-    public ConfigManager(MetricCache metricCache, BashRunner bashRunner) {
+    public ConfigManagement(MetricCache metricCache, BashRunner bashRunner) {
         this.metricCache = metricCache;
         this.bashRunner = bashRunner;
     }

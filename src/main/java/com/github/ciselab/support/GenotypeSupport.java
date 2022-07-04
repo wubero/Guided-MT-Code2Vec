@@ -4,7 +4,8 @@ import static com.github.ciselab.support.FileManagement.dataDir;
 
 import com.github.ciselab.lampion.core.program.EngineResult;
 import com.github.ciselab.lampion.core.transformations.TransformerRegistry;
-import com.github.ciselab.lampion.core.transformations.transformers.BaseTransformer;
+import com.github.ciselab.lampion.core.transformations.transformers.*;
+
 import java.io.File;
 import java.util.List;
 import java.util.Random;
@@ -27,7 +28,7 @@ public class GenotypeSupport {
     private final String currentDataset = "generation_0";
     private final BashRunner bashRunner = new BashRunner();
     private final MetricCache metricCache;
-    private final ConfigManager configManager;
+    private final ConfigManagement configManagement;
 
     private final Logger logger = LogManager.getLogger(GenotypeSupport.class);
 
@@ -36,15 +37,15 @@ public class GenotypeSupport {
 
     public GenotypeSupport(MetricCache cache) {
         metricCache = cache;
-        configManager = new ConfigManager(cache, bashRunner);
+        configManagement = new ConfigManagement(cache, bashRunner);
     }
 
     public MetricCache getMetricCache() {
         return metricCache;
     }
 
-    public ConfigManager getConfigManager() {
-        return configManager;
+    public ConfigManagement getConfigManagement() {
+        return configManagement;
     }
 
     public String getCurrentDataset() {
@@ -73,6 +74,34 @@ public class GenotypeSupport {
             out.append(options.charAt(r.nextInt(0, options.length())));
         }
         return out.toString();
+    }
+
+    /**
+     * Create the transformer based on the key and seed specified.
+     * @param key the transformer key.
+     * @param seed the transformer seed.
+     * @return a transformer that extends the BaseTransformer.
+     */
+    public BaseTransformer createTransformers(Integer key, Integer seed) {
+        switch (key) {
+            case 0:
+                return new IfTrueTransformer(seed);
+            case 1:
+                return new IfFalseElseTransformer(seed);
+            case 2:
+                return new RenameVariableTransformer(seed);
+            case 3:
+                return new AddNeutralElementTransformer(seed);
+            case 4:
+                return new AddUnusedVariableTransformer(seed);
+            case 5:
+                return new RandomParameterNameTransformer(seed);
+            case 6:
+                return new LambdaIdentityTransformer(seed);
+            default:
+                logger.error("The key provided does not match a transformer");
+                throw new IllegalArgumentException("The key provided does not match a transformer.");
+        }
     }
 
     /**
@@ -110,9 +139,9 @@ public class GenotypeSupport {
         metricCache.putFileCombination(transformers, outputSet);
 
         Engine engine = new Engine(dataDir + input, dataDir + outputSet + "/test", registry);
-        engine.setNumberOfTransformationsPerScope(transformers.size(), configManager.getTransformationScope());
-        engine.setRandomSeed(configManager.getSeed());
-        engine.setRemoveAllComments(configManager.getRemoveAllComments());
+        engine.setNumberOfTransformationsPerScope(transformers.size(), configManagement.getTransformationScope());
+        engine.setRandomSeed(configManagement.getSeed());
+        engine.setRemoveAllComments(configManagement.getRemoveAllComments());
 
         Launcher launcher = new spoon.Launcher();
         launcher.addInputResource(engine.getCodeDirectory());

@@ -27,7 +27,7 @@ basic changes made for logging different results such as certainty of a predicti
 use this for the metrics. The code2vec commands are executed in the GenotypeSupport class 
 through bash.
 
-## Genetic search
+## Self-Implementation of Genetic Search
 In this project I made the decision to create a custom genetic search algorithm instead of using a library for this.
 All libraries I looked at did not support variable length for the genotypes. 
 In our program, I need to mutate the individuals and increase the number of transformers I use in every generation. 
@@ -41,13 +41,19 @@ However, it doesn't support a variable length within one run. It also doesn't su
 For these reasons using the permutation, chromosome was also not an option. 
 Because of these issues, I decided to implement a simple custom genetic algorithm that could deal with variable chromosome length.
 
-# The genetic algorithm
+### The genetic algorithm
 The genetic algorithm that I design first gets a baseline fitness by evaluating the fitness of an empty individual (no transformations).
 It then randomly creates an initial population with individuals of length 1 or 2. This initial population gets evaluated and then evolved with 
 crossover, tournament selection and mutation. The mutation in this genetic algorithm does not only exist of mutating one gene of the individual 
 but rather increases or decreases the length of the individual by adding or removing a random transformer. Both the tournament selection and 
 crossover work as expected. The termination criteria for this genetic algorithm are based on the amount of generations that the best fitness 
 hasn't improved, and a maximum amount of time that the program can take.
+
+## Random mode algorithm
+The random algorithm creates a new population for ever generation. This new population creates individuals that have one more transformer than the 
+last population. We do this for 20 generations and record the average, median, best and worst fitness which we later use for compare to the genetic 
+algorithm. With this comparison we can determine the scientific impact of the genetic search versus a random one. 
+In this algorithm there is no evolving of the generation (except for increasing the size of each individual) and the fitness calculation is the same.
 
 ## Metrics
 The metrics this project uses are chosen to reflect the performance of the model. The following metrics are implemented in this project:

@@ -1,8 +1,11 @@
-package com.github.ciselab.simpleGA;
+package com.github.ciselab.algorithms;
 
+import com.github.ciselab.support.BashRunner;
 import com.github.ciselab.support.GenotypeSupport;
 import com.github.ciselab.support.MetricCache;
-import com.github.ciselab.support.Pareto;
+import com.github.ciselab.support.ParetoFront;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,22 +30,24 @@ public class GeneticAlgorithm {
     private RandomGenerator randomGenerator;
     private final GenotypeSupport genotypeSupport;
     private final MetricCache metricCache;
-    private final Pareto pareto;
+    private final ParetoFront paretoFront;
+    private final Logger logger = LogManager.getLogger(GeneticAlgorithm.class);
 
     /**
      * Initialize all GA parameters.
-     * @param uRate the  uniform rate.
-     * @param mRate the mutation rate.
-     * @param tSize the tournament size.
-     * @param elite elitism.
-     * @param increaseRate the increase rate.
-     * @param maxValue the maximum transformer value.
-     * @param maxLength the maximum individual length.
-     * @param r the random generator.
+     * @param uRate the  uniform rate, should be a value between 0 and 1.
+     * @param mRate the mutation rate, should be a value between 0 and 1.
+     * @param tSize the tournament size, should be a value between 1 and the population size.
+     * @param elite elitism, should be true or false.
+     * @param increaseRate the increase rate, should be a value between 0 and 1.
+     * @param maxValue the maximum transformer value, default should be 7. This is all transformers currently specified
+     * @param maxLength the maximum individual length, should always be bigger than 1.
+     * @param randomGenerator the random generator.
      * @return the parameters in a string for the logger.
      */
     public String initializeParameters(double uRate, double mRate, int tSize, boolean elite, double increaseRate,
-                                              int maxValue, int maxLength, RandomGenerator r) {
+                                              int maxValue, int maxLength, RandomGenerator randomGenerator) {
+        logger.debug("Initialize parameters for the genetic algorithm.");
         crossoverRate = uRate;
         mutationRate = mRate;
         tournamentSize = tSize;
@@ -50,16 +55,21 @@ public class GeneticAlgorithm {
         increaseSizeRate = increaseRate;
         maxTransformerValue = maxValue;
         maxGeneLength = maxLength;
-        randomGenerator = r;
+        this.randomGenerator = randomGenerator;
         return String.format("{uniform rate: %g, mutation rate: %g, tournament size: %d, elitism: %b, increase rate: %g," +
                 " max transformer value: %d, max gene length: %d}",
                 uRate, mRate, tSize, elite, increaseRate, maxValue, maxLength);
     }
 
-    public GeneticAlgorithm(GenotypeSupport gen, Pareto pareto) {
-        genotypeSupport = gen;
-        metricCache = gen.getMetricCache();
-        this.pareto = pareto;
+    /**
+     * Constructor for this class.
+     * @param genotypeSupport the genotypeSupport.
+     * @param paretoFront the pareto front.
+     */
+    public GeneticAlgorithm(GenotypeSupport genotypeSupport, ParetoFront paretoFront) {
+        this.genotypeSupport = genotypeSupport;
+        metricCache = genotypeSupport.getMetricCache();
+        this.paretoFront = paretoFront;
     }
 
     /**
@@ -68,6 +78,7 @@ public class GeneticAlgorithm {
      * @return the new metamorphic population
      */
     public MetamorphicPopulation evolvePopulation(MetamorphicPopulation pop) {
+        logger.debug("Evolve the old population");
         MetamorphicPopulation newPopulation = new MetamorphicPopulation(pop.size(),
                 randomGenerator, maxTransformerValue, false, genotypeSupport);
 
@@ -133,25 +144,26 @@ public class GeneticAlgorithm {
      * @return the new metamorphic individual.
      */
     private List<MetamorphicIndividual> crossover(MetamorphicIndividual individual1, MetamorphicIndividual individual2) {
-        MetamorphicIndividual newSol = new MetamorphicIndividual(genotypeSupport);
-        MetamorphicIndividual newSol2 = new MetamorphicIndividual(genotypeSupport);
-        List<MetamorphicIndividual> l = new ArrayList<>();
+        logger.debug("Performing crossover");
+        MetamorphicIndividual firstIndividual = new MetamorphicIndividual(genotypeSupport);
+        MetamorphicIndividual secondIndividual = new MetamorphicIndividual(genotypeSupport);
+        List<MetamorphicIndividual> individualList = new ArrayList<>();
         // Loop through genes
         for (int i = 0; i < individual1.getLength(); i++) {
             // Crossover
             if (Math.random() <= crossoverRate) {
-                newSol.addGene(individual1.getGene(i));
+                firstIndividual.addGene(individual1.getGene(i));
                 if (i < individual2.getLength())
-                    newSol2.addGene(individual2.getGene(i));
+                    secondIndividual.addGene(individual2.getGene(i));
             } else {
                 if (i < individual2.getLength())
-                    newSol.addGene(individual2.getGene(i));
-                newSol2.addGene(individual1.getGene(i));
+                    firstIndividual.addGene(individual2.getGene(i));
+                secondIndividual.addGene(individual1.getGene(i));
             }
         }
-        l.add(newSol);
-        l.add(newSol2);
-        return l;
+        individualList.add(firstIndividual);
+        individualList.add(secondIndividual);
+        return individualList;
     }
 
     /**
@@ -181,7 +193,7 @@ public class GeneticAlgorithm {
     public void checkPareto(MetamorphicPopulation population) {
         for(int i = 0; i < population.size(); i++) {
             double[] solution = population.getIndividual(i).getMetrics();
-            pareto.addToParetoOptimum(solution);
+            paretoFront.addToParetoOptimum(solution);
         }
     }
 }

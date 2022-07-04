@@ -1,4 +1,4 @@
-package com.github.ciselab.simpleGA;
+package com.github.ciselab.algorithms;
 
 import com.github.ciselab.lampion.core.transformations.transformers.AddNeutralElementTransformer;
 import com.github.ciselab.lampion.core.transformations.transformers.AddUnusedVariableTransformer;
@@ -39,18 +39,19 @@ public class MetamorphicIndividual {
     }
 
     /**
-     * Create a new metamorphic individual.
-     * @param r the random generator used for this run.
+     * Populate the current metamorphic individual.
+     * The key and seed are randomly generated according to the maximum transformer value and the random generator.
+     * @param randomGenerator the random generator used for this run.
      * @param length the length.
      * @param maxTransformerValue the maximum transformer key value.
      */
-    public void createIndividual(RandomGenerator r, int length, int maxTransformerValue) {
+    public void populateIndividual(RandomGenerator randomGenerator, int length, int maxTransformerValue) {
         transformers.clear();
         metrics = new double[metricCache.getActiveMetrics()];
         for(int i = 0; i < length; i++) {
-            int key = r.nextInt(0, maxTransformerValue+1);
-            int seed = r.nextInt();
-            transformers.add(createTransformers(key, seed));
+            int key = randomGenerator.nextInt(0, maxTransformerValue+1);
+            int seed = randomGenerator.nextInt();
+            transformers.add(genotypeSupport.createTransformers(key, seed));
         }
     }
 
@@ -106,7 +107,7 @@ public class MetamorphicIndividual {
      */
     public void increase(int maxGeneLength, RandomGenerator randomGen, int maxValue) {
         if(getLength() < maxGeneLength) {
-            BaseTransformer newTransformer = createTransformers(randomGen.nextInt(1, maxValue+1), randomGen.nextInt());
+            BaseTransformer newTransformer = genotypeSupport.createTransformers(randomGen.nextInt(1, maxValue+1), randomGen.nextInt());
             fitness = -1;
             if(metricCache.getDir(transformers).isPresent()) {
                 List<BaseTransformer> t = new ArrayList<>();
@@ -173,7 +174,7 @@ public class MetamorphicIndividual {
      * @return the transformer created.
      */
     public BaseTransformer createGene(int key, RandomGenerator random) {
-        return createTransformers(key, random.nextInt());
+        return genotypeSupport.createTransformers(key, random.nextInt());
     }
 
     /**
@@ -268,34 +269,6 @@ public class MetamorphicIndividual {
             output += metrics[i]*weights.get(i);
         }
         return output;
-    }
-
-    /**
-     * Create the transformer based on the key and seed specified.
-     * @param key the transformer key.
-     * @param seed the transformer seed.
-     * @return a transformer that extends the BaseTransformer.
-     */
-    private BaseTransformer createTransformers(Integer key, Integer seed) {
-        switch (key) {
-            case 0:
-                return new IfTrueTransformer(seed);
-            case 1:
-                return new IfFalseElseTransformer(seed);
-            case 2:
-                return new RenameVariableTransformer(seed);
-            case 3:
-                return new AddNeutralElementTransformer(seed);
-            case 4:
-                return new AddUnusedVariableTransformer(seed);
-            case 5:
-                return new RandomParameterNameTransformer(seed);
-            case 6:
-                return new LambdaIdentityTransformer(seed);
-            default:
-                logger.error("The key provided does not match a transformer");
-                throw new IllegalArgumentException("The key provided does not match a transformer.");
-        }
     }
 
     @Override

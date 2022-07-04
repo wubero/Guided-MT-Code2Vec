@@ -9,12 +9,12 @@ import java.util.*;
  * For more explanation on the Pareto front you can take a look at
  * https://en.wikipedia.org/wiki/Pareto_front
  */
-public class Pareto {
+public class ParetoFront {
 
     private final MetricCache metricCache;
     private Set<double[]> pareto = new HashSet<>();
 
-    public Pareto(MetricCache cache) {
+    public ParetoFront(MetricCache cache) {
         this.metricCache = cache;
     }
 

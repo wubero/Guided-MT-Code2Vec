@@ -1,4 +1,4 @@
-package com.github.ciselab.simpleGA;
+package com.github.ciselab.algorithms;
 
 import com.github.ciselab.support.GenotypeSupport;
 import java.util.random.RandomGenerator;
@@ -12,11 +12,11 @@ public class MetamorphicPopulation {
      * Initialize Metamorphic population, the initial population will be half of length 1 and half of length 2.
      * After that the evolution begins.
      * @param popSize the population size.
-     * @param r the random generator. This is kept the same everywhere for testing purposes.
+     * @param randomGenerator the random generator. This is kept the same everywhere for testing purposes.
      * @param maxValue the maximum transformer value.
      * @param initialize whether the population should be initialized or just created as an object.
      */
-    public MetamorphicPopulation(int popSize, RandomGenerator r, int maxValue, boolean initialize
+    public MetamorphicPopulation(int popSize, RandomGenerator randomGenerator, int maxValue, boolean initialize
             , GenotypeSupport gen) {
         genotypeSupport = gen;
         individuals = new MetamorphicIndividual[popSize];
@@ -24,12 +24,12 @@ public class MetamorphicPopulation {
             int cutOff = popSize/2;
             for (int i = 0; i < cutOff; i++) {
                 MetamorphicIndividual individual = new MetamorphicIndividual(genotypeSupport);
-                individual.createIndividual(r, 1, maxValue);
+                individual.populateIndividual(randomGenerator, 1, maxValue);
                 saveIndividual(i, individual);
             }
             for (int j = cutOff; j < popSize; j++) {
                 MetamorphicIndividual individual = new MetamorphicIndividual(genotypeSupport);
-                individual.createIndividual(r, 2, maxValue);
+                individual.populateIndividual(randomGenerator, 2, maxValue);
                 saveIndividual(j, individual);
             }
         }
@@ -73,7 +73,7 @@ public class MetamorphicPopulation {
         MetamorphicIndividual fittest = individuals[0];
         // Loop through individuals to find fittest
         for (int i = 1; i < size(); i++) {
-            if(genotypeSupport.getConfigManager().getMaximize()) {
+            if(genotypeSupport.getConfigManagement().getMaximize()) {
                 if (fittest.getFitness() < getIndividual(i).getFitness())
                     fittest = getIndividual(i);
             } else {

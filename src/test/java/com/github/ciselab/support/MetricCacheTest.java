@@ -21,9 +21,9 @@ public class MetricCacheTest {
     public void setUp() {
         metricCache = new MetricCache();
         genotypeSupport = new GenotypeSupport(metricCache);
-        ConfigManager configManager = genotypeSupport.getConfigManager();
-        configManager.setConfigFile("src/test/resources/config.properties");
-        configManager.initializeFields();
+        ConfigManagement configManagement = genotypeSupport.getConfigManagement();
+        configManagement.setConfigFile("src/test/resources/config.properties");
+        configManagement.initializeFields();
     }
 
     @AfterEach

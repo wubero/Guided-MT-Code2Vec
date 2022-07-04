@@ -1,4 +1,4 @@
-package com.github.ciselab.simpleGA;
+package com.github.ciselab.algorithms;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -9,16 +9,22 @@ import com.github.ciselab.support.MetricCache;
 import java.util.SplittableRandom;
 import java.util.random.RandomGenerator;
 
-import com.github.ciselab.support.Pareto;
+import com.github.ciselab.support.ParetoFront;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 public class GeneticAlgorithmTest {
 
-    private MetricCache cache = new MetricCache();
-    private GenotypeSupport genotypeSupport = new GenotypeSupport(cache);
-    private GeneticAlgorithm geneticAlgorithm = new GeneticAlgorithm(genotypeSupport,
-            new Pareto(cache));
+    private GenotypeSupport genotypeSupport;
+    private GeneticAlgorithm geneticAlgorithm;
+
+    @BeforeEach
+    public void setUp(){
+        MetricCache cache = new MetricCache();
+        genotypeSupport = new GenotypeSupport(cache);
+        geneticAlgorithm = new GeneticAlgorithm(genotypeSupport, new ParetoFront(cache));
+    }
 
     @AfterEach
     public void after() {
@@ -35,15 +41,16 @@ public class GeneticAlgorithmTest {
 
     @Test
     public void evolvePopulationTest() {
+        RandomGenerator randomGenerator = new SplittableRandom(101010);
         geneticAlgorithm.initializeParameters(0.7, 0.01, 3, true, 0.4, 6, 10,
-                new SplittableRandom(101010));
+                randomGenerator);
         int popSize = 5;
-        RandomGenerator r = new SplittableRandom(101010);
+
         MetamorphicPopulation pop = new MetamorphicPopulation(popSize,
-                new SplittableRandom(101010), 6, false, genotypeSupport);
+                randomGenerator, 6, false, genotypeSupport);
         for(int i = 0; i < popSize; i++) {
             MetamorphicIndividual temp = new MetamorphicIndividual(genotypeSupport);
-            temp.createIndividual(r, 3, 6);
+            temp.populateIndividual(randomGenerator, 3, 6);
             temp.setFitness(Math.random());
             pop.saveIndividual(i, temp);
         }

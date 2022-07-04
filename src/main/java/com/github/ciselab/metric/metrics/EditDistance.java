@@ -26,6 +26,7 @@ public class EditDistance extends Metric {
 
     /**
      * Calculate the edit distance between two strings.
+     * Code gotten from: https://www.programcreek.com/2013/12/edit-distance-in-java/
      * @param original the original word.
      * @param predicted the predicted word.
      * @return the edit distance.

@@ -1,8 +1,10 @@
-package com.github.ciselab.simpleGA;
+package com.github.ciselab.algorithms;
 
 import com.github.ciselab.support.GenotypeSupport;
 import com.github.ciselab.support.MetricCache;
-import com.github.ciselab.support.Pareto;
+import com.github.ciselab.support.ParetoFront;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.Optional;
 import java.util.random.RandomGenerator;
@@ -10,33 +12,34 @@ import java.util.random.RandomGenerator;
 public class RandomAlgorithm {
 
     private int maxTransformerValue;
-    private int maxGeneLength;
     private RandomGenerator randomGenerator;
     private final GenotypeSupport genotypeSupport;
     private final MetricCache metricCache;
-    private final Pareto pareto;
+    private final ParetoFront paretoFront;
+    private final Logger logger = LogManager.getLogger(RandomAlgorithm.class);
 
 
-    public String initializeParameters(int maxValue, int maxLength, RandomGenerator r) {
+    public String initializeParameters(int maxValue, RandomGenerator randomGenerator) {
+        logger.debug("Initialize parameters for the random algorithm");
         maxTransformerValue = maxValue;
-        maxGeneLength = maxLength;
-        randomGenerator = r;
-        return String.format("{max transformer value: %d, max gene length: %d}",
-                maxValue, maxLength);
+        this.randomGenerator = randomGenerator;
+        return String.format("{max transformer value: %d}",
+                maxValue);
     }
 
-    public RandomAlgorithm(GenotypeSupport gen, Pareto pareto) {
+    public RandomAlgorithm(GenotypeSupport gen, ParetoFront paretoFront) {
         genotypeSupport = gen;
         metricCache = gen.getMetricCache();
-        this.pareto = pareto;
+        this.paretoFront = paretoFront;
     }
 
     public MetamorphicPopulation nextGeneration(MetamorphicPopulation pop) {
         int newLength = pop.getIndividual(0).getLength() + 1;
+        logger.debug("Creating a new population of length " + newLength + " through the random algorithm.");
         MetamorphicPopulation newPop = new MetamorphicPopulation(pop.size(), randomGenerator, maxTransformerValue, false, genotypeSupport);
         for(int i = 0; i < pop.size(); i++) {
             MetamorphicIndividual newIndiv = new MetamorphicIndividual(genotypeSupport);
-            newIndiv.createIndividual(randomGenerator, newLength, maxTransformerValue);
+            newIndiv.populateIndividual(randomGenerator, newLength, maxTransformerValue);
             newPop.saveIndividual(i, newIndiv);
         }
 
@@ -57,7 +60,7 @@ public class RandomAlgorithm {
     public void checkPareto(MetamorphicPopulation population) {
         for(int i = 0; i < population.size(); i++) {
             double[] solution = population.getIndividual(i).getMetrics();
-            pareto.addToParetoOptimum(solution);
+            paretoFront.addToParetoOptimum(solution);
         }
     }
 }

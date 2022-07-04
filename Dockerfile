@@ -1,6 +1,7 @@
 FROM python:3.9.13 as builder
 
 ARG Guided_MT_Code2Vec_VERSION="1.0-SNAPSHOT"
+ARG Lampion_VERSION="6ff11568d6777b936e6569be113dab01506db6ba"
 LABEL maintainer="rmar@live.nl"
 LABEL name="ciselab/Guided-MT-Code2Vec"
 LABEL description="A genetic search algorithm for testing metamorphic transformations on a trained code2vec model"
@@ -9,12 +10,9 @@ LABEL url="https://github/wubero/Guided-MT-Code2Vec"
 LABEL vcs="https://github/wubero/Guided-MT-Code2Vec"
 
 # Install everything needed for the java code
-RUN apt-get update
-RUN apt install openjdk-17-jdk -y
-RUN apt install maven -y
-RUN apt install bash -y
+RUN apt-get update && apt install openjdk-17-jdk -y && apt install maven -y && apt install bash -y
 
-# Copy everything that is needed
+# Copy everything that is needed, all files needed for code2vec to run are included in this.
 COPY code2vec/models/ /app/Guided-MT-Code2Vec/code2vec/models/
 COPY code2vec/JavaExtractor/ /app/Guided-MT-Code2Vec/code2vec/JavaExtractor/
 COPY code2vec/*.py /app/Guided-MT-Code2Vec/code2vec/
@@ -30,11 +28,12 @@ COPY pom.xml /app/Guided-MT-Code2Vec/
 WORKDIR /app/Guided-MT-Code2Vec/code2vec
 RUN pip install -r requirements.txt
 
-# Get Lampion project and install Core for our maven dependencies.
+# Get Lampion project and install Core for our maven dependencies. We use this hash to make sure that everything we need for our program to run is
+# up to date.
 WORKDIR /app
 RUN git clone https://github.com/ciselab/Lampion.git
 WORKDIR /app/Lampion/Transformers/Java
-RUN git fetch && git checkout 6ff11568d6777b936e6569be113dab01506db6ba && mvn -P nofiles -DskipShade install
+RUN git fetch && git checkout $Lampion_VERSION && mvn -P nofiles -DskipShade install
 
 # Package the Guided-MT-Code2vec project.
 WORKDIR /app/Guided-MT-Code2Vec

@@ -1,4 +1,4 @@
-package com.github.ciselab.simpleGA;
+package com.github.ciselab.algorithms;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -6,7 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.github.ciselab.lampion.core.transformations.transformers.AddNeutralElementTransformer;
 import com.github.ciselab.lampion.core.transformations.transformers.IfTrueTransformer;
-import com.github.ciselab.support.ConfigManager;
+import com.github.ciselab.support.ConfigManagement;
 import com.github.ciselab.support.FileManagement;
 import com.github.ciselab.support.GenotypeSupport;
 import com.github.ciselab.support.MetricCache;
@@ -19,15 +19,16 @@ import org.junit.jupiter.api.Test;
 
 public class MetamorphicIndividualTest {
 
-    RandomGenerator r = new SplittableRandom(101010);
     private GenotypeSupport genotypeSupport;
+    private MetamorphicIndividual individual;
 
     @BeforeEach
     public void setUp() {
         genotypeSupport = new GenotypeSupport(new MetricCache());
-        ConfigManager configManager = genotypeSupport.getConfigManager();
-        configManager.setConfigFile("src/test/resources/config.properties");
-        configManager.initializeFields();
+        ConfigManagement configManagement = genotypeSupport.getConfigManagement();
+        configManagement.setConfigFile("src/test/resources/config.properties");
+        configManagement.initializeFields();
+        individual = new MetamorphicIndividual(genotypeSupport);
     }
 
     @AfterEach
@@ -37,16 +38,16 @@ public class MetamorphicIndividualTest {
 
     @Test
     public void createIndividualTest() {
-        MetamorphicIndividual individual = new MetamorphicIndividual(genotypeSupport);
+        RandomGenerator r = new SplittableRandom(101010);
         assertTrue(individual.getTransformers().isEmpty());
-        individual.createIndividual(r, 2, 6);
+        individual.populateIndividual(r, 2, 6);
         assertFalse(individual.getTransformers().isEmpty());
     }
 
     @Test
     public void increaseIndividualLength() {
-        MetamorphicIndividual individual = new MetamorphicIndividual(genotypeSupport);
-        individual.createIndividual(r, 2, 6);
+        RandomGenerator r = new SplittableRandom(101010);
+        individual.populateIndividual(r, 2, 6);
         assertEquals(individual.getTransformers().size(), 2);
         individual.increase(10, r, 6);
         assertEquals(individual.getTransformers().size(), 3);
@@ -54,8 +55,8 @@ public class MetamorphicIndividualTest {
 
     @Test
     public void decreaseIndividualLength() {
-        MetamorphicIndividual individual = new MetamorphicIndividual(genotypeSupport);
-        individual.createIndividual(r, 2, 6);
+        RandomGenerator r = new SplittableRandom(101010);
+        individual.populateIndividual(r, 2, 6);
         assertEquals(individual.getTransformers().size(), 2);
         individual.decrease(r);
         assertEquals(individual.getTransformers().size(), 1);
@@ -65,8 +66,8 @@ public class MetamorphicIndividualTest {
     @Tag("File")
     @Test
     public void extendExistingDirectory_withTransformerTest() {
-        MetamorphicIndividual individual = new MetamorphicIndividual(genotypeSupport);
-        individual.createIndividual(r, 2, 6);
+        RandomGenerator r = new SplittableRandom(101010);
+        individual.populateIndividual(r, 2, 6);
         individual.getFitness();
         individual.addGene(individual.createGene(3, r));
         individual.getFitness();

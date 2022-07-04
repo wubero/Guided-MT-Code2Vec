@@ -1,10 +1,10 @@
-package com.github.ciselab.simpleGA;
+package com.github.ciselab.algorithms;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.github.ciselab.support.ConfigManager;
+import com.github.ciselab.support.ConfigManagement;
 import com.github.ciselab.support.FileManagement;
 import com.github.ciselab.support.GenotypeSupport;
 import com.github.ciselab.support.MetricCache;
@@ -18,12 +18,12 @@ public class MetamorphicPopulationTest {
 
     RandomGenerator r = new SplittableRandom(101010);
     GenotypeSupport genotypeSupport;
-    ConfigManager configManager;
+    ConfigManagement configManagement;
 
     @BeforeEach
     public void setUp() {
         genotypeSupport = new GenotypeSupport(new MetricCache());
-        configManager = genotypeSupport.getConfigManager();
+        configManagement = genotypeSupport.getConfigManagement();
     }
 
     @AfterEach
@@ -36,10 +36,10 @@ public class MetamorphicPopulationTest {
         int popSize = 3;
         MetamorphicPopulation population = new MetamorphicPopulation(popSize, r, 6, false, genotypeSupport);
         double bestFitness = -1;
-        configManager.setMaximize(true);
+        configManagement.setMaximize(true);
         for(int i = 0; i < popSize; i++) {
             MetamorphicIndividual individual = new MetamorphicIndividual(genotypeSupport);
-            individual.createIndividual(r, 2, 6);
+            individual.populateIndividual(r, 2, 6);
             double fitness = Math.random();
             if(fitness > bestFitness) {
                 bestFitness = fitness;
@@ -55,10 +55,10 @@ public class MetamorphicPopulationTest {
         int popSize = 3;
         MetamorphicPopulation population = new MetamorphicPopulation(popSize, r, 6, false, genotypeSupport);
         double bestFitness = 10;
-        configManager.setMaximize(false);
+        configManagement.setMaximize(false);
         for(int i = 0; i < popSize; i++) {
             MetamorphicIndividual individual = new MetamorphicIndividual(genotypeSupport);
-            individual.createIndividual(r, 2, 6);
+            individual.populateIndividual(r, 2, 6);
             double fitness = Math.random();
             if(fitness < bestFitness) {
                 bestFitness = fitness;

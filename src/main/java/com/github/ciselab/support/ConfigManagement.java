@@ -34,10 +34,15 @@ public class ConfigManagement {
     private boolean maximize = true;
     private final Logger logger = LogManager.getLogger(ConfigManagement.class);
     private boolean useGA = true;
+    private boolean dataPointSpecific = true;
 
     public ConfigManagement(MetricCache metricCache, BashRunner bashRunner) {
         this.metricCache = metricCache;
         this.bashRunner = bashRunner;
+    }
+
+    public boolean getDataPointSpecific() {
+        return dataPointSpecific;
     }
 
     public boolean getUseGa() {
@@ -84,7 +89,11 @@ public class ConfigManagement {
         if(prop.get("useGA") != null)
             useGA = prop.get("useGA").equals("true");
         else
-            useGA = true;
+            useGA = false;
+        if(prop.get("dataPointSpecific") != null)
+            dataPointSpecific = prop.get("dataPointSpecific").equals("true");
+        else
+            dataPointSpecific = false;
         if(prop.get("Optimization_objective") != null)
             maximize = prop.get("Optimization_objective").equals("max");
         if(prop.get("seed") != null)

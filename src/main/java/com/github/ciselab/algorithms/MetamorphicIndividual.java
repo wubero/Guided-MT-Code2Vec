@@ -14,7 +14,9 @@ import com.github.ciselab.metric.metrics.Transformations;
 import com.github.ciselab.support.GenotypeSupport;
 import com.github.ciselab.support.MetricCache;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.random.RandomGenerator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -25,7 +27,7 @@ import org.apache.logging.log4j.Logger;
  */
 public class MetamorphicIndividual {
 
-    private Logger logger = LogManager.getLogger(MetamorphicIndividual.class);
+    private final Logger logger = LogManager.getLogger(MetamorphicIndividual.class);
     private GenotypeSupport genotypeSupport;
     private MetricCache metricCache;
     private List<BaseTransformer> transformers = new ArrayList<>();
@@ -165,6 +167,18 @@ public class MetamorphicIndividual {
                 metrics = new double[metricCache.getActiveMetrics()];
             }
         }
+    }
+
+    /**
+     * Get the list of scores for ever data point in the dataset for every metric.
+     * @return the list of all scores for every metric.
+     */
+    public Map<String, List<Float>> getScoresList() {
+        Map<String, List<Float>> metricScores = new HashMap<>();
+        for(Metric metric: metricCache.getMetrics()) {
+            metricScores.put(metric.getName(), metric.getScores());
+        }
+        return metricScores;
     }
 
     /**

@@ -29,7 +29,7 @@ public class Main {
     private final static boolean elitism = false;
     private final static double increaseSizeRate = 0.7;
 
-    private static boolean useGA = true;
+    private static boolean dataPointSpecific;
     private final static int maxTransformerValue = 6; // Including 0, so 7 transformers
     private final static int maxGeneLength = 20;
     private static int popSize = 10;
@@ -64,8 +64,8 @@ public class Main {
             return;
         }
         logger.info("Configuration: " + CONFIG_MANAGER.initializeFields());
-        useGA = CONFIG_MANAGER.getUseGa();
-        if(useGA)
+        dataPointSpecific = CONFIG_MANAGER.getDataPointSpecific();
+        if(CONFIG_MANAGER.getUseGa())
             runSimpleGA();
         else
             runRandomAlgo();
@@ -173,6 +173,8 @@ public class Main {
                     maxTransformerValue, true, genotypeSupport);
             MetamorphicIndividual best = new MetamorphicIndividual(genotypeSupport);
             double bestFitness = writeInitialPopulationResults(resultWriter, myPop, best);
+            if(dataPointSpecific)
+                writeDataSpecificResults(resultWriter, best);
 
             // Evolve our population until we reach an optimum solution
             int generationCount = 0;
@@ -219,6 +221,8 @@ public class Main {
 
             geneticAlgorithm.checkPareto(myPop);
             writeResultsAfterAlgorithm(resultWriter);
+            if(dataPointSpecific)
+                writeDataSpecificResults(resultWriter, best);
 
             resultWriter.write("Average population size over entire run was " + averageSizeSum/generationCount);
 
@@ -273,6 +277,20 @@ public class Main {
         int transitionSec = (int) (transitionTime % 60);
         int transitionMin = (int) ((transitionTime / 60)%60);
         resultWriter.write("Total time spent on Transformation operations was " + transitionMin + " minutes and " + transitionSec + " seconds." + "\n");
+    }
+
+    /**
+     * Write the data specific scores to the result file for each metric.
+     * @param resultWriter the file writer with which we can write the results.
+     * @param individual the individual for which we want to write the results.
+     * @throws IOException exception when the program can't access the file.
+     */
+    private static void writeDataSpecificResults(FileWriter resultWriter, MetamorphicIndividual individual) throws IOException {
+        Map<String, List<Float>> scores = individual.getScoresList();
+        for(String metric: scores.keySet()) {
+            String results = "{" + metric + ": " + Arrays.toString(scores.get(metric).toArray()) + "}";
+            resultWriter.write(results + '\n');
+        }
     }
 
     /**

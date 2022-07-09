@@ -4,15 +4,19 @@
 # Lastly, it also plots the transformers used in the best individuals after the genetic algorithm.
 
 import collections
+import math
 import os
 import csv
 from collections import Counter
 
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 import pylab as plb
+from matplotlib import patches
 from scipy import stats
 from cliffs_delta import cliffs_delta
+import seaborn as sns
 
 # All transformations used to create the transformer counter.
 globalTransformations = []
@@ -22,6 +26,8 @@ experiments = []
 avgInitial = []
 # The score after the GA in the same order as the experiments list.
 avgBest = []
+# Best f1 scores over all seeds for scatter plot
+f1Best = []
 # The transformations of the best individuals after the GA
 transformationsBest = []
 # All paretoFront fronts
@@ -33,6 +39,8 @@ paretoExperiments = []
 result_path = 'C:/Users/Ruben/Documents/Master_thesis/compose_output/'
 # The path of the random search experiments.
 random_result_path = 'C:/Users/Ruben/Documents/Master_thesis/Experiments_random/compose_output/'
+# The path of the data specific experiment results.
+dataSpecific_result_path = 'C:/Users/Ruben/Documents/Master_thesis/Experiments_dataSpecifics/compose_output/'
 
 
 # Check if the data is normally distributed
@@ -43,7 +51,7 @@ def checkNormal():
         best = []
         averages = []
         for seed in os.listdir(result_path + i):
-            with open(result_path + i + "/" + seed + '/GA_results.txt', 'r') as f,\
+            with open(result_path + i + "/" + seed + '/GA_results.txt', 'r') as f, \
                     open(random_result_path + i + "/" + seed + '/GA_results.txt', 'r') as g:
                 lines = f.readlines()
                 for line in lines:
@@ -71,7 +79,7 @@ def wilcoxTest():
         best = []
         averages = []
         for seed in os.listdir(result_path + i):
-            with open(result_path + i + "/" + seed + '/GA_results.txt', 'r') as f,\
+            with open(result_path + i + "/" + seed + '/GA_results.txt', 'r') as f, \
                     open(random_result_path + i + "/" + seed + '/GA_results.txt', 'r') as g:
                 lines = f.readlines()
                 for line in lines:
@@ -86,9 +94,6 @@ def wilcoxTest():
                         average = res[3].split('average: ')[1].strip()  # average
                         averages.append(float(average))
 
-        # print(f"Initial scores for all seeds: {initial}")
-        # print(f"Average scores for all seeds: {averages}")
-        # print(f"Scores after the GA for all seeds: {best}")
         x, p = stats.wilcoxon(x=averages, y=best)
         print(f"Wilcoxon test of {i} is {x}, {p}")
         d, res = cliffs_delta(averages, best)
@@ -133,7 +138,7 @@ def writeData(experiment, seed, file, writer):
 
 
 # Parse all Pareto data and put this data in the global list variables.
-def paretoFront(path, experiment):
+def paretoFrontParse(path, experiment):
     global paretoFront
     arrExp = []
     with open(path + experiment + '_pareto.txt', 'w') as f:
@@ -163,13 +168,14 @@ def paretoFront(path, experiment):
 
 
 # Main method that parses the data and writes the transformation counts and the results of the random algorithm to
-# two seperate csv files.
+# two separate csv files.
 def writeGAData():
     global globalTransformations
     global transformationsBest
     global experiments
     global avgInitial
     global avgBest
+    global f1Best
 
     with open(result_path + 'results_random.csv', 'w') as f, open(result_path + 'count_random.csv', 'w') as k:
         writer = csv.writer(f)
@@ -184,7 +190,7 @@ def writeGAData():
         PMRR_total = []
         for curr in os.listdir(result_path):
             if os.path.isdir(result_path + curr):
-                paretoFront(result_path, curr)
+                paretoFrontParse(result_path, curr)
                 transformations = []
                 experiments.append(curr)
                 initials = []
@@ -193,18 +199,20 @@ def writeGAData():
                 for file in os.listdir(result_path + curr):
                     t = writeData(curr, file, result_path + curr + '/' + file + '/GA_results.txt', writer)
                     initials.append(float(t[0].strip().replace(',', '.')))
-                    bests.append(float(t[1].strip().replace(',', '.')))
+                    bests.append(float(str(t[1]).strip().replace(',', '.')))
                     trans += len(globalTransformations)
                     for i in globalTransformations:
                         transformations.append(i)
                         total.append(i)
-                        if 'F1' in curr:
+                        if curr == 'F1':
                             F1_total.append(i)
-                        if 'MRR' in curr:
+                        if curr == 'MRR':
                             MRR_total.append(i)
-                        if 'PMRR' in curr:
+                        if curr == 'PMRR':
                             PMRR_total.append(i)
-                transformationsBest.append(trans/10)
+                if curr == 'F1':
+                    f1Best = bests
+                transformationsBest.append(trans / 10)
                 avgBest.append(sum(bests) / len(bests))
                 avgInitial.append(sum(initials) / len(initials))
                 row = [curr, '', '']
@@ -215,7 +223,7 @@ def writeGAData():
                     counter.writerow(row)
         row = ['Total', '', '']
         temp = Counter(total)
-        plotTransformations(temp)
+        # plotTransformations(temp, 'all experiments')
         for i in temp.keys():
             row[1] = i
             row[2] = temp.get(i)
@@ -228,12 +236,14 @@ def writeGAData():
             counter.writerow(row)
         row = ['MRR_total', '', '']
         temp = Counter(MRR_total)
+        # plotTransformations(temp, 'All MRR experiments')
         for i in temp.keys():
             row[1] = i
             row[2] = temp.get(i)
             counter.writerow(row)
         row = ['PMRR_total', '', '']
         temp = Counter(PMRR_total)
+        # plotTransformations(temp, 'All percentage_MRR experiments')
         for i in temp.keys():
             row[1] = i
             row[2] = temp.get(i)
@@ -241,8 +251,9 @@ def writeGAData():
 
 
 # Plot the total transformations from all final individuals
-def plotTransformations(counter):
-    transformers = ['IfFalseElse', 'Lambda', 'RandomParameter', 'UnusedVariable', 'RenameVariable', 'IfTrue', 'AddNeutral']
+def plotTransformations(counter, experiment):
+    transformers = ['IfFalseElse', 'Lambda', 'RandomParameter', 'UnusedVariable', 'RenameVariable', 'IfTrue',
+                    'AddNeutral']
     # transformers = []
     counts = []
     for i in counter.keys():
@@ -251,7 +262,7 @@ def plotTransformations(counter):
     plt.bar(transformers, counts, color='red')
     plt.xlabel('Metamorphic transformers')
     plt.ylabel('Number of usages')
-    plt.title('Occurrences per transformer in the final individuals after the genetic search')
+    plt.title(f'Occurrences per transformer in the final individuals after the genetic search of {experiment}')
     plt.show()
 
 
@@ -267,7 +278,7 @@ def plots():
     x = []
     y1 = []
     y2 = []
-    for j in pmrr:
+    for j in pmrr_mrr:
         i = experiments.index(j)
         x.append(experiments[i])
         y1.append(avgInitial[i])
@@ -342,22 +353,55 @@ def scatter():
     global paretoExperiments
     global paretoFront
 
+    flag = True  # parse the dotted line or not
+    showF1 = False
+
     metrics = ['F1_MRR', 'PMRR_MRR', 'PMRR_F1', 'RePr']
     titles = ['F1-score and MRR', 'percentage_MRR and MRR', 'percentage_MRR and F1-score', 'recall and precision']
+    if flag:
+        metrics = ['F1_MRR', 'RePr']
+        titles = ['F1-score and MRR', 'recall and precision']
     index = 0
     for i in metrics:
         j = paretoExperiments.index(i)
         x = []
+        xDotted = []
         y = []
+        yDotted = []
         for seed in paretoFront[j]:
             for point in seed:
+                if not (point[0] == 0 and point[1] == 0):
+                    xDotted.append(point[0])
+                    yDotted.append(point[1])
                 x.append(point[0])
                 y.append(point[1])
-        plt.plot(x, y, 'o')
+        if showF1:
+            plt.plot(x, y, 'o', color='blue', label='Pareto front')
+        else:
+            plt.plot(x, y, 'o', color='blue')
         z = np.polyfit(x, y, 1)
         p = np.poly1d(z)
         xnew = np.linspace(min(x), max(x), 300)
-        plb.plot(xnew, p(xnew))
+        plb.plot(xnew, p(xnew), color='orange')
+
+        if i == 'RePr':
+            # lowerThita = math.degrees(math.atan())
+
+            withoutGADistance = distance(1, 1, 0.744,
+                                         0.5)  # gotten from filling the y value 0.5 into x = 0.299y/(y-0.299)
+            withGADistance = distance(1, 1, 0.512, 0.5)  # gotten from filling the y value 0.5 into x = 0.253y/(y-0.253)
+            fig, ax = plt.subplots()
+
+            ax.add_patch(patches.Arc((1, 1), withoutGADistance, withoutGADistance))
+
+        if flag:
+            zDotted = np.polyfit(xDotted, yDotted, 1)
+            p = np.poly1d(zDotted)
+            xnewDotted = np.linspace(min(xDotted), max(xDotted), 300)
+            plb.plot(xnewDotted, p(xnewDotted), '--', color='orange')
+            if showF1 and i == 'RePr':
+                print(f1Best)
+                plt.plot(f1Best, f1Best, 'o', color='purple', label='F1 points')
 
         ax = plt.gca()
         ax.invert_xaxis()
@@ -369,7 +413,8 @@ def scatter():
         else:
             plt.ylabel('Recall')
             plt.xlabel('Precision')
-        # plt.legend()
+        if showF1:
+            plt.legend()
         plt.title(f"Pareto front {titles[index]}")
         plt.show()
         index += 1
@@ -416,13 +461,13 @@ def basic_random_plots():
                     writer.writerow(row)
 
                 metrics = ['PMRR', 'MRR', 'F1', 'Recall', 'Precision']
-                # if curr in metrics:
-                #     experimentsAverage[curr] = np.median(histAverages)
-                #     random_Plot(fileAverages, curr)
+                if curr in metrics:
+                    experimentsAverage[curr] = np.median(histAverages)
+                    random_Plot(fileAverages, curr)
                 if 'NoT' in curr:
                     generations = random_Pareto(fileMedians)
                     random_scatter(generations, curr)
-        # tripleHist(experimentsAverage)
+        tripleHist(experimentsAverage)
 
 
 # Creates the scatter plot with the baseline score, the scores of the random algorithm for each respective
@@ -442,7 +487,9 @@ def random_scatter(generations, experiment):
         j = paretoExperiments.index(experiment)
         index = NoT.index(experiment)
         plt.plot(avgInitial[experiments.index(experiment)], 0, 'o', label='Average initial score')
+        plt.axvline(x=avgInitial[experiments.index(experiment)], color='blue', linestyle='--')
         plt.plot(avgBest[experiments.index(experiment)], transformationsBest[j], 'o', label='Average score after GA')
+        plt.axvline(x=avgBest[experiments.index(experiment)], color='orange', linestyle='--')
         points = {}
         for seed in paretoFront[j]:
             for point in seed:
@@ -506,7 +553,8 @@ def random_Plot(averages, experiment):
     axes.yaxis.grid()
     plt.ylim([0, 1])
     plt.ylabel(f'{experiment} Score')
-    plt.title(f'Comparing baseline, random search and genetic search\n for the code2vec model performance with {experiment} metric')
+    plt.title(
+        f'Comparing baseline, random search and genetic search\n for the code2vec model performance with {experiment} metric')
     plt.show()
 
 
@@ -543,6 +591,41 @@ def tripleHist(averages):
     plt.show()
 
 
+def parsePlotDistributions():
+    for curr in os.listdir(dataSpecific_result_path):
+        if os.path.isdir(dataSpecific_result_path + curr):
+            if curr == 'PMRR':
+                search = 'PercentageMRR: '
+            else:
+                search = curr + ': '
+            flag = False
+            points = []
+            for seed in os.listdir(dataSpecific_result_path + curr):
+                path = dataSpecific_result_path + curr + '/' + seed + '/GA_results.txt'
+                with open(path, 'r') as results:
+                    lines = results.readlines()
+                    for line in lines:
+                        if search in line:
+                            data = line.split(search + '[')[1].replace(']}', '')
+                            dataPoints = data.split(', ')
+                            if not flag:
+                                points.clear()
+                                for i in dataPoints:
+                                    points.append([])
+                                flag = True
+                            for i in range(min(len(points), len(dataPoints))):
+                                points[i].append(float(dataPoints[i]))
+            x = []
+            for p in points:
+                x.append(sum(p) / len(p))
+            sns.distplot(x, bins=10, label=curr)
+    plt.xlim([0, 1])
+    plt.title(f'Density plots for MRR and Percentage_MRR per data point')
+    plt.xlabel('Metric score')
+    plt.legend()
+    plt.show()
+
+
 # Returns list of all medians averaged over the random seeds
 def random_Pareto(medians):
     generations = []
@@ -550,15 +633,76 @@ def random_Pareto(medians):
         medianSum = 0
         for exp in medians:
             medianSum += float(exp[i])
-        generations.append(medianSum/10)
+        generations.append(medianSum / 10)
     return generations
+
+
+def distance(x1, y1, x2, y2):
+    return math.sqrt(math.pow((x2 - x1), 2) + math.pow((y2 - y1), 2))
+
+
+def plotRePr():
+    global paretoExperiments
+    global paretoFront
+
+    flag = True  # parse the dotted line or not
+
+    metrics = ['RePr']
+    for i in metrics:
+        j = paretoExperiments.index(i)
+        x = []
+        xDotted = []
+        y = []
+        yDotted = []
+        for seed in paretoFront[j]:
+            for point in seed:
+                if not (point[0] == 0 and point[1] == 0):
+                    xDotted.append(point[0])
+                    yDotted.append(point[1])
+                x.append(point[0])
+                y.append(point[1])
+
+        plt.plot(x, y, 'o', color='blue', label='Pareto front')
+        z = np.polyfit(x, y, 1)
+        p = np.poly1d(z)
+        xnew = np.linspace(min(x), max(x), 300)
+        plb.plot(xnew, p(xnew), color='orange')
+        ax = plt.gca()
+
+        withoutGADistance = distance(1, 1, 0.744,
+                                     0.5) * 2  # gotten from filling the y value 0.5 into x = 0.299y/(y-0.299)
+        print(withoutGADistance)
+        withGADistance = distance(1, 1, 0.512, 0.5) * 2  # gotten from filling the y value 0.5 into x = 0.253y/(y-0.253)
+        print(withGADistance)
+
+        ax.add_patch(patches.Arc((1, 1), withoutGADistance, withoutGADistance, edgecolor='green', label='F1-score baseline circle'))
+
+        ax.add_patch(patches.Arc((1, 1), withGADistance, withGADistance, edgecolor='purple', label='F1-score after GA circle'))
+
+        if flag:
+            zDotted = np.polyfit(xDotted, yDotted, 1)
+            p = np.poly1d(zDotted)
+            xnewDotted = np.linspace(min(xDotted), max(xDotted), 300)
+            plb.plot(xnewDotted, p(xnewDotted), '--', color='orange')
+
+        plt.xlim([-0.05, 1])
+        plt.ylim([-0.05, 1])
+        ax.invert_xaxis()
+        ax.invert_yaxis()
+        plt.ylabel('Recall')
+        plt.xlabel('Precision')
+        plt.legend()
+        plt.title(f"Pareto front recall and precision with F1 circles")
+        plt.show()
 
 
 if __name__ == '__main__':
     # checkNormal()
     # wilcoxTest()
     writeGAData()
+    plotRePr()
     # plots()
     # paretoNoT()
-    scatter()
+    # scatter()
     # basic_random_plots()
+    # parsePlotDistributions()

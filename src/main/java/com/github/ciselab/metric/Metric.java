@@ -20,6 +20,7 @@ public abstract class Metric {
     protected String path; // The path from which it should read its results
     protected String objective; // Whether it should minimize or maximize the metric
     protected final Logger logger = LogManager.getLogger(Metric.class); // The logger for this class
+    protected List<Float> scores;
 
     public Metric(String metricName) {
         name = metricName;
@@ -36,6 +37,10 @@ public abstract class Metric {
         name = metricName;
         score = -1;
         path = resultPath;
+    }
+
+    public List<Float> getScores() {
+        return scores;
     }
 
     public String getPath() {

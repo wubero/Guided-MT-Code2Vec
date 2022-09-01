@@ -48,8 +48,12 @@ public class Main {
      * @param args system arguments.
      */
     public static void main(String[] args) {
-
         logger.info("Guided-MT started");
+
+        // For processing it is important to always have the same format (e.g. 1.00 instead of 1,00)
+        // While we specify them later extra, we set them here too as a safety net.
+        Locale.setDefault(new Locale("UK"));
+
         if(args.length == 0) {
             logger.info("No arguments found - loading default values");
         } else if (args.length == 3) {

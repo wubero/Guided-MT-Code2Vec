@@ -6,6 +6,7 @@ import com.github.ciselab.support.Pareto;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.random.RandomGenerator;
 
@@ -51,9 +52,9 @@ public class GeneticAlgorithm {
         maxTransformerValue = maxValue;
         maxGeneLength = maxLength;
         randomGenerator = r;
-        return String.format("{uniform rate: %g, mutation rate: %g, tournament size: %d, elitism: %b, increase rate: %g," +
+        return String.format(Locale.UK,"{uniform rate: %.4f, mutation rate: %.4f, tournament size: %d, elitism: %b, increase rate: %.4f," +
                 " max transformer value: %d, max gene length: %d}",
-                uRate, mRate, tSize, elite, increaseRate, maxValue, maxLength);
+                (float) uRate, mRate, tSize, elite, increaseRate, maxValue, maxLength);
     }
 
     public GeneticAlgorithm(GenotypeSupport gen, Pareto pareto) {

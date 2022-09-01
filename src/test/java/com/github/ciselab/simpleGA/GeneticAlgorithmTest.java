@@ -15,11 +15,6 @@ import org.junit.jupiter.api.Test;
 
 public class GeneticAlgorithmTest {
 
-    private MetricCache cache = new MetricCache();
-    private GenotypeSupport genotypeSupport = new GenotypeSupport(cache);
-    private GeneticAlgorithm geneticAlgorithm = new GeneticAlgorithm(genotypeSupport,
-            new Pareto(cache));
-
     @AfterEach
     public void after() {
         FileManagement.removeOtherDirs(FileManagement.dataDir);
@@ -27,16 +22,22 @@ public class GeneticAlgorithmTest {
 
     @Test
     public void initializeParametersTest() {
-        String real = geneticAlgorithm.initializeParameters(0.7, 0.01, 3, true, 0.4, 6, 10,
-                new SplittableRandom(101010));
-        String expected = "{uniform rate: 0.700000, mutation rate: 0.0100000, tournament size: 3, elitism: true, increase rate: 0.400000, max transformer value: 6, max gene length: 10}";
+        MetricCache cache = new MetricCache();
+        GenotypeSupport genotypeSupport = new GenotypeSupport(cache);
+        GeneticAlgorithm geneticAlgorithm = new GeneticAlgorithm(genotypeSupport,new Pareto(cache));
+
+        String real = geneticAlgorithm.initializeParameters(0.7, 0.01, 3, true, 0.4, 6, 10, new SplittableRandom(101010));
+        String expected = "{uniform rate: 0.7000, mutation rate: 0.0100, tournament size: 3, elitism: true, increase rate: 0.4000, max transformer value: 6, max gene length: 10}";
         assertEquals(expected, real);
     }
 
     @Test
     public void evolvePopulationTest() {
-        geneticAlgorithm.initializeParameters(0.7, 0.01, 3, true, 0.4, 6, 10,
-                new SplittableRandom(101010));
+        MetricCache cache = new MetricCache();
+        GenotypeSupport genotypeSupport = new GenotypeSupport(cache);
+        GeneticAlgorithm geneticAlgorithm = new GeneticAlgorithm(genotypeSupport,new Pareto(cache));
+
+        geneticAlgorithm.initializeParameters(0.7, 0.01, 3, true, 0.4, 6, 10, new SplittableRandom(101010));
         int popSize = 5;
         RandomGenerator r = new SplittableRandom(101010);
         MetamorphicPopulation pop = new MetamorphicPopulation(popSize,
@@ -50,4 +51,5 @@ public class GeneticAlgorithmTest {
         MetamorphicPopulation newPop = geneticAlgorithm.evolvePopulation(pop);
         assertNotEquals(pop, newPop);
     }
+
 }

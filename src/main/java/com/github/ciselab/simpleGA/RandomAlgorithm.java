@@ -4,6 +4,7 @@ import com.github.ciselab.support.GenotypeSupport;
 import com.github.ciselab.support.MetricCache;
 import com.github.ciselab.support.Pareto;
 
+import java.util.Locale;
 import java.util.Optional;
 import java.util.random.RandomGenerator;
 
@@ -21,7 +22,7 @@ public class RandomAlgorithm {
         maxTransformerValue = maxValue;
         maxGeneLength = maxLength;
         randomGenerator = r;
-        return String.format("{max transformer value: %d, max gene length: %d}",
+        return String.format(Locale.UK,"{max transformer value: %d, max gene length: %d}",
                 maxValue, maxLength);
     }
 

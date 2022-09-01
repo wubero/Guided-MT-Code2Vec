@@ -28,6 +28,7 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -204,10 +205,10 @@ public class CommonJobTest {
             specOutputRecords[i] = specInfo.getOutputRecords();
             specOutputBytes[i] = specInfo.getOutputBytes();
 
-            LOG.info(String.format(type + " SPEC: %9d -> %9d :: %5d -> %5d\n",
+            LOG.info(String.format(Locale.UK,type + " SPEC: %9d -> %9d :: %5d -> %5d\n",
                     specInputBytes[i], specOutputBytes[i], specInputRecords[i],
                     specOutputRecords[i]));
-            LOG.info(String.format(type + " RUN:  %9d -> %9d :: %5d -> %5d\n",
+            LOG.info(String.format(Locale.UK,type + " RUN:  %9d -> %9d :: %5d -> %5d\n",
                     runInputBytes[i], runOutputBytes[i], runInputRecords[i],
                     runOutputRecords[i]));
             break;
@@ -230,11 +231,11 @@ public class CommonJobTest {
             specInputRecords[i] = specInfo.getInputRecords();
             specOutputRecords[i] = specInfo.getOutputRecords();
             specOutputBytes[i] = specInfo.getOutputBytes();
-            LOG.info(String.format(type + " SPEC: (%9d) -> %9d :: %5d -> %5d\n",
+            LOG.info(String.format(Locale.UK,type + " SPEC: (%9d) -> %9d :: %5d -> %5d\n",
                     specInfo.getInputBytes(), specOutputBytes[i],
                     specInputRecords[i], specOutputRecords[i]));
             LOG.info(String
-                    .format(type + " RUN:  (%9d) -> %9d :: %5d -> %5d\n", counters
+                    .format(Locale.UK,type + " RUN:  (%9d) -> %9d :: %5d -> %5d\n", counters
                             .findCounter(TaskCounter.REDUCE_SHUFFLE_BYTES).getValue(),
                             runOutputBytes[i], runInputRecords[i], runOutputRecords[i]));
             break;

@@ -26,4 +26,4 @@ services:
       configfile: /config/config.properties
     container_name: guided-mt-code2vec_pmrr_4
     networks:
-      - guided-mt-code2vec_pmrr_3
+      - guided-mt-code2vec_pmrr_4

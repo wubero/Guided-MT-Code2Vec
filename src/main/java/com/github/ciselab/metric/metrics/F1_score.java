@@ -1,6 +1,8 @@
 package com.github.ciselab.metric.metrics;
 
 import com.github.ciselab.metric.Metric;
+
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -16,6 +18,7 @@ public class F1_score extends Metric {
     @Override
     public double calculateScore() {
         List<String> lines = readPredictions(path);
+        scores = new ArrayList<>();
         double score = -1;
         for(String i: lines) {
             if(i.contains("F1")) {

@@ -1,14 +1,13 @@
 package com.github.ciselab.program;
 
-import com.github.ciselab.simpleGA.MetamorphicIndividual;
-import com.github.ciselab.simpleGA.MetamorphicPopulation;
-import com.github.ciselab.support.ConfigManager;
+import com.github.ciselab.algorithms.MetamorphicIndividual;
+import com.github.ciselab.algorithms.MetamorphicPopulation;
+import com.github.ciselab.support.ConfigManagement;
 import com.github.ciselab.support.FileManagement;
 import com.github.ciselab.support.GenotypeSupport;
 import com.github.ciselab.support.MetricCache;
 import java.time.LocalTime;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Properties;
 import java.util.SplittableRandom;
 import java.util.random.RandomGenerator;
@@ -22,13 +21,13 @@ public class MainTest {
 
     private final MetricCache cache = new MetricCache();
     private final GenotypeSupport genotypeSupport = new GenotypeSupport(cache);
-    private final ConfigManager configManager = genotypeSupport.getConfigManager();
+    private final ConfigManagement configManagement = genotypeSupport.getConfigManagement();
     private Properties prop;
 
     @BeforeEach
     public void setUp() {
-        configManager.setConfigFile("src/test/resources/config.properties");
-        prop = configManager.initializeFields();
+        configManagement.setConfigFile("src/test/resources/config.properties");
+        prop = configManagement.initializeFields();
     }
 
     @AfterEach
@@ -41,11 +40,11 @@ public class MainTest {
         RandomGenerator r = new SplittableRandom(101010);
         MetamorphicPopulation pop = new MetamorphicPopulation(1, r, 6, false, genotypeSupport);
         MetamorphicIndividual indiv = new MetamorphicIndividual(genotypeSupport);
-        indiv.createIndividual(r, 1, 6);
+        indiv.populateIndividual(r, 1, 6);
         pop.saveIndividual(0, indiv);
         indiv.setFitness(0.5);
         double best = -1;
-        configManager.setMaximize(true);
+        configManagement.setMaximize(true);
         assertTrue(Main.isFitter(pop, best));
     }
 
@@ -54,11 +53,11 @@ public class MainTest {
         RandomGenerator r = new SplittableRandom(101010);
         MetamorphicPopulation pop = new MetamorphicPopulation(1, r, 6, false, genotypeSupport);
         MetamorphicIndividual indiv = new MetamorphicIndividual(genotypeSupport);
-        indiv.createIndividual(r, 1, 6);
+        indiv.populateIndividual(r, 1, 6);
         pop.saveIndividual(0, indiv);
         indiv.setFitness(0.5);
         double best = 1;
-        configManager.setMaximize(true);
+        configManagement.setMaximize(true);
         assertFalse(Main.isFitter(pop, best));
     }
 
@@ -87,22 +86,22 @@ public class MainTest {
 
     @Test
     public void getBestTest_maximize() {
-        configManager.setMaximize(true);
+        configManagement.setMaximize(true);
         ArrayList<Double> arr = new ArrayList<>();
         arr.add(1.3);
         arr.add(0.8);
         arr.add(3.0);
-        assertEquals(3.0, Main.getBest(arr));
+        assertEquals(3.0, Main.getBestForLog(arr));
     }
 
     @Test
     public void getWorstTest() {
-        configManager.setMaximize(true);
+        configManagement.setMaximize(true);
         ArrayList<Double> arr = new ArrayList<>();
         arr.add(1.3);
         arr.add(0.8);
         arr.add(3.0);
-        assertEquals(0.8, Main.getWorst(arr));
+        assertEquals(0.8, Main.getWorstForLog(arr));
     }
 
     @Test
@@ -111,7 +110,7 @@ public class MainTest {
         arr.add(1.3);
         arr.add(0.8);
         arr.add(3.0);
-        assertEquals(1.3, Main.getMedian(arr));
+        assertEquals(1.3, Main.getMedianForLog(arr));
     }
 
     @Test
@@ -120,6 +119,6 @@ public class MainTest {
         arr.add(1.3);
         arr.add(0.8);
         arr.add(3.0);
-        assertEquals(1.7, Main.getAverage(arr));
+        assertEquals(1.7, Main.getAverageForLog(arr));
     }
 }

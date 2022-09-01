@@ -3,6 +3,7 @@ package com.github.ciselab.metric.metrics;
 import com.github.ciselab.metric.Metric;
 import com.github.ciselab.support.GenotypeSupport;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 public class InputLength extends Metric {
@@ -15,6 +16,7 @@ public class InputLength extends Metric {
 
     @Override
     public double calculateScore() {
+        scores = new ArrayList<>();
         if(dataset != null) {
             // should read all files not the dataset...
             int count = 0;
@@ -23,6 +25,7 @@ public class InputLength extends Metric {
                 for (File i : file.listFiles()) {
                     List<String> lines = readPredictions(i.getPath());
                     count += lines.size();
+                    scores.add((float) lines.size());
                 }
                 return count;
             } catch(NullPointerException e) {

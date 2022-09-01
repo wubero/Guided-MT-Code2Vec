@@ -20,6 +20,8 @@
     </properties>
 
     <dependencies>
+<!--        The Lampion-Core can be gotten from https://github.com/ciselab/Lampion. For the project to run without docker this needs to be
+installed locally so you get the correct version. This version hasn't been published on github yet.-->
         <dependency>
             <groupId>com.github.ciselab</groupId>
             <artifactId>Lampion-Core</artifactId>
@@ -49,7 +51,7 @@
     </dependencies>
 
     <profiles>
-        <!--Profile to run exploration Tests -->
+        <!--Profile to run fast Tests -->
         <!-- use: mvn test -P fast -->
         <profile>
             <id>fast</id>
@@ -133,19 +135,6 @@
                     <excludedGroups>Slow</excludedGroups>
                 </configuration>
             </plugin>
-
-<!--            <plugin>-->
-<!--                <groupId>org.apache.maven.plugins</groupId>-->
-<!--                <artifactId>maven-jar-plugin</artifactId>-->
-<!--                <version>3.1.1</version>-->
-<!--                <configuration>-->
-<!--                    <archive>-->
-<!--                        <manifest>-->
-<!--                            <mainClass>com.github.ciselab.program.Main</mainClass>-->
-<!--                        </manifest>-->
-<!--                    </archive>-->
-<!--                </configuration>-->
-<!--            </plugin>-->
         </plugins>
     </build>
 </project>

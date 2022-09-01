@@ -8,6 +8,10 @@ import java.util.concurrent.TimeUnit;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+/**
+ * This class runs all the bash related actions. This is needed for the interaction with code2vec.
+ * If you want to use this class make sure that the path_bash is up to date for your own bash executable.
+ */
 public class BashRunner {
 
     private String path_bash = "C:/Program Files/Git/bin/bash.exe";

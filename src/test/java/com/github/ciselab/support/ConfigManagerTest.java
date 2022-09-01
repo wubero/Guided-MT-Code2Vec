@@ -14,13 +14,13 @@ public class ConfigManagerTest {
 
     GenotypeSupport genotypeSupport;
     MetricCache metricCache;
-    ConfigManager configManager;
+    ConfigManagement configManagement;
 
     @BeforeEach
     public void setUp() {
         metricCache = new MetricCache();
         genotypeSupport = new GenotypeSupport(metricCache);
-        configManager = genotypeSupport.getConfigManager();
+        configManagement = genotypeSupport.getConfigManagement();
     }
 
     @AfterEach
@@ -30,23 +30,23 @@ public class ConfigManagerTest {
 
     @Test
     public void initializeFieldsTest_withMetrics() {
-        configManager.setConfigFile("src/test/resources/config.properties");
-        Properties prop = configManager.initializeFields();
+        configManagement.setConfigFile("src/test/resources/config.properties");
+        Properties prop = configManagement.initializeFields();
         assertEquals(prop.getProperty("version"), "1.0");
         assertFalse(metricCache.getMetrics().isEmpty());
         assertFalse(metricCache.getWeights().isEmpty());
-        assertEquals(configManager.getSeed(), Long.parseLong(prop.getProperty("seed")));
+        assertEquals(configManagement.getSeed(), Long.parseLong(prop.getProperty("seed")));
     }
 
     @Test
     public void initializeFieldsTest_withoutMetrics() {
-        configManager.setConfigFile("src/test/resources/noMetrics.properties");
-        assertThrows(IllegalArgumentException.class, () -> configManager.initializeFields());
+        configManagement.setConfigFile("src/test/resources/noMetrics.properties");
+        assertThrows(IllegalArgumentException.class, () -> configManagement.initializeFields());
     }
 
     @Test
     public void initializeFieldsTest_wrongFile_throwsNullPointerException() {
-        configManager.setConfigFile("src/test/resources/wrongFile.properties");
-        assertThrows(NullPointerException.class, () -> configManager.initializeFields());
+        configManagement.setConfigFile("src/test/resources/wrongFile.properties");
+        assertThrows(NullPointerException.class, () -> configManagement.initializeFields());
     }
 }

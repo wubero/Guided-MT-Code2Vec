@@ -15,11 +15,12 @@ import org.apache.logging.log4j.Logger;
  */
 public abstract class Metric {
 
-    protected double score;
-    protected String name;
-    protected String path;
-    protected String objective;
-    protected final Logger logger = LogManager.getLogger(Metric.class);
+    protected double score; // The score for this metric
+    protected String name; // The name of the metric
+    protected String path; // The path from which it should read its results
+    protected String objective; // Whether it should minimize or maximize the metric
+    protected final Logger logger = LogManager.getLogger(Metric.class); // The logger for this class
+    protected List<Float> scores;
 
     public Metric(String metricName) {
         name = metricName;
@@ -36,6 +37,10 @@ public abstract class Metric {
         name = metricName;
         score = -1;
         path = resultPath;
+    }
+
+    public List<Float> getScores() {
+        return scores;
     }
 
     public String getPath() {
@@ -60,7 +65,7 @@ public abstract class Metric {
 
     /**
      * Read predictions from a particular file path.
-     * @param filePath the file path.
+     * @param filePath the file path, should include the code2vec model's results.
      * @return a list of strings with the predictions.
      */
     public List<String> readPredictions(String filePath) {

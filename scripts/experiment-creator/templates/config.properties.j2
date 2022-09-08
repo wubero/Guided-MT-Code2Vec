@@ -1,0 +1,64 @@
+version=1.0
+
+# This file is automatically managed by Jinja2. 
+# It is created by a template and should not be manually changed.
+
+{#
+Introduced / Used Variables: 
+mrr_weight::double[-1,1]
+f1_weight::double[-1,1]
+pmrr_weight::double[-1,1]
+precision_weight::double[-1,1]
+recall_weight::double[-1,1]
+edit_weight::double[-1,1]
+input_length_weight::double[-1,1]
+pred_length_weight::double[-1,1]
+trans_num_weight::double[-1,1]
+modifier::[min,max} 
+use_genetic_algorithm::bool (false_>random,true_>ga)
+macro_seed::int
+#}
+
+# The metrics with their weights.
+MRR={{mrr_weight|default(0,true)}}
+F1Score={{f1_weight|default(0,true)}}
+PercentageMRR={{pmrr_weight|default(0,true)}}
+Precision={{precision_weight|default(0,true)}}
+Recall={{recall_weight|default(0,true)}}
+EditDistance={{edit_weight|default(0,true)}}
+
+# Secondary metrics
+InputLength={{input_length_weight|default(0,true)}}
+PredictionLength={{pred_length_weight|default(0,true)}}
+NumberOfTransformations={{trans_num_weight|default(0,true)}}
+
+# Should the genetic algorithm minimize (min) or maximize (max) the metrics given above.
+Optimization_objective={{modifier|default(min,true)}}
+
+# Should the program use the genetic algorithm (true) or the random algorithm (false)
+useGA={{use_genetic_algorithm|default(true,true)}}
+
+# Whether the program should report the metric score for each individual datapoint, this is not supported for F1_score, recall or precision because
+# the code2vec model does not allow this.
+dataPointSpecific={{datapoint_specific_report|default(true,true)}}
+
+# currently supported: global, perMethod, perClass, perClassEach, perMethodEach (Spelling is important!).
+transformationscope=perClass
+# program uses the amount of transformations an individual has as the field transformations.
+# transformations=1
+
+# The seed used for the randomness throughout the app
+seed={{macro_seed|default(-1,true)}}
+
+# This is a path configuration for the dockerfile
+bash=/bin/bash
+
+# Whether the Transformers should try to compile after transformations, default true.
+# This should be kept for sanity, but some domains require snippets that cannot compile by design.
+compilingTransformers=true
+# Whether the Transformer should resolve references to their fully qualified name
+# e.g. new Arraylist() _> new java.utils.collections.ArrayList()
+setAutoImports=false
+# Whether or not all Comments will be removed before pretty printing
+# Does not infer with any transformations, but maybe removes them
+removeAllComments=false

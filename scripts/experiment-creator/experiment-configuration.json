@@ -1,0 +1,29 @@
+{
+    "experiments":[
+        {
+            "metric": "F1",
+            "f1_weight": 1,
+            "modifier": "min",
+            "properties_file": "f1-min.properties"
+        },
+        {
+            "metric": "pareto-F1-MRR",
+            "f1_weight": 1,
+            "mrr_weight":1,
+            "modifier": "min",
+            "properties_file": "f1-mrr-min.properties"
+        },
+        {
+            "metric": "pareto-MRR-trans",
+            "trans_num-weight": 1,
+            "mrr_weight":1,
+            "modifier": "min",
+            "properties_file": "mrr-trans-min.properties"
+        }
+    ],
+
+    "seeds":[
+        1105,1996,2880,3191,4299,
+        5142,6215,7612,8991,9001
+    ]
+}

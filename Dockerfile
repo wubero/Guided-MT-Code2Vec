@@ -1,13 +1,13 @@
 FROM python:3.9.13 as builder
 
-ARG Guided_MT_Code2Vec_VERSION="1.0-SNAPSHOT"
+ARG Guided_MT_Code2Vec_VERSION="1.0"
 ARG Lampion_VERSION="6ff11568d6777b936e6569be113dab01506db6ba"
 LABEL maintainer="rmar@live.nl"
 LABEL name="ciselab/Guided-MT-Code2Vec"
 LABEL description="A genetic search algorithm for testing metamorphic transformations on a trained code2vec model"
-LABEL org.opencontainers.image.source="https://github/wubero/Guided-MT-Code2Vec"
-LABEL url="https://github/wubero/Guided-MT-Code2Vec"
-LABEL vcs="https://github/wubero/Guided-MT-Code2Vec"
+LABEL org.opencontainers.image.source="https://github/ciselab/Guided-MT-Code2Vec"
+LABEL url="https://github/ciselab/Guided-MT-Code2Vec"
+LABEL vcs="https://github/ciselab/Guided-MT-Code2Vec"
 
 # Install everything needed for the java code
 RUN apt-get update && apt install openjdk-17-jdk -y && apt install maven -y && apt install bash -y

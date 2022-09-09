@@ -1,6 +1,6 @@
 FROM python:3.9.13 as builder
 
-ARG Guided_MT_Code2Vec_VERSION="1.0"
+ARG Guided_MT_Code2Vec_VERSION="1.1-SNAPSHOT"
 ARG Lampion_VERSION="6ff11568d6777b936e6569be113dab01506db6ba"
 LABEL maintainer="rmar@live.nl"
 LABEL name="ciselab/Guided-MT-Code2Vec"

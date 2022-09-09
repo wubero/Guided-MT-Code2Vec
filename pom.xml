@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.github.ciselab</groupId>
     <artifactId>Guided-MT-Code2Vec</artifactId>
-    <version>1.0</version>
+    <version>1.1-SNAPSHOT</version>
     <description>
         This repository works with genetic programming to optimize metrics for code2vec method name prediction
     </description>

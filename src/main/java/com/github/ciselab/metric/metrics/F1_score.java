@@ -1,5 +1,6 @@
 package com.github.ciselab.metric.metrics;
 
+import com.github.ciselab.algorithms.MetamorphicIndividual;
 import com.github.ciselab.metric.Metric;
 
 import java.util.ArrayList;
@@ -11,14 +12,12 @@ import java.util.List;
  */
 public class F1_score extends Metric {
 
-    public F1_score(String resultPath) {
-        super("F1Score", resultPath);
+    public F1_score() {
+        super("F1Score");
     }
 
-    @Override
-    public double calculateScore() {
+    private double calculateScore(String path) {
         List<String> lines = readPredictions(path);
-        scores = new ArrayList<>();
         double score = -1;
         for(String i: lines) {
             if(i.contains("F1")) {
@@ -26,5 +25,17 @@ public class F1_score extends Metric {
             }
         }
         return score;
+    }
+
+    @Override
+    public boolean isSecondary() {
+        return false;
+    }
+
+    @Override
+    public Double apply(MetamorphicIndividual individual) {
+        return individual.getResultPath()
+                .map(i -> calculateScore(i))
+                .orElse(0.0);
     }
 }

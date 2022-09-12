@@ -1,5 +1,6 @@
 package com.github.ciselab.metric.metrics;
 
+import com.github.ciselab.algorithms.MetamorphicIndividual;
 import com.github.ciselab.metric.Metric;
 
 import java.util.ArrayList;
@@ -7,14 +8,13 @@ import java.util.List;
 
 public class EditDistance extends Metric {
 
-    public EditDistance(String resultPath) {
-        super("EditDistance", resultPath);
+    public EditDistance() {
+        super("EditDistance");
     }
 
-    @Override
-    public double calculateScore() {
+    private double calculateScore(String path) {
         List<String> lines = readPredictions(path);
-        scores = new ArrayList<>();
+        var scores = new ArrayList<>();
         float score = 0;
         for(String i: lines) {
             if(i.contains("Original") && i.contains("predicted")) {
@@ -36,7 +36,7 @@ public class EditDistance extends Metric {
      * @param predicted the predicted word.
      * @return the edit distance.
      */
-    public float editDistance(String original, String predicted) {
+    public static float editDistance(String original, String predicted) {
         int len1 = original.length();
         int len2 = predicted.length();
         int[][] dp = new int[len1 + 1][len2 + 1];
@@ -65,5 +65,18 @@ public class EditDistance extends Metric {
             }
         }
         return dp[len1][len2];
+    }
+
+
+    @Override
+    public boolean isSecondary() {
+        return false;
+    }
+
+    @Override
+    public Double apply(MetamorphicIndividual individual) {
+        return individual.getResultPath()
+                .map(i -> calculateScore(i))
+                .orElse(0.0);
     }
 }

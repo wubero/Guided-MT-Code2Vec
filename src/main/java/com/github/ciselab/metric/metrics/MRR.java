@@ -1,5 +1,6 @@
 package com.github.ciselab.metric.metrics;
 
+import com.github.ciselab.algorithms.MetamorphicIndividual;
 import com.github.ciselab.metric.Metric;
 
 import java.util.ArrayList;
@@ -10,14 +11,13 @@ import java.util.List;
  */
 public class MRR extends Metric {
 
-    public MRR(String resultPath) {
-        super("MRR", resultPath);
+    public MRR() {
+        super("MRR");
     }
 
-    @Override
-    public double calculateScore() {
+    private double calculateScore(String path) {
         List<String> predictions = readPredictions(path);
-        scores = new ArrayList<>();
+        var scores = new ArrayList<>();
         float score = 0;
         for(int i = 0; i < predictions.size(); i++) {
             String current = predictions.get(i);
@@ -34,5 +34,17 @@ public class MRR extends Metric {
             }
         }
         return score/predictions.size();
+    }
+
+    @Override
+    public boolean isSecondary() {
+        return false;
+    }
+
+    @Override
+    public Double apply(MetamorphicIndividual individual) {
+        return individual.getResultPath()
+                .map(i -> calculateScore(i))
+                .orElse(0.0);
     }
 }

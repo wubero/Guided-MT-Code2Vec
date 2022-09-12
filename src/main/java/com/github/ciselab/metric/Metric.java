@@ -1,55 +1,28 @@
 package com.github.ciselab.metric;
 
-import com.github.ciselab.support.GenotypeSupport;
+import com.github.ciselab.algorithms.MetamorphicIndividual;
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
  * The abstract class for a metric.
  */
-public abstract class Metric {
+public abstract class Metric implements Function<MetamorphicIndividual, Double> {
 
-    protected double score; // The score for this metric
     protected String name; // The name of the metric
-    protected String path; // The path from which it should read its results
     protected boolean objective; // Whether it should minimize or maximize the metric, true = maximize, false = minimize
     protected double weight = 1; // How much the Metric is weighted for mixed weight calculations
     protected final Logger logger = LogManager.getLogger(Metric.class); // The logger for this class
-    protected List<Float> scores;
 
     public Metric(String metricName) {
         name = metricName;
-        score = -1;
-        path = GenotypeSupport.dir_path + "/code2vec/results.txt";
-    }
-
-    /**
-     * Extra constructor so we can set a different file path for the results.
-     * @param metricName the name of the metric.
-     * @param resultPath the result path.
-     */
-    public Metric(String metricName, String resultPath) {
-        name = metricName;
-        score = -1;
-        path = resultPath;
-    }
-
-    public List<Float> getScores() {
-        return scores;
-    }
-
-    public String getPath() {
-        return path;
-    }
-
-    public void setPath(String path) {
-        this.path = path;
     }
 
     public void setObjective(String obj) {
@@ -99,12 +72,17 @@ public abstract class Metric {
         }
         return predictions;
     }
+    @Override
+    public boolean equals(Object o) {
+        if (o == this){
+            return true;
+        }
+        if (o instanceof Metric){
+            var m = (Metric) o;
+            return m.getName().equals(this.getName());
+        }
+        return false;
+    }
 
     public abstract boolean isSecondary();
-
-    /**
-     * The calculateScore function calculates the score for this metric according to the result files.
-     * @return the score for this metric.
-     */
-    public abstract double calculateScore();
 }

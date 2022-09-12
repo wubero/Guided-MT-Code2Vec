@@ -1,5 +1,6 @@
 package com.github.ciselab.metric.metrics;
 
+import com.github.ciselab.algorithms.MetamorphicIndividual;
 import com.github.ciselab.metric.Metric;
 
 import java.util.ArrayList;
@@ -7,13 +8,16 @@ import java.util.List;
 
 public class Precision extends Metric {
 
-    public Precision(String resultPath) {
-        super("Precision", resultPath);
+    public Precision() {
+        super("Precision");
     }
 
     @Override
-    public double calculateScore() {
-        scores = new ArrayList<>();
+    public boolean isSecondary() {
+        return false;
+    }
+
+    private double calculateScore(String path) {
         List<String> lines = readPredictions(path);
         double score = -1;
         for(String i: lines) {
@@ -22,5 +26,12 @@ public class Precision extends Metric {
             }
         }
         return score;
+    }
+
+    @Override
+    public Double apply(MetamorphicIndividual individual) {
+        return individual.getResultPath()
+                .map(i -> calculateScore(i))
+                .orElse(0.0);
     }
 }

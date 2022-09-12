@@ -1,5 +1,6 @@
 package com.github.ciselab.metric.metrics;
 
+import com.github.ciselab.algorithms.MetamorphicIndividual;
 import com.github.ciselab.metric.Metric;
 import com.github.ciselab.support.GenotypeSupport;
 import java.io.File;
@@ -10,13 +11,17 @@ public class InputLength extends Metric {
 
     private String dataset;
 
-    public InputLength(String resultPath) {
-        super("InputLength", resultPath);
+    public InputLength() {
+        super("InputLength");
     }
 
     @Override
-    public double calculateScore() {
-        scores = new ArrayList<>();
+    public boolean isSecondary() {
+        return true;
+    }
+
+    private double calculateScore(String path) {
+        var scores = new ArrayList<>();
         if(dataset != null) {
             // should read all files not the dataset...
             int count = 0;
@@ -37,5 +42,12 @@ public class InputLength extends Metric {
 
     public void setDataSet(String dir) {
         dataset = dir;
+    }
+
+    @Override
+    public Double apply(MetamorphicIndividual individual) {
+        return individual.getJavaPath()
+                .map(i -> calculateScore(i))
+                .orElse(0.0);
     }
 }

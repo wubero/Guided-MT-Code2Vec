@@ -3,35 +3,24 @@ package com.github.ciselab.support;
 import com.github.ciselab.algorithms.MetamorphicIndividual;
 import com.github.ciselab.lampion.core.transformations.transformers.BaseTransformer;
 import com.github.ciselab.metric.Metric;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 public class MetricCache {
 
-    List<Metric> metricList; // Any at all, including secondary
-    List<Metric> activeMetrics; // Metrics that Guide Fitness
+    List<Metric> metricList = new ArrayList<>(); // Any at all, including secondary
+    List<Metric> activeMetrics = new ArrayList<>(); // Metrics that Guide Fitness
 
     private final Map<MetamorphicIndividual, String> fileLookup = new HashMap<>();
-    private final Map<MetamorphicIndividual, double[]> metricLookup = new HashMap<>();
 
     private final Map<MetamorphicIndividual,Map<Metric,Double>> lookup = new HashMap<>();
 
     private final Logger logger = LogManager.getLogger(MetricCache.class);
-
-    public MetricCache() {
-        metricList = new ArrayList<>();
-        activeMetrics = new ArrayList<>();
-    }
 
     public List<Metric> getMetrics() {
         return metricList;
@@ -53,21 +42,7 @@ public class MetricCache {
         metricList.add(metric);
     }
 
-    public void addSecondaryMetric(Metric metric) {
-        secondaryMetrics.add(metric);
-    }
-
-    public void addMetricWeight(float weight) {
-        metricWeights.add(weight);
-    }
-
-    public void setObjectives(boolean max) {
-        for(int i = 0; i < metricWeights.size(); i++) {
-            objectives[i] = max;
-        }
-    }
-
-    public void setActiveMetrics(int activeMetrics) {
+    public void setActiveMetrics(List<Metric> activeMetrics) {
         this.activeMetrics = activeMetrics;
     }
 
@@ -93,31 +68,44 @@ public class MetricCache {
     /**
      * Create a key value pair of an individual and the corresponding fitness.
      * @param individual the individual.
-     * @param fitness the fitness score.
+     * @param fitnesses the fitness score.
      */
-    public void fillFitness(MetamorphicIndividual individual, double[] fitness) {
-        metricLookup.put(individual, fitness);
+    public void fillFitness(MetamorphicIndividual individual, Map<Metric,Double> fitnesses) {
+        lookup.put(individual, fitnesses);
     }
 
     /**
      *Get the fitness score corresponding to a given transformers.
-     * @param transformers the transformers.
-     * @return the fitness score.
+     * @param individual the metamorphic individual.
+     * @return the fitness scores as an array of doubles.
      */
-    public Optional<double[]> getMetricResult(List<BaseTransformer> transformers) {
-        double[] file = metricLookup.get(transformers);
-        return Optional.ofNullable(file);
+    public Optional<double[]> getMetricResult(MetamorphicIndividual individual) {
+        return getMetricResults(individual).map(
+                mapp -> {
+                    var metrics = new double[]{mapp.size()};
+                    int i = 0;
+                    for(var entry : mapp.entrySet()){
+                        metrics[i]=entry.getValue();
+                        i++;
+                    }
+                    return metrics;
+                }
+        );
+    }
+
+    public Optional<Map<Metric,Double>> getMetricResults(MetamorphicIndividual individual){
+        return Optional.ofNullable(lookup.get(individual));
     }
 
     /**
      * Store the current genotype together with the fitness and filename in the map for later reference.
      * @param genotype the list of transformers.
      * @param fileName the file name.
-     * @param score the fitness score.
+     * @param scores the fitness scores.
      */
-    public void storeFiles(MetamorphicIndividual genotype, String fileName, double[] score) {
+    public void storeFiles(MetamorphicIndividual genotype, String fileName, Map<Metric,Double> scores) {
         fileLookup.put(genotype, fileName);
-        metricLookup.put(genotype, score);
+        lookup.put(genotype, scores);
     }
 
     /**
@@ -153,35 +141,4 @@ public class MetricCache {
         }
     }
 
-    /**
-     * Get the mean and standard deviation of each metric scores.
-     * @return the pair of the metric means and standard deviation.
-     */
-    public Pair<double[], double[]> getStatistics() {
-        double[] variance = new double[activeMetrics];
-        double[] means = new double[activeMetrics];
-        double[] sum = new double[activeMetrics];
-        int size = metricLookup.values().size();
-
-        for(int i = 0; i < activeMetrics; i++)
-            sum[i] = 0;
-        for(double[] value: metricLookup.values()) {
-            for (int i = 0; i < activeMetrics; i++) {
-                sum[i] += value[i];
-            }
-        }
-        for(int i = 0; i < activeMetrics; i++)
-            means[i] = sum[i]/size;
-
-        for(int i = 0; i < activeMetrics; i++)
-            sum[i] = 0;
-        for(double[] value: metricLookup.values()) {
-            for (int i = 0; i < activeMetrics; i++) {
-                sum[i] += Math.pow((value[i] - means[i]), 2);
-            }
-        }
-        for(int i = 0; i < activeMetrics; i++)
-            variance[i] = Math.sqrt(sum[i]/size);
-        return new ImmutablePair<>(means, variance);
-    }
 }

@@ -19,6 +19,12 @@ import org.apache.logging.log4j.Logger;
 /**
  * This is the main class of the project where the evolutionary algorithm engine is created,
  * together with the MetamorphicProblem.
+ *
+ * Important:
+ * Due to Code2Vec Logic, there is 1 running file for results.
+ * This gets updated for each new individual.
+ * Hence, we first have to predict an individual, read all metrics in,
+ * store them in java somewhere and then go on.
  */
 public class Main {
 
@@ -256,7 +262,7 @@ public class Main {
         logger.info("The metric results corresponding to the transformations are: " + Arrays.toString(best.getMetrics()));
 
         // check best against pareto
-        PARETO_FRONT.addToParetoOptimum(best.getMetrics());
+        PARETO_FRONT.addToParetoOptimum(best);
         return bestFitness;
     }
 
@@ -268,9 +274,6 @@ public class Main {
     private static void writeResultsAfterAlgorithm(FileWriter resultWriter) throws IOException {
         resultWriter.write("Metrics are: " + Arrays.toString(cache.getMetrics().toArray()) + "\n");
         resultWriter.write("Pareto set: " + displayPareto(PARETO_FRONT.getPareto()) + "\n");
-        Pair<double[], double[]> variance = cache.getStatistics();
-        resultWriter.write("The metric means are: " + Arrays.toString(variance.getLeft()) + "\n");
-        resultWriter.write("The metric standard deviation are: " + Arrays.toString(variance.getRight()) + "\n");
 
         long code2vecTime = genotypeSupport.getTotalCode2vevTime();
         int code2vecSec = (int) (code2vecTime % 60);

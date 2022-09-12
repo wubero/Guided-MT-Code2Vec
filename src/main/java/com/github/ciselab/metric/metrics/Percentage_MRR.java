@@ -1,5 +1,6 @@
 package com.github.ciselab.metric.metrics;
 
+import com.github.ciselab.algorithms.MetamorphicIndividual;
 import com.github.ciselab.metric.Metric;
 
 import java.util.ArrayList;
@@ -10,14 +11,13 @@ import java.util.List;
  */
 public class Percentage_MRR extends Metric {
 
-    public Percentage_MRR(String resultPath) {
-        super("PercentageMRR", resultPath);
+    public Percentage_MRR() {
+        super("PercentageMRR");
     }
 
-    @Override
-    public double calculateScore() {
+    private double calculateScore(String path) {
         List<String> predictions = readPredictions(path);
-        scores = new ArrayList<>();
+       var  scores = new ArrayList<>();
         double score = 0;
         for(int i = 0; i < predictions.size(); i++) {
             String current = predictions.get(i);
@@ -31,5 +31,18 @@ public class Percentage_MRR extends Metric {
             }
         }
         return score/predictions.size();
+    }
+
+
+    @Override
+    public boolean isSecondary() {
+        return false;
+    }
+
+    @Override
+    public Double apply(MetamorphicIndividual individual) {
+        return individual.getResultPath()
+                .map(i -> calculateScore(i))
+                .orElse(0.0);
     }
 }

@@ -38,18 +38,18 @@ public class ParetoFrontTest {
             add(new double[]{2.0, 2.0});
             add(new double[]{3.0, 1.0});
         }};
-        paretoFront.setPareto(initial);
-        assertSame(paretoFront.getPareto(), initial);
+        paretoFront.setFrontier(initial);
+        assertSame(paretoFront.getFrontier(), initial);
         paretoFront.addToParetoOptimum(new double[]{1.0, 1.0});
-        assertTrue(paretoFront.isIn(paretoFront.getPareto(), new double[]{1.0, 3.0}));
-        assertTrue(paretoFront.isIn(paretoFront.getPareto(), new double[]{2.0, 2.0}));
-        assertTrue(paretoFront.isIn(paretoFront.getPareto(), new double[]{3.0, 1.0}));
+        assertTrue(paretoFront.isIn(paretoFront.getFrontier(), new double[]{1.0, 3.0}));
+        assertTrue(paretoFront.isIn(paretoFront.getFrontier(), new double[]{2.0, 2.0}));
+        assertTrue(paretoFront.isIn(paretoFront.getFrontier(), new double[]{3.0, 1.0}));
 
         paretoFront.addToParetoOptimum(new double[]{5.0, 1.0});
-        assertEquals(3, paretoFront.getPareto().size());
-        assertTrue(paretoFront.isIn(paretoFront.getPareto(), new double[]{1.0, 3.0}));
-        assertTrue(paretoFront.isIn(paretoFront.getPareto(), new double[]{2.0, 2.0}));
-        assertTrue(paretoFront.isIn(paretoFront.getPareto(), new double[]{5.0, 1.0}));
+        assertEquals(3, paretoFront.getFrontier().size());
+        assertTrue(paretoFront.isIn(paretoFront.getFrontier(), new double[]{1.0, 3.0}));
+        assertTrue(paretoFront.isIn(paretoFront.getFrontier(), new double[]{2.0, 2.0}));
+        assertTrue(paretoFront.isIn(paretoFront.getFrontier(), new double[]{5.0, 1.0}));
     }
 
     @Test
@@ -60,19 +60,19 @@ public class ParetoFrontTest {
             add(new double[]{2.0, 2.0});
             add(new double[]{3.0, 1.0});
         }};
-        paretoFront.setPareto(initial);
-        assertSame(paretoFront.getPareto(), initial);
+        paretoFront.setFrontier(initial);
+        assertSame(paretoFront.getFrontier(), initial);
         paretoFront.addToParetoOptimum(new double[]{5.0, 1.0});
-        assertTrue(paretoFront.isIn(paretoFront.getPareto(), new double[]{1.0, 3.0}));
-        assertTrue(paretoFront.isIn(paretoFront.getPareto(), new double[]{2.0, 2.0}));
-        assertTrue(paretoFront.isIn(paretoFront.getPareto(), new double[]{3.0, 1.0}));
+        assertTrue(paretoFront.isIn(paretoFront.getFrontier(), new double[]{1.0, 3.0}));
+        assertTrue(paretoFront.isIn(paretoFront.getFrontier(), new double[]{2.0, 2.0}));
+        assertTrue(paretoFront.isIn(paretoFront.getFrontier(), new double[]{3.0, 1.0}));
 
         paretoFront.addToParetoOptimum(new double[]{1.0, 2.0});
-        assertTrue(paretoFront.isIn(paretoFront.getPareto(), new double[]{3.0, 1.0}));
-        assertTrue(paretoFront.isIn(paretoFront.getPareto(), new double[]{1.0, 2.0}));
+        assertTrue(paretoFront.isIn(paretoFront.getFrontier(), new double[]{3.0, 1.0}));
+        assertTrue(paretoFront.isIn(paretoFront.getFrontier(), new double[]{1.0, 2.0}));
 
         paretoFront.addToParetoOptimum(new double[]{1.0, 1.0});
-        assertTrue(paretoFront.isIn(paretoFront.getPareto(), new double[]{1.0, 1.0}));
+        assertTrue(paretoFront.isIn(paretoFront.getFrontier(), new double[]{1.0, 1.0}));
     }
 
     @Test
@@ -83,11 +83,11 @@ public class ParetoFrontTest {
             add(new double[]{2.0, 2.0});
             add(new double[]{3.0, 1.0});
         }};
-        paretoFront.setPareto(initial);
-        assertSame(paretoFront.getPareto(), initial);
+        paretoFront.setFrontier(initial);
+        assertSame(paretoFront.getFrontier(), initial);
         paretoFront.addToParetoOptimum(new double[]{5.0, 5.0});
-        assertEquals(1, paretoFront.getPareto().size());
-        assertTrue(paretoFront.isIn(paretoFront.getPareto(), new double[]{5.0, 5.0}));
+        assertEquals(1, paretoFront.getFrontier().size());
+        assertTrue(paretoFront.isIn(paretoFront.getFrontier(), new double[]{5.0, 5.0}));
     }
 
     @Test
@@ -98,15 +98,15 @@ public class ParetoFrontTest {
             add(new double[]{2.0, 2.0});
             add(new double[]{3.0, 1.0});
         }};
-        paretoFront.setPareto(initial);
+        paretoFront.setFrontier(initial);
         paretoFront.addToParetoOptimum(new double[]{1.0, 3.0});
-        assertEquals(3, paretoFront.getPareto().size());
-        assertTrue(paretoFront.isIn(paretoFront.getPareto(), new double[]{1.0, 3.0}));
-        assertTrue(paretoFront.isIn(paretoFront.getPareto(), new double[]{2.0, 2.0}));
-        assertTrue(paretoFront.isIn(paretoFront.getPareto(), new double[]{3.0, 1.0}));
+        assertEquals(3, paretoFront.getFrontier().size());
+        assertTrue(paretoFront.isIn(paretoFront.getFrontier(), new double[]{1.0, 3.0}));
+        assertTrue(paretoFront.isIn(paretoFront.getFrontier(), new double[]{2.0, 2.0}));
+        assertTrue(paretoFront.isIn(paretoFront.getFrontier(), new double[]{3.0, 1.0}));
         paretoFront.addToParetoOptimum(new double[]{5.0, 5.0});
-        assertEquals(1, paretoFront.getPareto().size());
+        assertEquals(1, paretoFront.getFrontier().size());
         paretoFront.addToParetoOptimum(new double[]{5.0, 5.0});
-        assertEquals(1, paretoFront.getPareto().size());
+        assertEquals(1, paretoFront.getFrontier().size());
     }
 }

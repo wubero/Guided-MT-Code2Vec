@@ -1,9 +1,9 @@
 package com.github.ciselab.support;
 
 import com.github.ciselab.algorithms.MetamorphicIndividual;
+import com.github.ciselab.metric.Metric;
 
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -20,17 +20,16 @@ import java.util.stream.Collectors;
 public class ParetoFront {
 
     private final MetricCache metricCache;
-    private Set<MetamorphicIndividual> pareto = new HashSet<>();
-    private List<Function<MetamorphicIndividual,Double>> metrics;
+    private Set<MetamorphicIndividual> frontier = new HashSet<>();
+    private List<Metric> metrics;
 
     public ParetoFront(MetricCache cache) {
         this.metricCache = cache;
-        cache.getMetrics();
-        //cache.
+        metrics = cache.getMetrics();
     }
 
-    public Set<double[]> getPareto() {
-       return pareto.stream().map(
+    public Set<double[]> getFrontier() {
+       return frontier.stream().map(
                 x -> {
                     double[] calculatedMetrics = new double[]{metrics.size()};
                     for (int i = 0; i<metrics.size();i++){
@@ -41,8 +40,8 @@ public class ParetoFront {
         ).collect(Collectors.toSet());
     }
 
-    public void setPareto(Set<MetamorphicIndividual> newPareto) {
-        pareto = newPareto;
+    public void setFrontier(Set<MetamorphicIndividual> newFrontier) {
+        frontier = newFrontier;
     }
 
     /**
@@ -52,24 +51,24 @@ public class ParetoFront {
      */
     public void addToParetoOptimum(MetamorphicIndividual solution){
         // Exit early if Element is already saved
-        if(this.pareto.contains(solution))
+        if(this.frontier.contains(solution))
             return;
         // Exit early if Element is not Pareto Dominant to anything
-        for(var individual: pareto) {
+        for(var individual: frontier) {
             if (paretoDominant(individual, solution,metrics)) {
                 return;
             }
         }
 
         List<MetamorphicIndividual> toRemove = new ArrayList<>();
-        for(MetamorphicIndividual i: pareto) {
+        for(MetamorphicIndividual i: frontier) {
             // if solution is dominant over i then delete i
             if (paretoDominant(solution, i, metrics)) {
                 toRemove.add(i);
             }
         }
-        toRemove.forEach(pareto::remove);
-        pareto.add(solution);
+        toRemove.forEach(frontier::remove);
+        frontier.add(solution);
     }
 
     /**
@@ -82,7 +81,7 @@ public class ParetoFront {
      */
     public static boolean paretoDominant(
             MetamorphicIndividual a, MetamorphicIndividual b,
-            List<Function<MetamorphicIndividual,Double>> metrics){
+            List<Metric> metrics){
         // Error Cases: Exit early with no-dominance.
         if (a == null || b == null || metrics == null || metrics.isEmpty() || a.equals(b)){
             return false;

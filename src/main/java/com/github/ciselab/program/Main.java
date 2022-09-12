@@ -12,7 +12,7 @@ import java.time.Duration;
 import java.time.LocalTime;
 import java.util.*;
 import java.util.random.RandomGenerator;
-import org.apache.commons.lang3.tuple.Pair;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -132,7 +132,7 @@ public class Main {
                         " of " + myPop.getAverageSize() + "\n");
 
                 algorithm.checkPareto(myPop);
-                logger.debug("Current Pareto set = " + displayPareto(PARETO_FRONT.getPareto()));
+                logger.debug("Current Pareto set = " + displayPareto(PARETO_FRONT.getFrontier()));
 
                 resultWriter.write("Generation: " + generationCount + ", best: " + getBestForLog(generationFitness) + ", worst: " + getWorstForLog(generationFitness) +
                         ", average: " + getAverageForLog(generationFitness) + ", median: " + getMedianForLog(generationFitness) + "\n");
@@ -206,7 +206,7 @@ public class Main {
                 if (steadyGens > maxSteadyGenerations)
                     converged = true;
                 geneticAlgorithm.checkPareto(myPop);
-                logger.debug("Current Pareto set = " + displayPareto(PARETO_FRONT.getPareto()));
+                logger.debug("Current Pareto set = " + displayPareto(PARETO_FRONT.getFrontier()));
 
                 resultWriter.write("Generation: " + generationCount + ", result: " + myPop.getFittest().getFitness() + "\n");
                 resultWriter.write("Gene: " + myPop.getFittest() + "\n");
@@ -273,7 +273,7 @@ public class Main {
      */
     private static void writeResultsAfterAlgorithm(FileWriter resultWriter) throws IOException {
         resultWriter.write("Metrics are: " + Arrays.toString(cache.getMetrics().toArray()) + "\n");
-        resultWriter.write("Pareto set: " + displayPareto(PARETO_FRONT.getPareto()) + "\n");
+        resultWriter.write("Pareto set: " + displayPareto(PARETO_FRONT.getFrontier()) + "\n");
 
         long code2vecTime = genotypeSupport.getTotalCode2vevTime();
         int code2vecSec = (int) (code2vecTime % 60);

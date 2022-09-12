@@ -26,9 +26,7 @@ public class MetricCache {
         return metricList;
     }
 
-    public List<Metric> getSecondaryMetrics() {
-        return metricList.stream().filter(x -> x.isSecondary()).toList();
-    }
+    public List<Metric> getActiveMetrics() { return activeMetrics;}
 
     public List<Double> getWeights() {
         return activeMetrics.stream().map(x -> x.getWeight()).toList();

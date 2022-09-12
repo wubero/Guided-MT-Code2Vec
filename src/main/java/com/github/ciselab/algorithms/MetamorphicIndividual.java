@@ -37,7 +37,7 @@ public class MetamorphicIndividual {
     protected Optional<String> resultPath = Optional.empty();
 
     private List<BaseTransformer> transformers = new ArrayList<>();
-    private double fitness = -1;
+    private Optional<Double> fitness = Optional.empty(); // Empty while not calculated or reset
     private Map<Metric,Double> metrics;
 
     public MetamorphicIndividual (GenotypeSupport gen) {
@@ -101,7 +101,7 @@ public class MetamorphicIndividual {
      */
     public void setGene(int index, BaseTransformer gene) {
         transformers.set(index, gene);
-        fitness = -1;
+        fitness = Optional.empty();
     }
 
     /**
@@ -110,7 +110,7 @@ public class MetamorphicIndividual {
      */
     public void addGene(BaseTransformer gene) {
         transformers.add(gene);
-        fitness = -1;
+        fitness = Optional.empty();
     }
 
     /**
@@ -122,7 +122,7 @@ public class MetamorphicIndividual {
     public void increase(int maxGeneLength, RandomGenerator randomGen, int maxValue) {
         if(getLength() < maxGeneLength) {
             BaseTransformer newTransformer = genotypeSupport.createTransformers(randomGen.nextInt(1, maxValue+1), randomGen.nextInt());
-            fitness = -1;
+            fitness = Optional.empty();
             if(metricCache.getDir(transformers).isPresent()) {
                 List<BaseTransformer> t = new ArrayList<>();
                 t.add(newTransformer);
@@ -135,7 +135,7 @@ public class MetamorphicIndividual {
                 transformers.add(newTransformer);
                 if (metricCache.getMetricResult(this).isPresent()) {
                     metrics = metricCache.getMetricResults(this).get();
-                    fitness = calculateFitness(metrics);
+                    fitness = Optional.of(calculateFitness());
                 }
             }
             logger.debug("The gene " + this.hashCode() + " has increased its size to " + this.getLength());
@@ -171,12 +171,12 @@ public class MetamorphicIndividual {
             int drop = randomGen.nextInt(0, getLength());
             transformers.remove(drop);
             logger.debug("The gene " + this.hashCode() + " has decreased its size to " + this.getLength());
-            if(metricCache.getMetricResult(transformers).isPresent()) {
-                metrics = metricCache.getMetricResult(transformers).get();
+            if(metricCache.getMetricResults(this).isPresent()) {
+                metrics = metricCache.getMetricResults(this).get();
                 fitness = calculateFitness(metrics);
             } else {
-                fitness = -1;
-                metrics = new double[metricCache.getActiveMetrics()];
+                fitness = Optional.empty();
+                metrics = new HashMap<>();
             }
         }
     }
@@ -211,22 +211,15 @@ public class MetamorphicIndividual {
      * @return the fitness of this metamorphic individual.
      */
     public double getFitness() {
-        if (fitness < 0.0) {
+        if (fitness.isEmpty() || fitness.get() < 0.0) {
             String name = genotypeSupport.runTransformations(transformers, genotypeSupport.getCurrentDataset());
             determineFitness(name);
             metricCache.fillFitness(this, metrics);
         }
         logger.debug("The gene " + this.hashCode() + " has calculated its fitness, it is: " + fitness);
-        return fitness;
+        return fitness.get();
     }
 
-    /**
-     * Getter for the metrics field.
-     * @return the metrics array.
-     */
-    public double[] getMetrics() {
-        return metrics;
-    }
 
     /**
      * Set the metrics of this metamorphic individual.
@@ -234,7 +227,7 @@ public class MetamorphicIndividual {
      */
     public void setMetrics(Map<Metric,Double> results) {
         this.metrics = results;
-        fitness = calculateFitness(metrics);
+        fitness = Optional.of(calculateFitness());
     }
 
     public void setMetric(Metric m, double d){
@@ -242,60 +235,13 @@ public class MetamorphicIndividual {
     }
 
     /**
-     * Calculate secondary metrics for Pareto front.
-     * @param dataset the dataset.
-     * @return the array with secondary metric scores.
-     */
-    private double[] secondaryMetrics(String dataset) {
-        List<Metric> metrics = metricCache.getSecondaryMetrics();
-        double[] scores = new double[metrics.size()];
-        for(int i = 0; i < metrics.size(); i++) {
-            double score;
-            if(metrics.get(i).getName().contains("InputLength")) {
-                ((InputLength)metrics.get(i)).setDataSet(dataset);
-                score = metrics.get(i).calculateScore();
-            } else if(metrics.get(i).getName().contains("NumberOfTransformations")) {
-                ((Transformations) metrics.get(i)).setLength(getLength());
-                score = metrics.get(i).calculateScore();
-            } else {
-                score = metrics.get(i).calculateScore();
-            }
-            scores[i] = score;
-        }
-        return scores;
-    }
-
-    /**
-     * Calculate the scores for each metric.
-     * @return a list of scores.
-     */
-    private double[] calculateMetric() {
-        return metricCache.getMetrics()
-                .stream()
-                .collect(Collectors.toMap(x -> x.calculateScore()));
-
-        metrics.get(i).calculateScore();
-
-        double[] scores = new double[metrics.size()];
-        for(int i = 0; i < metrics.size(); i++) {
-            double score = metrics.get(i).calculateScore();
-            scores[i] = score;
-        }
-        return scores;
-    }
-
-    /**
      * Calculate the global fitness of the metrics with the weights for each metric.
-     * @param metrics the list of metrics.
      * @return The global fitness.
      */
-    private double calculateFitness(double[] metrics) {
-        List<Float> weights = metricCache.getWeights();
-        double output = 0;
-        for(int i = 0; i < weights.size(); i++) {
-            output += metrics[i]*weights.get(i);
-        }
-        return output;
+    private double calculateFitness() {
+        return metricCache.getActiveMetrics().stream().mapToDouble(
+                m -> m.apply(this) * m.getWeight()
+        ).sum();
     }
 
     @Override

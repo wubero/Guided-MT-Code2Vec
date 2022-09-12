@@ -1,47 +1,70 @@
 package com.github.ciselab.support;
 
+import com.github.ciselab.algorithms.MetamorphicIndividual;
+
 import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * This class implements the maintenance for the Pareto front.
  * It checks whether a new solution is Pareto dominant over the current solutions and is thus
  * able to add it to the Pareto front.
+ *
+ * Note: We opted for a Pareto Front that can hold multiple elements if they have identical metrics.
+ * That is, we consider dominance as "not being worse than anything else in the frontier".
+ *
  * For more explanation on the Pareto front you can take a look at
  * https://en.wikipedia.org/wiki/Pareto_front
  */
 public class ParetoFront {
 
     private final MetricCache metricCache;
-    private Set<double[]> pareto = new HashSet<>();
+    private Set<MetamorphicIndividual> pareto = new HashSet<>();
+    private List<Function<MetamorphicIndividual,Double>> metrics;
 
     public ParetoFront(MetricCache cache) {
         this.metricCache = cache;
+        cache.getMetrics();
+        //cache.
     }
 
     public Set<double[]> getPareto() {
-        return pareto;
+       return pareto.stream().map(
+                x -> {
+                    double[] calculatedMetrics = new double[]{metrics.size()};
+                    for (int i = 0; i<metrics.size();i++){
+                        calculatedMetrics[i] = metrics.get(i).apply(x);
+                    }
+                    return calculatedMetrics;
+                }
+        ).collect(Collectors.toSet());
     }
 
-    public void setPareto(Set<double[]> newPareto) {
+    public void setPareto(Set<MetamorphicIndividual> newPareto) {
         pareto = newPareto;
     }
 
     /**
      * Add to the Pareto set if no solution dominates the current solution.
+     * Elements that are dominated by the new solution are removed.
      * @param solution the current solution.
      */
-    public void addToParetoOptimum(double[] solution) {
-        if(isIn(pareto, solution))
+    public void addToParetoOptimum(MetamorphicIndividual solution){
+        // Exit early if Element is already saved
+        if(this.pareto.contains(solution))
             return;
-        for(double[] i: pareto) {
-            if (paretoDominant(i, solution)) {
+        // Exit early if Element is not Pareto Dominant to anything
+        for(var individual: pareto) {
+            if (paretoDominant(individual, solution,metrics)) {
                 return;
             }
         }
-        List<double[]> toRemove = new ArrayList<>();
-        for(double[] i: pareto) {
+
+        List<MetamorphicIndividual> toRemove = new ArrayList<>();
+        for(MetamorphicIndividual i: pareto) {
             // if solution is dominant over i then delete i
-            if (paretoDominant(solution, i)) {
+            if (paretoDominant(solution, i, metrics)) {
                 toRemove.add(i);
             }
         }
@@ -50,46 +73,26 @@ public class ParetoFront {
     }
 
     /**
-     * Support method to see if a set has a certain element in it.
-     * @param set the set.
-     * @param find the element.
-     * @return Whether the set has the find element in it.
+     * Check if a is Pareto dominant over b.
+     * Pareto Dominance is the case if for any metris A is better than B,
+     * if A is not worse in any other metrics.
+     * @param a an individual.
+     * @param b an individual.
+     * @return whether a is pareto dominant over b.
      */
-    public boolean isIn(Set<double[]> set, double[] find) {
-        Iterator<double[]> i = set.iterator();
-        while(i.hasNext()) {
-            if(Arrays.equals(i.next(), find)){
-                return true;
-            }
+    public static boolean paretoDominant(
+            MetamorphicIndividual a, MetamorphicIndividual b,
+            List<Function<MetamorphicIndividual,Double>> metrics){
+        // Error Cases: Exit early with no-dominance.
+        if (a == null || b == null || metrics == null || metrics.isEmpty() || a.equals(b)){
+            return false;
         }
-        return false;
+
+        record Pair(double first, double second){}
+        return metrics.stream()
+                .map(x -> new Pair(x.apply(a),x.apply(b)))
+                .noneMatch(p -> p.first < p.second);
     }
 
-    /**
-     * Check if solutionA is Pareto dominant over solutionB.
-     * @param solutionA a solution.
-     * @param solutionB a solution.
-     * @return whether solutionA is pareto dominant over solutionB.
-     */
-    private boolean paretoDominant(double[] solutionA, double[] solutionB) {
-        boolean dominant = false;
-        for(int i = 0; i < solutionA.length; i++) {
-            // Check if the objective function is maximizing
-            if(metricCache.getObjectives()[i]) {
-                // Early exit for when this particular score is worse, can never be Pareto
-                // dominant in that case.
-                if(solutionA[i] < solutionB[i])
-                    return false;
-                if(solutionA[i] > solutionB[i])
-                    dominant = true;
-            } else {
-                // Another early exit for this method.
-                if(solutionA[i] > solutionB[i])
-                    return false;
-                if(solutionA[i] < solutionB[i])
-                    dominant = true;
-            }
-        }
-        return dominant;
-    }
+
 }

@@ -18,7 +18,8 @@ public abstract class Metric {
     protected double score; // The score for this metric
     protected String name; // The name of the metric
     protected String path; // The path from which it should read its results
-    protected String objective; // Whether it should minimize or maximize the metric
+    protected boolean objective; // Whether it should minimize or maximize the metric, true = maximize, false = minimize
+    protected double weight = 1; // How much the Metric is weighted for mixed weight calculations
     protected final Logger logger = LogManager.getLogger(Metric.class); // The logger for this class
     protected List<Float> scores;
 
@@ -52,15 +53,30 @@ public abstract class Metric {
     }
 
     public void setObjective(String obj) {
+        objective = obj.equalsIgnoreCase("max");
+    }
+
+    public void setObjective(boolean obj){
         objective = obj;
     }
 
-    public String getObjective(){
+    public boolean getObjective(){
         return objective;
     }
 
     public String getName() {
         return name;
+    }
+
+    public double getWeight(){return weight;}
+    public void setWeight(double weight){
+        if (weight < 0){
+            throw new UnsupportedOperationException("Received negative weight for Metric - weight must be 0 or more");
+        }
+        if (weight > 1){
+            logger.warn("Unusual weight received for Metric: " + weight);
+        }
+        this.weight = weight;
     }
 
     /**
@@ -83,6 +99,8 @@ public abstract class Metric {
         }
         return predictions;
     }
+
+    public abstract boolean isSecondary();
 
     /**
      * The calculateScore function calculates the score for this metric according to the result files.

@@ -1,5 +1,6 @@
 package com.github.ciselab.support;
 
+import com.github.ciselab.algorithms.MetamorphicIndividual;
 import com.github.ciselab.lampion.core.transformations.transformers.BaseTransformer;
 import com.github.ciselab.metric.Metric;
 import java.io.FileWriter;
@@ -17,19 +18,19 @@ import org.apache.logging.log4j.Logger;
 
 public class MetricCache {
 
-    private final List<Metric> metricList;
-    private final List<Metric> secondaryMetrics;
-    private final List<Float> metricWeights;
-    private Boolean[] objectives;
-    private int activeMetrics = 0;
-    private final Map<List<BaseTransformer>, String> fileLookup = new HashMap<>();
-    private final Map<List<BaseTransformer>, double[]> metricLookup = new HashMap<>();
+    List<Metric> metricList; // Any at all, including secondary
+    List<Metric> activeMetrics; // Metrics that Guide Fitness
+
+    private final Map<MetamorphicIndividual, String> fileLookup = new HashMap<>();
+    private final Map<MetamorphicIndividual, double[]> metricLookup = new HashMap<>();
+
+    private final Map<MetamorphicIndividual,Map<Metric,Double>> lookup = new HashMap<>();
+
     private final Logger logger = LogManager.getLogger(MetricCache.class);
 
     public MetricCache() {
         metricList = new ArrayList<>();
-        secondaryMetrics = new ArrayList<>();
-        metricWeights = new ArrayList<>();
+        activeMetrics = new ArrayList<>();
     }
 
     public List<Metric> getMetrics() {
@@ -37,19 +38,15 @@ public class MetricCache {
     }
 
     public List<Metric> getSecondaryMetrics() {
-        return secondaryMetrics;
+        return metricList.stream().filter(x -> x.isSecondary()).toList();
     }
 
-    public List<Float> getWeights() {
-        return metricWeights;
+    public List<Double> getWeights() {
+        return activeMetrics.stream().map(x -> x.getWeight()).toList();
     }
 
-    public int getActiveMetrics(){
-        return activeMetrics;
-    }
-
-    public Boolean[] getObjectives() {
-        return objectives;
+    public List<Boolean> getObjectives() {
+        return activeMetrics.stream().map(x -> x.getObjective()).toList();
     }
 
     public void addMetric(Metric metric) {
@@ -79,7 +76,7 @@ public class MetricCache {
      * @param transformers the list of transformers.
      * @param file the file name.
      */
-    public void putFileCombination(List<BaseTransformer> transformers, String file) {
+    public void putFileCombination(MetamorphicIndividual transformers, String file) {
         fileLookup.put(transformers, file);
     }
 
@@ -95,11 +92,11 @@ public class MetricCache {
 
     /**
      * Create a key value pair of an individual and the corresponding fitness.
-     * @param indiv the individual.
+     * @param individual the individual.
      * @param fitness the fitness score.
      */
-    public void fillFitness(List<BaseTransformer> indiv, double[] fitness) {
-        metricLookup.put(indiv, fitness);
+    public void fillFitness(MetamorphicIndividual individual, double[] fitness) {
+        metricLookup.put(individual, fitness);
     }
 
     /**
@@ -118,7 +115,7 @@ public class MetricCache {
      * @param fileName the file name.
      * @param score the fitness score.
      */
-    public void storeFiles(List<BaseTransformer> genotype, String fileName, double[] score) {
+    public void storeFiles(MetamorphicIndividual genotype, String fileName, double[] score) {
         fileLookup.put(genotype, fileName);
         metricLookup.put(genotype, score);
     }
@@ -129,15 +126,6 @@ public class MetricCache {
     public void initWeights(boolean max) {
         removeZeroWeights();
         normalizeWeights();
-        int weightSize = metricWeights.size();
-        activeMetrics = weightSize + secondaryMetrics.size();
-        objectives = new Boolean[activeMetrics];
-        for(int i = 0; i < activeMetrics; i++) {
-            if(i < weightSize)
-                objectives[i] = max;
-            else
-                objectives[i] = secondaryMetrics.get(i-weightSize).getObjective().equals("max");
-        }
     }
 
     /**
@@ -145,31 +133,23 @@ public class MetricCache {
      * These do not have to be calculated or initialized.
      */
     private void removeZeroWeights() {
-        List<Integer> toRemove = new ArrayList<>();
-        for(int i = 0; i < metricWeights.size(); i++) {
-            if(metricWeights.get(i) <= 0) {
-                toRemove.add(i);
-            }
-        }
-        for(int i = toRemove.size()-1; i >= 0; i--){
-            metricList.remove((int)toRemove.get(i));
-            metricWeights.remove((int)toRemove.get(i));
-        }
+        var toRemove = activeMetrics.stream().filter(m -> m.getWeight() == 0).toList();
+        activeMetrics.removeAll(toRemove);
     }
 
     /**
      * Normalizes the weights and ensures that there is at least one metric enabled.
+     * The resulting weights will be summed up 1, with the old proportions kept.
      */
     private void normalizeWeights() {
-        float sum = 0;
-        for(float i: metricWeights)
-            sum += i;
-        if(sum > 0.0) {
-            for (int j = 0; j < metricWeights.size(); j++)
-                metricWeights.set(j, metricWeights.get(j) / sum);
-        } else {
-            logger.error("Combined weight is zero. There should be at least one metric enabled.");
+        final double sum = activeMetrics.stream().mapToDouble(x -> x.getWeight()).sum();
+        if (sum <= 0){
+            logger.error("Combined weight is smaller or equal zero. There should be at least one metric enabled.");
             throw new IllegalArgumentException("There should be at least one metric enabled.");
+        } else {
+            activeMetrics.stream().forEach(
+                    m -> m.setWeight(m.getWeight()/sum)
+            );
         }
     }
 

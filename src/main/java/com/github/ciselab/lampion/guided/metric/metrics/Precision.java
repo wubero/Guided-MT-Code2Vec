@@ -8,7 +8,7 @@ import java.util.List;
 public class Precision extends Metric {
 
     public Precision() {
-        super("Precision");
+        this.name = Name.PREC;
     }
 
     @Override

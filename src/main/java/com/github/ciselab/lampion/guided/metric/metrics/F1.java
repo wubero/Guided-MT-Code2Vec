@@ -9,10 +9,10 @@ import java.util.List;
  * The F1_Score metric.
  * This metric is already calculated by the code2vec project and gotten from a file.
  */
-public class F1_score extends Metric {
+public class F1 extends Metric {
 
-    public F1_score() {
-        super("F1Score");
+    public F1(){
+        this.name = Name.F1;
     }
 
     private double calculateScore(String path) {

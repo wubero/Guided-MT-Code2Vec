@@ -7,6 +7,8 @@ import com.github.ciselab.lampion.guided.support.ConfigManagement;
 import com.github.ciselab.lampion.guided.support.FileManagement;
 import com.github.ciselab.lampion.guided.support.GenotypeSupport;
 import com.github.ciselab.lampion.guided.support.MetricCache;
+
+import java.io.FileNotFoundException;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Properties;
@@ -27,7 +29,7 @@ public class MainTest {
     private Properties prop;
 
     @BeforeEach
-    public void setUp() {
+    public void setUp() throws FileNotFoundException {
         configManagement.setConfigFile("src/test/resources/config.properties");
         prop = configManagement.initializeFields();
     }

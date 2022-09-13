@@ -3,14 +3,6 @@ package com.github.ciselab.metric;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.github.ciselab.lampion.guided.metric.metrics.F1_score;
-import com.github.ciselab.lampion.guided.support.GenotypeSupport;
-import java.io.File;
-import java.util.List;
-
-import org.junit.jupiter.api.Tag;
-import org.junit.jupiter.api.Test;
-
 public class MetricTest {
 
     /*TODO: Reimplement

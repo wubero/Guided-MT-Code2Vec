@@ -6,7 +6,7 @@ import com.github.ciselab.lampion.guided.metric.Metric;
 public class Transformations extends Metric {
 
     public Transformations() {
-        super("NumberOfTransformations");
+        this.name = Name.TRANSFORMATIONS;
     }
 
     @Override

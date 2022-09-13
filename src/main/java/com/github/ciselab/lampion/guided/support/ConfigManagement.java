@@ -4,18 +4,17 @@ import static com.github.ciselab.lampion.guided.support.GenotypeSupport.dir_path
 
 import com.github.ciselab.lampion.core.program.Engine.TransformationScope;
 import com.github.ciselab.lampion.guided.metric.Metric;
-import com.github.ciselab.lampion.guided.metric.MetricCategories.MetricCategory;
-import com.github.ciselab.lampion.guided.metric.MetricCategories.SecondaryMetrics;
 import com.github.ciselab.lampion.guided.metric.metrics.EditDistance;
-import com.github.ciselab.lampion.guided.metric.metrics.F1_score;
+import com.github.ciselab.lampion.guided.metric.metrics.F1;
 import com.github.ciselab.lampion.guided.metric.metrics.InputLength;
 import com.github.ciselab.lampion.guided.metric.metrics.MRR;
-import com.github.ciselab.lampion.guided.metric.metrics.Percentage_MRR;
+import com.github.ciselab.lampion.guided.metric.metrics.PercentageMRR;
 import com.github.ciselab.lampion.guided.metric.metrics.Precision;
 import com.github.ciselab.lampion.guided.metric.metrics.PredictionLength;
 import com.github.ciselab.lampion.guided.metric.metrics.Recall;
 import com.github.ciselab.lampion.guided.metric.metrics.Transformations;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
@@ -76,15 +75,17 @@ public class ConfigManagement {
     /**
      * Initialize global fields with config file data.
      */
-    public Properties initializeFields() {
+    public Properties initializeFields() throws FileNotFoundException {
         Properties prop = new Properties();
         try {
             InputStream input = new FileInputStream(configFile);
             // load a properties file
             prop.load(input);
         } catch (IOException e) {
-            logger.debug("Cannot load property file.");
+            logger.error("Cannot load property file.");
+            throw new FileNotFoundException("Could not find (or read) Configuration-File!");
         }
+
         if(prop.get("useGA") != null)
             useGA = prop.get("useGA").equals("true");
         else
@@ -111,27 +112,20 @@ public class ConfigManagement {
         }
         if(prop.get("bash") != null)
             bashRunner.setPath_bash((String) prop.get("bash"));
-        for(MetricCategory metricCategory: MetricCategory.values()) {
-            metricCache.addMetric(createMetric(metricCategory.name()));
-        }
-        /*
-        TODO: Reimplement this
-        for(MetricCategory i: MetricCategory.values()) {
-            metricCache.addMetricWeight(Float.parseFloat(prop.getProperty(i.name())));
-        }
-        for(SecondaryMetrics metric: SecondaryMetrics.values()) {
-            if(prop.getProperty(metric.name()).equals("1")) {
-                Metric m = createMetric(metric.name());
-                m.setObjective("max");
-                metricCache.addSecondaryMetric(m);
-            } else if(prop.getProperty(metric.name()).equals("-1")) {
-                Metric m = createMetric(metric.name());
-                m.setObjective("min");
-                metricCache.addSecondaryMetric(m);
+
+        for(Metric.Name n: Metric.Name.values()) {
+            if (n == Metric.Name.UNIMPLEMENTED)
+                continue;
+            var metric = createMetric(n);
+            try {
+                metric.setWeight(Float.parseFloat(prop.getProperty(n.toString())));
+            } catch (Exception e){
+                // This can happen in case of bad parsing, or missing property.
+                // Just do nothing, go on with keeping the Metric at default weight 0
             }
+            metricCache.addMetric(metric);
         }
 
-         */
         metricCache.initWeights(maximize);
         return prop;
     }
@@ -141,30 +135,35 @@ public class ConfigManagement {
      * @param name the metric name.
      * @return The new metric.
      */
-    private Metric createMetric(String name) {
+    private Metric createMetric(Metric.Name name) {
         switch (name) {
-            case "MRR":
+            case MRR:
                 return new MRR();
-            case "F1Score":
-                return new F1_score();
-            case "PercentageMRR":
-                return new Percentage_MRR();
-            case "Precision":
+            case F1:
+                return new F1();
+            case PMRR:
+                return new PercentageMRR();
+            case PREC:
                 return new Precision();
-            case "Recall":
+            case REC:
                 return new Recall();
-            case "EditDistance":
+            case EDITDIST:
                 return new EditDistance();
-            case "InputLength":
+            case INPUTLENGTH:
                 return new InputLength();
-            case "PredictionLength":
+            case PREDLENGTH:
                 return new PredictionLength();
-            case "NumberOfTransformations":
+            case TRANSFORMATIONS:
                 return new Transformations();
             default:
                 logger.error("Metric name not a correct metric.");
                 throw new IllegalArgumentException("Metric name not a correct metric.");
         }
+    }
+
+    private Metric createMetric(String name){
+        Metric.Name resolved = Metric.resolveName(name);
+        return createMetric(resolved);
     }
 
     /*

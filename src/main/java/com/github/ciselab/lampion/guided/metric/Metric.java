@@ -15,15 +15,28 @@ import org.apache.logging.log4j.Logger;
  * The abstract class for a metric.
  */
 public abstract class Metric implements Function<MetamorphicIndividual, Double> {
-
-    protected String name; // The name of the metric
-    protected boolean objective; // Whether it should minimize or maximize the metric, true = maximize, false = minimize
-    protected double weight = 1; // How much the Metric is weighted for mixed weight calculations
-    protected final Logger logger = LogManager.getLogger(Metric.class); // The logger for this class
-
-    public Metric(String metricName) {
-        name = metricName;
+    public enum Name {
+        MRR,
+        F1,
+        PMRR,
+        PREC,
+        REC,
+        EDITDIST,
+        PREDLENGTH,
+        /**
+         * Secondary metrics are not required to use the
+         */
+        INPUTLENGTH,
+        TRANSFORMATIONS,
+        // Error Case - for warnings
+        UNIMPLEMENTED
     }
+
+    protected Name name = Name.UNIMPLEMENTED;
+
+    protected boolean objective = false; // Whether it should minimize or maximize the metric, true = maximize, false = minimize
+    protected double weight = 0; // How much the Metric is weighted for mixed weight calculations
+    protected final Logger logger = LogManager.getLogger(Metric.class); // The logger for this class
 
     public void setObjective(String obj) {
         objective = obj.equalsIgnoreCase("max");
@@ -38,7 +51,7 @@ public abstract class Metric implements Function<MetamorphicIndividual, Double> 
     }
 
     public String getName() {
-        return name;
+        return name.toString();
     }
 
     public double getWeight(){return weight;}
@@ -85,4 +98,36 @@ public abstract class Metric implements Function<MetamorphicIndividual, Double> 
     }
 
     public abstract boolean isSecondary();
+
+    /**
+     * Maps a given String to the known Metric Enum Type
+     * @param str the string that might match one of the Implemented Metrics
+     * @return the resolved Enum Constant, UNIMPLEMENTED in case of failure.
+     */
+    public static final Name resolveName(String str){
+        return switch(str.toLowerCase()) {
+            case "mrr" -> Name.MRR;
+            case "pmrr" -> Name.PMRR;
+            case "percentagemrr" -> Name.PMRR;
+            case "f1" -> Name.F1;
+            case "f1score" -> Name.F1;
+            case "f1_score" -> Name.F1;
+            case "prec" -> Name.PREC;
+            case "precision" -> Name.PREC;
+            case "rec" -> Name.REC;
+            case "recall" -> Name.REC;
+            case "edit" -> Name.EDITDIST;
+            case "editdistance" -> Name.EDITDIST;
+            case "pred" -> Name.PREDLENGTH;
+            case "prediction" -> Name.PREDLENGTH;
+            case "predictionlength" -> Name.PREDLENGTH;
+            case "input" -> Name.INPUTLENGTH;
+            case "inputlength" -> Name.INPUTLENGTH;
+            case "trans" -> Name.TRANSFORMATIONS;
+            case "transformations" -> Name.TRANSFORMATIONS;
+            case "numeroftransformations" -> Name.TRANSFORMATIONS;
+            default -> Name.UNIMPLEMENTED;
+        };
+
+    }
 }

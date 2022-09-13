@@ -11,6 +11,8 @@ import com.github.ciselab.lampion.guided.support.ConfigManagement;
 import com.github.ciselab.lampion.guided.support.FileManagement;
 import com.github.ciselab.lampion.guided.support.GenotypeSupport;
 import com.github.ciselab.lampion.guided.support.MetricCache;
+
+import java.io.FileNotFoundException;
 import java.util.SplittableRandom;
 import java.util.random.RandomGenerator;
 import org.junit.jupiter.api.AfterEach;
@@ -24,7 +26,7 @@ public class MetamorphicIndividualTest {
     private MetamorphicIndividual individual;
 
     @BeforeEach
-    public void setUp() {
+    public void setUp() throws FileNotFoundException {
         genotypeSupport = new GenotypeSupport(new MetricCache());
         ConfigManagement configManagement = genotypeSupport.getConfigManagement();
         configManagement.setConfigFile("src/test/resources/config.properties");

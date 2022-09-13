@@ -10,7 +10,7 @@ public class InputLengthTest {
     @Test
     public void checkNameTest() {
         InputLength metric = new InputLength();
-        assertEquals("InputLength", metric.getName());
+        assertEquals("INPUTLENGTH", metric.getName());
     }
 
     //TODO: Reimplement

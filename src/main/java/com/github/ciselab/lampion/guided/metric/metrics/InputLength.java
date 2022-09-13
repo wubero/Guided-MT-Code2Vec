@@ -11,8 +11,8 @@ public class InputLength extends Metric {
 
     private String dataset;
 
-    public InputLength() {
-        super("InputLength");
+    public InputLength(){
+        this.name = Name.INPUTLENGTH;
     }
 
     @Override

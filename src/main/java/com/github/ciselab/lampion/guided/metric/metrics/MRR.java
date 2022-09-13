@@ -12,7 +12,7 @@ import java.util.List;
 public class MRR extends Metric {
 
     public MRR() {
-        super("MRR");
+        this.name = Name.MRR;
     }
 
     private double calculateScore(String path) {

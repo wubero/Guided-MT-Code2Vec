@@ -38,10 +38,9 @@ public class MetricCache {
 
     public void addMetric(Metric metric) {
         metricList.add(metric);
-    }
-
-    public void setActiveMetrics(List<Metric> activeMetrics) {
-        this.activeMetrics = activeMetrics;
+        if (metric.getWeight()>0){
+            activeMetrics.add(metric);
+        }
     }
 
     /**
@@ -112,6 +111,8 @@ public class MetricCache {
     public void initWeights(boolean max) {
         removeZeroWeights();
         normalizeWeights();
+
+        metricList.forEach(m -> m.setObjective(max));
     }
 
     /**

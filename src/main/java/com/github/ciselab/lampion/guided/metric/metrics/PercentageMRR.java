@@ -9,10 +9,10 @@ import java.util.List;
 /**
  * The percentage Mean Reciprocal Rank (Percentage_MRR) custom metric.
  */
-public class Percentage_MRR extends Metric {
+public class PercentageMRR extends Metric {
 
-    public Percentage_MRR() {
-        super("PercentageMRR");
+    public PercentageMRR() {
+        this.name = Name.PMRR;
     }
 
     private double calculateScore(String path) {

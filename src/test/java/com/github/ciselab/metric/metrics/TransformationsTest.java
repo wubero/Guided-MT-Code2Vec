@@ -10,7 +10,7 @@ public class TransformationsTest {
     @Test
     public void checkNameTest() {
         Transformations metric = new Transformations();
-        assertEquals("NumberOfTransformations", metric.getName());
+        assertEquals("TRANSFORMATIONS", metric.getName());
     }
 
     /* TODO: Reimplement

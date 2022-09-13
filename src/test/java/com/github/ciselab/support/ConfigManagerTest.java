@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import java.io.FileNotFoundException;
 import java.util.Properties;
 
 import com.github.ciselab.lampion.guided.support.ConfigManagement;
@@ -34,10 +35,12 @@ public class ConfigManagerTest {
     }
 
     @Test
-    public void initializeFieldsTest_withMetrics() {
+    public void initializeFieldsTest_withMetrics() throws FileNotFoundException {
         configManagement.setConfigFile("src/test/resources/config.properties");
         Properties prop = configManagement.initializeFields();
-        assertEquals(prop.getProperty("version"), "1.0");
+
+
+        assertEquals( "1.1",prop.getProperty("version"));
         assertFalse(metricCache.getMetrics().isEmpty());
         assertFalse(metricCache.getWeights().isEmpty());
         assertEquals(configManagement.getSeed(), Long.parseLong(prop.getProperty("seed")));
@@ -52,6 +55,7 @@ public class ConfigManagerTest {
     @Test
     public void initializeFieldsTest_wrongFile_throwsNullPointerException() {
         configManagement.setConfigFile("src/test/resources/wrongFile.properties");
-        assertThrows(NullPointerException.class, () -> configManagement.initializeFields());
+
+        assertThrows(FileNotFoundException.class, () -> configManagement.initializeFields());
     }
 }

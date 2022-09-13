@@ -7,6 +7,7 @@ import com.github.ciselab.lampion.guided.algorithms.RandomAlgorithm;
 import com.github.ciselab.lampion.guided.support.ConfigManagement;
 import com.github.ciselab.lampion.guided.support.*;
 
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.time.Duration;
@@ -54,7 +55,7 @@ public class Main {
      * The main method for the Guided-MT-Code2Vec project.
      * @param args system arguments.
      */
-    public static void main(String[] args) {
+    public static void main(String[] args) throws FileNotFoundException {
         logger.info("Guided-MT started");
 
         // For processing it is important to always have the same format (e.g. 1.00 instead of 1,00)

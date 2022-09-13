@@ -9,7 +9,7 @@ import java.util.List;
 public class PredictionLength extends Metric {
 
     public PredictionLength() {
-        super("PredictionLength");
+        this.name = Name.PREDLENGTH;
     }
 
     @Override

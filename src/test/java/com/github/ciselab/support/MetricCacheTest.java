@@ -5,6 +5,8 @@ import static org.junit.jupiter.api.Assertions.*;
 import com.github.ciselab.lampion.core.transformations.transformers.BaseTransformer;
 import com.github.ciselab.lampion.core.transformations.transformers.IfTrueTransformer;
 import com.github.ciselab.lampion.core.transformations.transformers.RandomParameterNameTransformer;
+
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,7 +23,7 @@ import org.junit.jupiter.api.Test;
 public class MetricCacheTest {
 
     @BeforeEach
-    public void setUp() {
+    public void setUp() throws FileNotFoundException {
         MetricCache cache = new MetricCache();
         GenotypeSupport support = new GenotypeSupport(cache);
         ConfigManagement config = support.getConfigManagement();
@@ -69,7 +71,7 @@ public class MetricCacheTest {
     }
 */
     @Test
-    public void initWeightsTest_allMetricsActive() {
+    public void initWeightsTest_allMetricsActive() throws FileNotFoundException {
         MetricCache cache = new MetricCache();
         GenotypeSupport support = new GenotypeSupport(cache);
         ConfigManagement config = support.getConfigManagement();
@@ -77,13 +79,10 @@ public class MetricCacheTest {
         config.initializeFields();
 
         cache.initWeights(true);
-        assertTrue(cache.getActiveMetrics().size() > 1);
-        for(boolean i: cache.getObjectives()) {
-            assertTrue(i);
-        }
+
         float sum = 0;
         for(double i: cache.getWeights()) {
-            assertTrue(i < 1);
+            assertTrue(i <= 1.0);
             sum += i;
         }
         assertFalse(sum > 1);

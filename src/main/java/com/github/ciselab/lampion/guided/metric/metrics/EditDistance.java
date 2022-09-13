@@ -8,8 +8,8 @@ import java.util.List;
 
 public class EditDistance extends Metric {
 
-    public EditDistance() {
-        super("EditDistance");
+    public EditDistance(){
+        this.name = Name.EDITDIST;
     }
 
     private double calculateScore(String path) {

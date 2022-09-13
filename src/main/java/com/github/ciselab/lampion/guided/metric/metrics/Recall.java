@@ -8,7 +8,7 @@ import java.util.List;
 public class Recall extends Metric {
 
     public Recall() {
-        super("Recall");
+        this.name = Name.REC;
     }
 
     public double calculateScore(String path) {

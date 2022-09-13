@@ -7,7 +7,6 @@ import com.github.ciselab.lampion.core.transformations.TransformerRegistry;
 import com.github.ciselab.lampion.core.transformations.transformers.*;
 
 import java.io.File;
-import java.util.List;
 import java.util.Random;
 
 import com.github.ciselab.lampion.guided.algorithms.MetamorphicIndividual;
@@ -59,22 +58,6 @@ public class GenotypeSupport {
 
     public long getTotalTransformationTime() {
         return totalTransformationTime;
-    }
-
-    /**
-     * Generate random string for the intermediate dataset names name.
-     * @return the directory name.
-     */
-    private String generateRandomString() {
-        String options = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-        int maxLength = 5;
-        Random r =  new Random();
-        StringBuilder out = new StringBuilder();
-
-        for(int i = 0; i < maxLength; i++) {
-            out.append(options.charAt(r.nextInt(0, options.length())));
-        }
-        return out.toString();
     }
 
     /**
@@ -136,8 +119,9 @@ public class GenotypeSupport {
             registry.registerTransformer(i);
         }
 
-        String outputSet = generateRandomString();
+        String outputSet = Integer.toHexString(individual.hashCode()).substring(0,6);
         metricCache.putFileCombination(individual, outputSet);
+        individual.setJavaPath(outputSet);
 
         Engine engine = new Engine(dataDir + input, dataDir + outputSet + "/test", registry);
         engine.setNumberOfTransformationsPerScope(individual.getTransformers().size(), configManagement.getTransformationScope());
@@ -163,9 +147,16 @@ public class GenotypeSupport {
     /**
      * Run all scripts from the code2vec project.
      * This includes first preprocessing the code files and then evaluating the model.
-     * @param dataset The name of the dataset.
+     *
+     * Due to Code2Vec Logic, always the same file-names are re-used.
+     * Invoking this method twice will overwrite existing results.
+     * The result-files are copied to a "safe" location, which is (later) stored in the individual.
+     *
+     * @param dataset The name of the dataset
+     * @param destination the path to where the results will be stored
+     * @return the path to the directory containing the copied result-files
      */
-    public void runCode2vec(String dataset) {
+    public String runCode2vec(String dataset, String destination) {
         logger.info("Starting code2vec inference");
         long start = System.currentTimeMillis();
         String path = dataDir + dataset;
@@ -183,5 +174,16 @@ public class GenotypeSupport {
         long diff = (System.currentTimeMillis() - start) / 1000;
         totalCode2vecTime += diff;
         logger.info("Code2vec inference of this generation took: " + diff + " seconds");
+
+        String[] resultFiles =
+                new String[]{"./code2vec/predicted_words.txt","./code2vec/F1_score_log.txt","./code2vec/results.txt"};
+        for(String file : resultFiles){
+            String copy = "cp  " + file + " " + destination;
+            bashRunner.runCommand(copy);
+        }
+
+        logger.debug("Copied results from code2vec to " + destination);
+
+        return path;
     }
 }

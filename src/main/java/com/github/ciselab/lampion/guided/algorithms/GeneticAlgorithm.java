@@ -115,13 +115,13 @@ public class GeneticAlgorithm {
                 mutate(newPopulation.getIndividual(i));
         }
 
-        // Check if fitness is already known
+        // Check if fitness is already known, otherwise calculate it
         for(MetamorphicIndividual i : newPopulation.individuals) {
-            Optional<double[]> metrics = metricCache.getMetricResult(i.getTransformers());
-            if(metrics.isPresent()) {
-                i.setMetrics(metrics.get());
+            if (metricCache.getMetricResults(i).isEmpty()){
+                metricCache.putMetricResults(i,i.inferMetrics());
             }
         }
+
         return newPopulation;
     }
 
@@ -186,14 +186,17 @@ public class GeneticAlgorithm {
         return tournament.getFittest();
     }
 
+
     /**
-     * Check population with the current Pareto set.
+     * Check population against the current Pareto set.
      * @param population the population
      */
     public void checkPareto(MetamorphicPopulation population) {
+        // This has to be an iteration, as the Pareto Front is maybe altered in during the run.
+        // Hence, it has to be done step by step otherwise you get a concurrentmodificationexception
         for(int i = 0; i < population.size(); i++) {
-            double[] solution = population.getIndividual(i).getMetrics();
-            paretoFront.addToParetoOptimum(solution);
+            paretoFront.addToParetoOptimum(population.getIndividual(i));
         }
     }
+
 }

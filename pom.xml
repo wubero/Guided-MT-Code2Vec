@@ -107,7 +107,7 @@ installed locally so you get the correct version. This version hasn't been publi
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>com.github.ciselab.program.Main</mainClass>
+                            <mainClass>com.github.ciselab.lampion.guided.program.Main</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>

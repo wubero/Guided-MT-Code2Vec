@@ -6,7 +6,9 @@ import com.github.ciselab.lampion.guided.support.GenotypeSupport;
 import com.github.ciselab.lampion.guided.support.MetricCache;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.random.RandomGenerator;
+import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -118,7 +120,9 @@ public class MetamorphicIndividual {
                 t.add(newTransformer);
                 String oldDir = metricCache.getDir(transformers).get() + "/test";
                 String name = genotypeSupport.runTransformations(this, oldDir);
-                determineFitness(name);
+                this.setJavaPath(name);
+                inferMetrics();
+
                 transformers.add(newTransformer);
                 metricCache.storeFiles(this, name, metrics);
             } else {
@@ -133,23 +137,30 @@ public class MetamorphicIndividual {
     }
 
     /**
-     * Calculate fitness according to the directory name.
-     * @param name the directory name.
+     * Sets the Metrics of this Individual.
+     * This includes running Code2Vec, if there is no existing results-file.
+     * If there are result-files, the metrics are re-applied on the result files.
+     *
+     * As a side-effect, the Result-Path is set and the metrics are filled for this individual.
      */
-    private void determineFitness(String name) {
-        genotypeSupport.runCode2vec(name);
-        double[] primary = calculateMetric();
-        double[] secondary = secondaryMetrics(name);
-        int j = 0;
-        for(int i = 0; i < metrics.length; i++) {
-            if(i < primary.length)
-                metrics[i] = primary[i];
-            else {
-                metrics[i] = secondary[j];
-                j++;
-            }
+    protected Map<Metric,Double> inferMetrics(){
+        Map<Metric,Double> intermediateMetrics;
+        if(this.resultPath.isEmpty()){
+          String resultDirectory =
+                  genotypeSupport.runCode2vec(this.javaPath.get(),this.javaPath.get()+"/results/");
+          this.setResultPath(resultDirectory);
+          intermediateMetrics =
+                  metricCache.getMetrics().stream()
+                          .collect(Collectors.toMap(Function.identity(),m -> m.apply(this)));
+        } else {
+            intermediateMetrics =
+                    metricCache.getMetrics().stream()
+                            .collect(Collectors.toMap(Function.identity(),m -> m.apply(this)));
         }
-        fitness = calculateFitness(metrics);
+
+        setMetrics(intermediateMetrics);
+
+        return intermediateMetrics;
     }
 
     /**
@@ -163,7 +174,7 @@ public class MetamorphicIndividual {
             logger.debug("The gene " + this.hashCode() + " has decreased its size to " + this.getLength());
             if(metricCache.getMetricResults(this).isPresent()) {
                 metrics = metricCache.getMetricResults(this).get();
-                fitness = calculateFitness(metrics);
+                fitness = Optional.of(calculateFitness());
             } else {
                 fitness = Optional.empty();
                 metrics = new HashMap<>();
@@ -171,10 +182,11 @@ public class MetamorphicIndividual {
         }
     }
 
+    /*
     /**
-     * Get the list of scores for ever data point in the dataset for every metric.
+     * Get the list of scores for every data point in the dataset for every metric.
      * @return the list of all scores for every metric.
-     */
+
     public Map<String, List<Float>> getScoresList() {
         Map<String, List<Float>> metricScores = new HashMap<>();
         for(Metric metric: metricCache.getMetrics()) {
@@ -182,7 +194,7 @@ public class MetamorphicIndividual {
         }
         return metricScores;
     }
-
+    */
     /**
      * Create a new gene, transformer, for the metamorphic individual.
      * @param key the key for the transformer.
@@ -203,7 +215,8 @@ public class MetamorphicIndividual {
     public double getFitness() {
         if (fitness.isEmpty() || fitness.get() < 0.0) {
             String name = genotypeSupport.runTransformations(this, genotypeSupport.getCurrentDataset());
-            determineFitness(name);
+            setJavaPath(name);
+            inferMetrics();
             metricCache.fillFitness(this, metrics);
         }
         logger.debug("The gene " + this.hashCode() + " has calculated its fitness, it is: " + fitness);
@@ -213,7 +226,7 @@ public class MetamorphicIndividual {
 
     /**
      * Set the metrics of this metamorphic individual.
-     * @param metrics the metrics to set.
+     * @param results the metrics to set.
      */
     public void setMetrics(Map<Metric,Double> results) {
         this.metrics = results;

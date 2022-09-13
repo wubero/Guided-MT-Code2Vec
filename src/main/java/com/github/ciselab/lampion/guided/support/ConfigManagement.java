@@ -114,6 +114,8 @@ public class ConfigManagement {
         for(MetricCategory metricCategory: MetricCategory.values()) {
             metricCache.addMetric(createMetric(metricCategory.name()));
         }
+        /*
+        TODO: Reimplement this
         for(MetricCategory i: MetricCategory.values()) {
             metricCache.addMetricWeight(Float.parseFloat(prop.getProperty(i.name())));
         }
@@ -128,6 +130,8 @@ public class ConfigManagement {
                 metricCache.addSecondaryMetric(m);
             }
         }
+
+         */
         metricCache.initWeights(maximize);
         return prop;
     }

@@ -139,4 +139,8 @@ public class MetricCache {
         }
     }
 
+    public void putMetricResults(MetamorphicIndividual i, Map<Metric, Double> inferMetrics) {
+        this.lookup.put(i,inferMetrics);
+    }
+
 }

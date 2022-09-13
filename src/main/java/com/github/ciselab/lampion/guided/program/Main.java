@@ -184,8 +184,8 @@ public class Main {
                     maxTransformerValue, true, genotypeSupport);
             MetamorphicIndividual best = new MetamorphicIndividual(genotypeSupport);
             double bestFitness = writeInitialPopulationResults(resultWriter, myPop, best);
-            if(dataPointSpecific)
-                writeDataSpecificResults(resultWriter, best);
+            //if(dataPointSpecific)
+            //    writeDataSpecificResults(resultWriter, best);
 
             // Evolve our population until we reach an optimum solution
             int generationCount = 0;
@@ -232,8 +232,8 @@ public class Main {
 
             geneticAlgorithm.checkPareto(myPop);
             writeResultsAfterAlgorithm(resultWriter);
-            if(dataPointSpecific)
-                writeDataSpecificResults(resultWriter, best);
+            //if(dataPointSpecific)
+            //    writeDataSpecificResults(resultWriter, best);
 
             resultWriter.write("Average population size over entire run was " + averageSizeSum/generationCount);
 
@@ -260,7 +260,7 @@ public class Main {
         resultWriter.write("Initial population: " + myPop + "\n");
         logger.info("Initial fitness without transformations: " + bestFitness);
         resultWriter.write("Initial fitness without transformations: " + bestFitness + "\n");
-        logger.info("The metric results corresponding to the transformations are: " + Arrays.toString(best.getMetrics()));
+        //logger.info("The metric results corresponding to the transformations are: " + Arrays.toString(best.getMetrics()));
 
         // check best against pareto
         PARETO_FRONT.addToParetoOptimum(best);
@@ -292,7 +292,7 @@ public class Main {
      * @param resultWriter the file writer with which we can write the results.
      * @param individual the individual for which we want to write the results.
      * @throws IOException exception when the program can't access the file.
-     */
+
     private static void writeDataSpecificResults(FileWriter resultWriter, MetamorphicIndividual individual) throws IOException {
         Map<String, List<Float>> scores = individual.getScoresList();
         for(String metric: scores.keySet()) {
@@ -300,6 +300,7 @@ public class Main {
             resultWriter.write(results + '\n');
         }
     }
+     */
 
     /**
      * Determine whether a population is fitter than the current best.

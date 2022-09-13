@@ -1,8 +1,8 @@
 FROM python:3.9.13 as builder
 
 ARG Guided_MT_Code2Vec_VERSION="1.1-SNAPSHOT"
-ARG Lampion_VERSION="6ff11568d6777b936e6569be113dab01506db6ba"
-LABEL maintainer="rmar@live.nl"
+ARG Lampion_VERSION="5abf3957b9663cef87585b5d31fa5c65cc2cb489"
+LABEL maintainer="L.H.Applis@tudelft.nl"
 LABEL name="ciselab/Guided-MT-Code2Vec"
 LABEL description="A genetic search algorithm for testing metamorphic transformations on a trained code2vec model"
 LABEL org.opencontainers.image.source="https://github/ciselab/Guided-MT-Code2Vec"

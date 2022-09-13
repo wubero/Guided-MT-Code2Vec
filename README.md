@@ -1,32 +1,22 @@
 # Guided-MT-Code2vec
+
 This repository works with genetic programming to optimize metrics for code2vec method name prediction.
-The architecture for this is depicted in the image below.
-![Architecture plan](Resources/Thesis_pipeline.png)
-
-This project is part of my master thesis and is still under development.
-I intend to actively maintain the project during the course of the master thesis which is until 01-09-2022.
-Before this date you can create an issue, and I will get back to you with an answer within the week.
-If you need to reach me after this date for questions about the project you can reach me at rmar@live.nl, and I will get back to you asap.
-
-## Problem introduction
-Method name prediction has been researched for over twenty years. The goal was to have a model that was able to accurately predict method names. 
-With this, we would gain the ability to create a tool that can suggest method names to software developers, 
-which would assist in improving the quality of the projects. Prior works have looked into the robustness of trained code2vec models, like the work 
-by Compton et al. on the generalizability of these code2vec models by obfuscating identifier names.
-Changing identifier names is a change that does not change the semantics of the code but does change the appearance. 
-More changes do a similar job that is called metamorphic transformations. It is interesting to see what the impact of multiple of these metamorphic 
-transformations is on the performance of the trained code2vec model.
-
-The goal is to assess the robustness of trained code2vec models using guided metamorphic testing. The question this thesis tries to answer is to 
-what extent the performance metrics are affected by applying metamorphic transformations to the test set of a trained code2vec model. 
-Besides this, this thesis also proposes an alternative metric that might better reflect the robustness of a model.
+For more information on the goals, concept and workflow refer to [the overview](./Resources/OVERVIEW.md)
 
 ## Getting started
-In this project recursive repositories are used. This means that before you try to build the project you should clone both the repositories.
-For this simple run the following command in your git bash:
+
+**Make sure to clone with recursion:**
 
 ```sh
 git clone --recursive -j8 https://github.com/wubero/Guided-MT-Code2Vec.git
+```
+
+You will also need a working Code2Vec Model, you find information [In the Code2Vec-Readme](./code2vec/README.md).
+
+And you need `.java-files`. We provide example-files via: 
+
+```sh 
+unzip Resources/minimal-sample-data.zip -d ./code2vec
 ```
 
 ## Build & Run
@@ -37,14 +27,13 @@ To build the project, simply do:
 mvn clean package verify
 ```
 
-To build an executable:
+We *recommend to use Docker* via:
 
-```sh
-mvn package verify
+```sh 
+docker-compose up --build
 ```
 
-### Docker
-If you run the project via docker you do not need to install anything yourself.
+This should run everything with a simple configuration.
 
 ## Running Guided-MT-Code2Vec
 

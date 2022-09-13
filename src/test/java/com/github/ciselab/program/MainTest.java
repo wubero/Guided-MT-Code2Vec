@@ -2,6 +2,7 @@ package com.github.ciselab.program;
 
 import com.github.ciselab.lampion.guided.algorithms.MetamorphicIndividual;
 import com.github.ciselab.lampion.guided.algorithms.MetamorphicPopulation;
+import com.github.ciselab.lampion.guided.program.Main;
 import com.github.ciselab.lampion.guided.support.ConfigManagement;
 import com.github.ciselab.lampion.guided.support.FileManagement;
 import com.github.ciselab.lampion.guided.support.GenotypeSupport;
@@ -15,6 +16,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class MainTest {
 
@@ -34,31 +37,6 @@ public class MainTest {
         FileManagement.removeOtherDirs(FileManagement.dataDir);
     }
 
-    @Test
-    public void isFitterTest_isFitter() {
-        RandomGenerator r = new SplittableRandom(101010);
-        MetamorphicPopulation pop = new MetamorphicPopulation(1, r, 6, false, genotypeSupport);
-        MetamorphicIndividual indiv = new MetamorphicIndividual(genotypeSupport);
-        indiv.populateIndividual(r, 1, 6);
-        pop.saveIndividual(0, indiv);
-        indiv.setFitness(0.5);
-        double best = -1;
-        configManagement.setMaximize(true);
-        assertTrue(Main.isFitter(pop, best));
-    }
-
-    @Test
-    public void isFitterTest_isNotFitter() {
-        RandomGenerator r = new SplittableRandom(101010);
-        MetamorphicPopulation pop = new MetamorphicPopulation(1, r, 6, false, genotypeSupport);
-        MetamorphicIndividual indiv = new MetamorphicIndividual(genotypeSupport);
-        indiv.populateIndividual(r, 1, 6);
-        pop.saveIndividual(0, indiv);
-        indiv.setFitness(0.5);
-        double best = 1;
-        configManagement.setMaximize(true);
-        assertFalse(Main.isFitter(pop, best));
-    }
 
     @Test
     public void timeDiffSmallerTest_isSmaller() {

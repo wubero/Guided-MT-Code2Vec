@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 
 public class PredictionLengthTest {
 
+    /*TODO Reimplement
     @Tag("File")
     @Test
     public void checkNameTest() {
@@ -21,4 +22,6 @@ public class PredictionLengthTest {
         PredictionLength metric = new PredictionLength(GenotypeSupport.dir_path + "/src/test/resources/testPredictionsWithoutScore.txt");
         assertEquals(7.75, metric.calculateScore());
     }
+
+     */
 }

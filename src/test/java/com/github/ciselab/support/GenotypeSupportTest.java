@@ -76,7 +76,7 @@ public class GenotypeSupportTest {
             }
         }
         String name = support.runTransformations(testObject, "code_files");
-        support.runCode2vec(name);
+        support.runCode2vec(name,name+"/results/");
 
         assertTrue(support.getTotalCode2vevTime() > 0);
     }

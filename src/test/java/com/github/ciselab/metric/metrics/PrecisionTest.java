@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 
 public class PrecisionTest {
 
+    /* TODO: Reimplement
     @Tag("File")
     @Test
     public void checkNameTest() {
@@ -21,4 +22,6 @@ public class PrecisionTest {
         Precision metric = new Precision(GenotypeSupport.dir_path + "/src/test/resources/F1Test.txt");
         assertEquals(0.69, metric.calculateScore());
     }
+
+     */
 }

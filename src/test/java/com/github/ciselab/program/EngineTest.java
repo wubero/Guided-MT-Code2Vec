@@ -6,6 +6,7 @@ import com.github.ciselab.lampion.core.transformations.Transformer;
 import com.github.ciselab.lampion.core.transformations.TransformerRegistry;
 import com.github.ciselab.lampion.core.transformations.transformers.IfFalseElseTransformer;
 import com.github.ciselab.lampion.core.transformations.transformers.IfTrueTransformer;
+import com.github.ciselab.lampion.guided.program.Engine;
 import org.junit.jupiter.api.*;
 import spoon.Launcher;
 import spoon.reflect.CtModel;

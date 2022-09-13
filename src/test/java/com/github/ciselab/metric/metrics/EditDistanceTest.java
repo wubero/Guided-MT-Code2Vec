@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 public class EditDistanceTest {
-
+    /* TODO: Reimplement
     @Tag("File")
     @Test
     public void checkNameTest() {
@@ -33,4 +33,5 @@ public class EditDistanceTest {
             assertEquals(metric.editDistance(original[i], predicted[i]), expectedResults[i]);
         }
     }
+    */
 }

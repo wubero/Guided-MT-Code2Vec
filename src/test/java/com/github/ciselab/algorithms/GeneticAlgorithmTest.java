@@ -34,6 +34,8 @@ public class GeneticAlgorithmTest {
         assertEquals(expected, real);
     }
 
+    /*
+    TODO: Reimplement
     @Test
     public void evolvePopulationTest() {
         MetricCache cache = new MetricCache();
@@ -58,5 +60,6 @@ public class GeneticAlgorithmTest {
         MetamorphicPopulation newPop = geneticAlgorithm.evolvePopulation(pop);
         assertNotEquals(pop, newPop);
     }
+    */
 
 }

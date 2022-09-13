@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 
 public class F1_ScoreTest {
 
+    /* TODO: Reimplement
     @Tag("File")
     @Test
     public void checkNameTest() {
@@ -21,4 +22,6 @@ public class F1_ScoreTest {
         F1_score metric = new F1_score(GenotypeSupport.dir_path + "/src/test/resources/F1Test.txt");
         assertEquals(0.61, metric.calculateScore());
     }
+
+     */
 }

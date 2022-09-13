@@ -34,44 +34,6 @@ public class MetamorphicPopulationTest {
     }
 
     @Test
-    public void createPopulation_getFittest_maximizeTest() {
-        int popSize = 3;
-        MetamorphicPopulation population = new MetamorphicPopulation(popSize, r, 6, false, genotypeSupport);
-        double bestFitness = -1;
-        configManagement.setMaximize(true);
-        for(int i = 0; i < popSize; i++) {
-            MetamorphicIndividual individual = new MetamorphicIndividual(genotypeSupport);
-            individual.populateIndividual(r, 2, 6);
-            double fitness = Math.random();
-            if(fitness > bestFitness) {
-                bestFitness = fitness;
-            }
-            individual.setFitness(fitness);
-            population.saveIndividual(i, individual);
-        }
-        assertEquals(population.getFittest().getFitness(), bestFitness);
-    }
-
-    @Test
-    public void createPopulation_getFittest_minimizeTest() {
-        int popSize = 3;
-        MetamorphicPopulation population = new MetamorphicPopulation(popSize, r, 6, false, genotypeSupport);
-        double bestFitness = 10;
-        configManagement.setMaximize(false);
-        for(int i = 0; i < popSize; i++) {
-            MetamorphicIndividual individual = new MetamorphicIndividual(genotypeSupport);
-            individual.populateIndividual(r, 2, 6);
-            double fitness = Math.random();
-            if(fitness < bestFitness) {
-                bestFitness = fitness;
-            }
-            individual.setFitness(fitness);
-            population.saveIndividual(i, individual);
-        }
-        assertEquals(population.getFittest().getFitness(), bestFitness);
-    }
-
-    @Test
     public void createPopulation_withInitializeTest() {
         MetamorphicPopulation population = new MetamorphicPopulation(3, r, 6, true, genotypeSupport);
         assertEquals(population.size(), 3);

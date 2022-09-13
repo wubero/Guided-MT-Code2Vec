@@ -4,10 +4,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.github.ciselab.support.ConfigManagement;
-import com.github.ciselab.support.FileManagement;
-import com.github.ciselab.support.GenotypeSupport;
-import com.github.ciselab.support.MetricCache;
+import com.github.ciselab.lampion.guided.algorithms.MetamorphicIndividual;
+import com.github.ciselab.lampion.guided.algorithms.MetamorphicPopulation;
+import com.github.ciselab.lampion.guided.support.ConfigManagement;
+import com.github.ciselab.lampion.guided.support.FileManagement;
+import com.github.ciselab.lampion.guided.support.GenotypeSupport;
+import com.github.ciselab.lampion.guided.support.MetricCache;
 import java.util.SplittableRandom;
 import java.util.random.RandomGenerator;
 import org.junit.jupiter.api.AfterEach;

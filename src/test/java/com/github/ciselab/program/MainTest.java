@@ -1,11 +1,11 @@
 package com.github.ciselab.program;
 
-import com.github.ciselab.algorithms.MetamorphicIndividual;
-import com.github.ciselab.algorithms.MetamorphicPopulation;
-import com.github.ciselab.support.ConfigManagement;
-import com.github.ciselab.support.FileManagement;
-import com.github.ciselab.support.GenotypeSupport;
-import com.github.ciselab.support.MetricCache;
+import com.github.ciselab.lampion.guided.algorithms.MetamorphicIndividual;
+import com.github.ciselab.lampion.guided.algorithms.MetamorphicPopulation;
+import com.github.ciselab.lampion.guided.support.ConfigManagement;
+import com.github.ciselab.lampion.guided.support.FileManagement;
+import com.github.ciselab.lampion.guided.support.GenotypeSupport;
+import com.github.ciselab.lampion.guided.support.MetricCache;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Properties;
@@ -15,7 +15,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
 
 public class MainTest {
 

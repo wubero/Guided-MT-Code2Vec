@@ -1,4 +1,4 @@
-package com.github.ciselab.support;
+package com.github.ciselab.lampion.guided.support;
 
 import java.io.File;
 import java.io.IOException;

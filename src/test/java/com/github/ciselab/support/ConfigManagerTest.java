@@ -1,11 +1,13 @@
 package com.github.ciselab.support;
 
-import static com.github.ciselab.support.FileManagement.dataDir;
+import static com.github.ciselab.lampion.guided.support.FileManagement.dataDir;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Properties;
+
+import com.github.ciselab.lampion.guided.support.ConfigManagement;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

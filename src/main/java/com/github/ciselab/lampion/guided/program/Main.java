@@ -1,10 +1,11 @@
-package com.github.ciselab.program;
+package com.github.ciselab.lampion.guided.program;
 
-import com.github.ciselab.algorithms.GeneticAlgorithm;
-import com.github.ciselab.algorithms.MetamorphicIndividual;
-import com.github.ciselab.algorithms.MetamorphicPopulation;
-import com.github.ciselab.algorithms.RandomAlgorithm;
-import com.github.ciselab.support.*;
+import com.github.ciselab.lampion.guided.algorithms.GeneticAlgorithm;
+import com.github.ciselab.lampion.guided.algorithms.MetamorphicIndividual;
+import com.github.ciselab.lampion.guided.algorithms.MetamorphicPopulation;
+import com.github.ciselab.lampion.guided.algorithms.RandomAlgorithm;
+import com.github.ciselab.lampion.guided.support.ConfigManagement;
+import com.github.ciselab.lampion.guided.support.*;
 
 import java.io.FileWriter;
 import java.io.IOException;

@@ -3,8 +3,8 @@ package com.github.ciselab.metric;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.github.ciselab.metric.metrics.F1_score;
-import com.github.ciselab.support.GenotypeSupport;
+import com.github.ciselab.lampion.guided.metric.metrics.F1_score;
+import com.github.ciselab.lampion.guided.support.GenotypeSupport;
 import java.io.File;
 import java.util.List;
 

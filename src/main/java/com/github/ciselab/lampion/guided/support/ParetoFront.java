@@ -1,7 +1,7 @@
-package com.github.ciselab.support;
+package com.github.ciselab.lampion.guided.support;
 
-import com.github.ciselab.algorithms.MetamorphicIndividual;
-import com.github.ciselab.metric.Metric;
+import com.github.ciselab.lampion.guided.algorithms.MetamorphicIndividual;
+import com.github.ciselab.lampion.guided.metric.Metric;
 
 import java.util.*;
 import java.util.stream.Collectors;

@@ -1,4 +1,4 @@
-package com.github.ciselab.metric;
+package com.github.ciselab.lampion.guided.metric;
 
 /**
  * Class for all metric categories used in the Guided-Mt-Code2Vec program.

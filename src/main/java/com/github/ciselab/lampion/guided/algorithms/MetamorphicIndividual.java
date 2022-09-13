@@ -1,22 +1,12 @@
-package com.github.ciselab.algorithms;
+package com.github.ciselab.lampion.guided.algorithms;
 
-import com.github.ciselab.lampion.core.transformations.transformers.AddNeutralElementTransformer;
-import com.github.ciselab.lampion.core.transformations.transformers.AddUnusedVariableTransformer;
 import com.github.ciselab.lampion.core.transformations.transformers.BaseTransformer;
-import com.github.ciselab.lampion.core.transformations.transformers.IfFalseElseTransformer;
-import com.github.ciselab.lampion.core.transformations.transformers.IfTrueTransformer;
-import com.github.ciselab.lampion.core.transformations.transformers.LambdaIdentityTransformer;
-import com.github.ciselab.lampion.core.transformations.transformers.RandomParameterNameTransformer;
-import com.github.ciselab.lampion.core.transformations.transformers.RenameVariableTransformer;
-import com.github.ciselab.metric.Metric;
-import com.github.ciselab.metric.metrics.InputLength;
-import com.github.ciselab.metric.metrics.Transformations;
-import com.github.ciselab.support.GenotypeSupport;
-import com.github.ciselab.support.MetricCache;
+import com.github.ciselab.lampion.guided.metric.Metric;
+import com.github.ciselab.lampion.guided.support.GenotypeSupport;
+import com.github.ciselab.lampion.guided.support.MetricCache;
 
 import java.util.*;
 import java.util.random.RandomGenerator;
-import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -127,7 +117,7 @@ public class MetamorphicIndividual {
                 List<BaseTransformer> t = new ArrayList<>();
                 t.add(newTransformer);
                 String oldDir = metricCache.getDir(transformers).get() + "/test";
-                String name = genotypeSupport.runTransformations(t, oldDir);
+                String name = genotypeSupport.runTransformations(this, oldDir);
                 determineFitness(name);
                 transformers.add(newTransformer);
                 metricCache.storeFiles(this, name, metrics);
@@ -212,7 +202,7 @@ public class MetamorphicIndividual {
      */
     public double getFitness() {
         if (fitness.isEmpty() || fitness.get() < 0.0) {
-            String name = genotypeSupport.runTransformations(transformers, genotypeSupport.getCurrentDataset());
+            String name = genotypeSupport.runTransformations(this, genotypeSupport.getCurrentDataset());
             determineFitness(name);
             metricCache.fillFitness(this, metrics);
         }

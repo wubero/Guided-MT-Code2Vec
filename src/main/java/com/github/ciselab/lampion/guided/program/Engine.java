@@ -1,4 +1,4 @@
-package com.github.ciselab.program;
+package com.github.ciselab.lampion.guided.program;
 
 import com.github.ciselab.lampion.core.program.EngineResult;
 import com.github.ciselab.lampion.core.transformations.*;

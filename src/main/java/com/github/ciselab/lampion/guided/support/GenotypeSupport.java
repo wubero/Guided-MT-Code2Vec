@@ -1,6 +1,6 @@
-package com.github.ciselab.support;
+package com.github.ciselab.lampion.guided.support;
 
-import static com.github.ciselab.support.FileManagement.dataDir;
+import static com.github.ciselab.lampion.guided.support.FileManagement.dataDir;
 
 import com.github.ciselab.lampion.core.program.EngineResult;
 import com.github.ciselab.lampion.core.transformations.TransformerRegistry;
@@ -10,7 +10,8 @@ import java.io.File;
 import java.util.List;
 import java.util.Random;
 
-import com.github.ciselab.program.Engine;
+import com.github.ciselab.lampion.guided.algorithms.MetamorphicIndividual;
+import com.github.ciselab.lampion.guided.program.Engine;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import spoon.Launcher;
@@ -123,23 +124,23 @@ public class GenotypeSupport {
      * This method creates an engine and runs the transformations on the input directory.
      * This is done by first creating all transformers in a TransformerRegistry and then creating a new Engine.
      * With this engine we can our CtModel that is created with a spoon launcher.
-     * @param transformers the list of transformers.
+     * @param individual a genotype, used here mostly for the represented transformers
      * @param input the input directory.
      * @return the directory which the transformation .java files are in.
      */
-    public String runTransformations(List<BaseTransformer> transformers, String input) {
+    public String runTransformations(MetamorphicIndividual individual, String input) {
         long start = System.currentTimeMillis();
         TransformerRegistry registry = new TransformerRegistry("fromGA");
-        for(BaseTransformer i: transformers) {
+        for(BaseTransformer i: individual.getTransformers()) {
             i.setTryingToCompile(false);
             registry.registerTransformer(i);
         }
 
         String outputSet = generateRandomString();
-        metricCache.putFileCombination(transformers, outputSet);
+        metricCache.putFileCombination(individual, outputSet);
 
         Engine engine = new Engine(dataDir + input, dataDir + outputSet + "/test", registry);
-        engine.setNumberOfTransformationsPerScope(transformers.size(), configManagement.getTransformationScope());
+        engine.setNumberOfTransformationsPerScope(individual.getTransformers().size(), configManagement.getTransformationScope());
         engine.setRandomSeed(configManagement.getSeed());
         engine.setRemoveAllComments(configManagement.getRemoveAllComments());
 

@@ -2,7 +2,7 @@ package com.github.ciselab.metric.metrics;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import com.github.ciselab.support.GenotypeSupport;
+import com.github.ciselab.lampion.guided.support.GenotypeSupport;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 

@@ -8,28 +8,18 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.github.ciselab.lampion.guided.algorithms.MetamorphicIndividual;
+import com.github.ciselab.lampion.guided.support.FileManagement;
+import com.github.ciselab.lampion.guided.support.GenotypeSupport;
+import com.github.ciselab.lampion.guided.support.MetricCache;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
-import static com.github.ciselab.support.FileManagement.dataDir;
+import static com.github.ciselab.lampion.guided.support.FileManagement.dataDir;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class GenotypeSupportTest {
-
-    GenotypeSupport genotypeSupport;
-    MetricCache metricCache;
-    ConfigManagement configManagement;
-
-    @BeforeEach
-    public void setUp() {
-        metricCache = new MetricCache();
-        genotypeSupport = new GenotypeSupport(metricCache);
-        configManagement = genotypeSupport.getConfigManagement();
-        configManagement.setConfigFile("src/test/resources/config.properties");
-        configManagement.initializeFields();
-    }
 
     @AfterEach
     public void after() {
@@ -40,6 +30,13 @@ public class GenotypeSupportTest {
     @Tag("File")
     @Test
     public void runTransformationsTest() throws IOException {
+        var cache = new MetricCache();
+        var support =  new GenotypeSupport(cache);
+        var configManagement = support.getConfigManagement();
+        configManagement.setConfigFile("src/test/resources/config.properties");
+        configManagement.initializeFields();
+
+        var testObject = new MetamorphicIndividual(support);
         List<BaseTransformer> transformers = new ArrayList<>();
         File[] files = new File("src/test/resources/code_files").listFiles();
         File directory = new File(dataDir + "code_files");
@@ -50,17 +47,24 @@ public class GenotypeSupportTest {
                 Files.copy(Paths.get(file.getAbsolutePath()), Paths.get(directory.getAbsolutePath() + "/" + file.getName()));
             }
         }
-        String name = genotypeSupport.runTransformations(transformers, "code_files");
-        assertTrue(metricCache.getDir(transformers).isPresent());
-        assertEquals(metricCache.getDir(transformers).get(), name);
+        String name = support.runTransformations(testObject, "code_files");
+
+        assertTrue(cache.getDir(transformers).isPresent());
+        assertEquals(cache.getDir(transformers).get(), name);
     }
 
     @Tag("Slow")
     @Tag("File")
     @Test
     public void runCode2vecInferenceTest() throws IOException {
+        var cache = new MetricCache();
+        var support =  new GenotypeSupport(cache);
+        var configManagement = support.getConfigManagement();
         configManagement.setConfigFile("src/test/resources/config.properties");
         configManagement.initializeFields();
+
+        var testObject = new MetamorphicIndividual(support);
+
         List<BaseTransformer> transformers = new ArrayList<>();
         File[] files = new File("src/test/resources/code_files").listFiles();
         File directory = new File(dataDir + "code_files");
@@ -71,8 +75,9 @@ public class GenotypeSupportTest {
                 Files.copy(Paths.get(file.getAbsolutePath()), Paths.get(directory.getAbsolutePath() + "/" + file.getName()));
             }
         }
-        String name = genotypeSupport.runTransformations(transformers, "code_files");
-        genotypeSupport.runCode2vec(name);
-        assertTrue(genotypeSupport.getTotalCode2vevTime() > 0);
+        String name = support.runTransformations(testObject, "code_files");
+        support.runCode2vec(name);
+
+        assertTrue(support.getTotalCode2vevTime() > 0);
     }
 }

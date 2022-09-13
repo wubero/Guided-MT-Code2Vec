@@ -1,6 +1,6 @@
-package com.github.ciselab.metric;
+package com.github.ciselab.lampion.guided.metric;
 
-import com.github.ciselab.algorithms.MetamorphicIndividual;
+import com.github.ciselab.lampion.guided.algorithms.MetamorphicIndividual;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;

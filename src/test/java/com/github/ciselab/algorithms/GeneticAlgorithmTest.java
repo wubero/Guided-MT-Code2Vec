@@ -3,15 +3,17 @@ package com.github.ciselab.algorithms;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
-import com.github.ciselab.support.FileManagement;
-import com.github.ciselab.support.GenotypeSupport;
-import com.github.ciselab.support.MetricCache;
+import com.github.ciselab.lampion.guided.algorithms.GeneticAlgorithm;
+import com.github.ciselab.lampion.guided.algorithms.MetamorphicIndividual;
+import com.github.ciselab.lampion.guided.algorithms.MetamorphicPopulation;
+import com.github.ciselab.lampion.guided.support.FileManagement;
+import com.github.ciselab.lampion.guided.support.GenotypeSupport;
+import com.github.ciselab.lampion.guided.support.MetricCache;
 import java.util.SplittableRandom;
 import java.util.random.RandomGenerator;
 
-import com.github.ciselab.support.ParetoFront;
+import com.github.ciselab.lampion.guided.support.ParetoFront;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 public class GeneticAlgorithmTest {

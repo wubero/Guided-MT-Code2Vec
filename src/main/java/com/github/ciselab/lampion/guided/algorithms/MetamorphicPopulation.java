@@ -1,6 +1,6 @@
-package com.github.ciselab.algorithms;
+package com.github.ciselab.lampion.guided.algorithms;
 
-import com.github.ciselab.support.GenotypeSupport;
+import com.github.ciselab.lampion.guided.support.GenotypeSupport;
 import java.util.random.RandomGenerator;
 
 public class MetamorphicPopulation {

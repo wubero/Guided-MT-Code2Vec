@@ -177,10 +177,14 @@ public class GenotypeSupport {
         totalCode2vecTime += diff;
         logger.info("Code2vec inference of this generation took: " + diff + " seconds");
 
+        String resolvedDestination = dataDir + destination;
+
+        bashRunner.runCommand("mkdir -p " + resolvedDestination);
+
         String[] resultFiles =
-                new String[]{"./code2vec/predicted_words.txt","./code2vec/F1_score_log.txt","./code2vec/results.txt"};
+                new String[]{"./predicted_words.txt","./F1_score_log.txt","./results.txt"};
         for(String file : resultFiles){
-            String copy = "cp  " + file + " " + destination;
+            String copy = "cp  " + file + " " + resolvedDestination;
             bashRunner.runCommand(copy);
         }
 

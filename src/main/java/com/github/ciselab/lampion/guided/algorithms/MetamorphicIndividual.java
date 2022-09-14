@@ -147,7 +147,7 @@ public class MetamorphicIndividual {
     protected Map<Metric,Double> inferMetrics(){
         Map<Metric,Double> intermediateMetrics;
         if(this.resultPath.isEmpty()){
-            String destination= javaPath.get() +  File.separator +".." +File.separator + "/results/";
+            String destination= javaPath.get() +File.separator + "results/";
 
             String resultDirectory =
                   genotypeSupport.runCode2vec(this.javaPath.get(),destination);

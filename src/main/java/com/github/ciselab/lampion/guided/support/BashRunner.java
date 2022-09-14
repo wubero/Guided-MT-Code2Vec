@@ -51,7 +51,7 @@ public class BashRunner {
 
             int exitVal = process.waitFor();
             if (exitVal == 0) {
-                logger.debug(" --- Command run successfully");
+                logger.trace(" --- Command run successfully");
             } else {
                 if(countFailed < 5) {
                     TimeUnit.SECONDS.sleep(1);

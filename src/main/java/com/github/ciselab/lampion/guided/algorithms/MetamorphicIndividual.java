@@ -174,7 +174,7 @@ public class MetamorphicIndividual {
         if(getLength() > 1) {
             int drop = randomGen.nextInt(0, getLength());
             transformers.remove(drop);
-            logger.debug("The gene " + this.hashCode() + " has decreased its size to " + this.getLength());
+            logger.debug("The gene " + Integer.toHexString(this.hashCode()).substring(0,6) + " has decreased its size to " + this.getLength());
             if(metricCache.getMetricResults(this).isPresent()) {
                 metrics = metricCache.getMetricResults(this).get();
                 fitness = Optional.of(calculateFitness());
@@ -222,7 +222,7 @@ public class MetamorphicIndividual {
             inferMetrics();
             metricCache.fillFitness(this, metrics);
         }
-        logger.debug("The gene " + this.hashCode() + " has calculated its fitness, it is: " + fitness);
+        logger.debug("The gene " + Integer.toHexString(this.hashCode()).substring(0,6) +  " has calculated its fitness, it is: " + fitness.get());
         return fitness.get();
     }
 

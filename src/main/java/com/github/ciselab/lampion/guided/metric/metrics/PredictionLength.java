@@ -3,11 +3,13 @@ package com.github.ciselab.lampion.guided.metric.metrics;
 import com.github.ciselab.lampion.guided.algorithms.MetamorphicIndividual;
 import com.github.ciselab.lampion.guided.metric.Metric;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
 public class PredictionLength extends Metric {
 
+    private static final String EXPECTEDFILE = "predicted_words.txt";
     public PredictionLength() {
         this.name = Name.PREDLENGTH;
     }
@@ -18,8 +20,10 @@ public class PredictionLength extends Metric {
     }
 
     private double calculateScore(String path) {
+        if(!path.contains("results"))
+            path = path + File.separator + "results";
         // Original: render, predicted: get|logs
-        List<String> lines = readPredictions(path);
+        List<String> lines = readPredictions(path  + File.separator + EXPECTEDFILE);
         var scores = new ArrayList<>();
         double score = 0;
         for(String i: lines) {

@@ -5,6 +5,7 @@ import com.github.ciselab.lampion.guided.metric.Metric;
 import com.github.ciselab.lampion.guided.support.GenotypeSupport;
 import com.github.ciselab.lampion.guided.support.MetricCache;
 
+import java.io.File;
 import java.util.*;
 import java.util.function.Function;
 import java.util.random.RandomGenerator;
@@ -146,8 +147,10 @@ public class MetamorphicIndividual {
     protected Map<Metric,Double> inferMetrics(){
         Map<Metric,Double> intermediateMetrics;
         if(this.resultPath.isEmpty()){
-          String resultDirectory =
-                  genotypeSupport.runCode2vec(this.javaPath.get(),this.javaPath.get()+"/results/");
+            String destination= javaPath.get() +  File.separator +".." +File.separator + "/results/";
+
+            String resultDirectory =
+                  genotypeSupport.runCode2vec(this.javaPath.get(),destination);
           this.setResultPath(resultDirectory);
           intermediateMetrics =
                   metricCache.getMetrics().stream()
@@ -231,10 +234,6 @@ public class MetamorphicIndividual {
     public void setMetrics(Map<Metric,Double> results) {
         this.metrics = results;
         fitness = Optional.of(calculateFitness());
-    }
-
-    public void setMetric(Metric m, double d){
-        metrics.put(m,d);
     }
 
     /**

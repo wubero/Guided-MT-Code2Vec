@@ -65,15 +65,15 @@ public class Main {
         if(args.length == 0) {
             logger.info("No arguments found - loading default values");
         } else if (args.length == 4) {
-            logger.info("Received three arguments - Config input: " + args[0]
+            logger.info("Received four arguments - Config input: " + args[0]
                     +", model : " + args[1]
                     + ", data input: " + args[2]
                     + " and output: " + args[3]);
-            CONFIG_MANAGER.setConfigFile(args[0]);
-            genotypeSupport.setModelPath(args[2]);
-            FileManagement.setDataDir(args[1]);
-            logDir = args[2] + "/";
 
+            CONFIG_MANAGER.setConfigFile(args[0]);
+            genotypeSupport.setModelPath(args[1]);
+            FileManagement.setDataDir(args[2]);
+            logDir = args[3] + "/";
         } else {
             logger.error("Received an unknown amount of arguments");
             return;

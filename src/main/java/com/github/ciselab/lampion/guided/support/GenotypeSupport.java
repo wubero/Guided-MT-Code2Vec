@@ -168,7 +168,7 @@ public class GenotypeSupport {
         String preprocess = "source preprocess.sh " + path + " " + dataset;
         bashRunner.runCommand(preprocess);
         // Evaluating code2vec model with preprocessed files.
-        String testData = "data/" + dataset + "/" + dataset + ".test.c2v";
+        String testData = "./data/" + dataset + "/" + dataset + ".test.c2v";
         String eval = "python3 code2vec.py --load " + modelPath + " --test " + testData + " --logs-path eval_log.txt";
         bashRunner.runCommand(eval);
         // The evaluation writes to the result.txt file

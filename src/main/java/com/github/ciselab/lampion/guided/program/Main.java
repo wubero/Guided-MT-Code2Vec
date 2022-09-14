@@ -64,10 +64,13 @@ public class Main {
 
         if(args.length == 0) {
             logger.info("No arguments found - loading default values");
-        } else if (args.length == 3) {
-            logger.info("Received three arguments - Config input: " + args[0] + ", data input: " + args[1]
-                    + " and output: " + args[2]);
+        } else if (args.length == 4) {
+            logger.info("Received three arguments - Config input: " + args[0]
+                    +", model : " + args[1]
+                    + ", data input: " + args[2]
+                    + " and output: " + args[3]);
             CONFIG_MANAGER.setConfigFile(args[0]);
+            genotypeSupport.setModelPath(args[2]);
             FileManagement.setDataDir(args[1]);
             logDir = args[2] + "/";
 

@@ -16,7 +16,9 @@ services:
       - ./compose_output:/app/Guided-MT-Code2Vec/genetic_output
       - ./src/test/resources/code_files:/app/Guided-MT-Code2Vec/genetic_input
       - ./Docker/config.properties:/config/config.properties
+      - ./code2vec/models/java-lang-release/:/model/
     environment:
       target: /app/Guided-MT-Code2Vec/genetic_input
       output: /app/Guided-MT-Code2Vec/genetic_output
+      model: /model/saved_model_iter3.release
       configfile: /config/config.properties

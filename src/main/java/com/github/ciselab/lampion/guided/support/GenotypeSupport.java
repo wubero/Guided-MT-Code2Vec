@@ -26,6 +26,8 @@ public class GenotypeSupport {
 
     public static final String dir_path = System.getProperty("user.dir").replace("\\", "/");
     private final String currentDataset = "generation_0";
+    // Default Model Path for 1.0 was "models/java14_model/saved_model_iter8.release"
+    private String modelPath;
     private final BashRunner bashRunner = new BashRunner();
     private final MetricCache metricCache;
     private final ConfigManagement configManagement;
@@ -167,7 +169,7 @@ public class GenotypeSupport {
         bashRunner.runCommand(preprocess);
         // Evaluating code2vec model with preprocessed files.
         String testData = "data/" + dataset + "/" + dataset + ".test.c2v";
-        String eval = "python3 code2vec.py --load models/java14_model/saved_model_iter8.release --test " + testData + " --logs-path eval_log.txt";
+        String eval = "python3 code2vec.py --load " + modelPath + " --test " + testData + " --logs-path eval_log.txt";
         bashRunner.runCommand(eval);
         // The evaluation writes to the result.txt file
 
@@ -185,5 +187,12 @@ public class GenotypeSupport {
         logger.debug("Copied results from code2vec to " + destination);
 
         return path;
+    }
+
+    public void setModelPath(String arg) {
+        if (arg == null || arg.isEmpty() || arg.isBlank()){
+            throw new IllegalArgumentException("Model Path cannot be null or empty");
+        }
+        this.modelPath = arg;
     }
 }

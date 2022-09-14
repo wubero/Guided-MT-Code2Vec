@@ -48,6 +48,9 @@ ENV targetDir="/app/Guided-MT-Code2Vec/genetic_input"
 ENV configfile="/config/config.properties"
 # The output directory is the directory where the results will be saved
 ENV outputDir="/app/Guided-MT-Code2Vec/genetic_output"
+# The Model to be used, default is the Code2Vec Released model
+ENV model="models/java14_model/saved_model_iter8.release"
+
 
 RUN mv target/Guided-MT-Code2Vec-jar-with-dependencies.jar Guided-MT-Code2Vec.jar
 RUN chmod +x ./entrypoint.sh

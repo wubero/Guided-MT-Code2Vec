@@ -7,6 +7,9 @@ import com.github.ciselab.lampion.core.transformations.TransformerRegistry;
 import com.github.ciselab.lampion.core.transformations.transformers.*;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Random;
 
 import com.github.ciselab.lampion.guided.algorithms.MetamorphicIndividual;
@@ -120,8 +123,14 @@ public class GenotypeSupport {
             i.setTryingToCompile(false);
             registry.registerTransformer(i);
         }
-
-        String outputSet = Integer.toHexString(individual.hashCode()).substring(0,6);
+        String dir = "gen" + individual.getGeneration() + "/";
+        try {
+            if (!Files.isDirectory(Path.of(dataDir + dir)))
+                Files.createDirectory(Path.of(dataDir + dir));
+        } catch (IOException e) {
+            logger.error(e);
+        }
+        String outputSet = dir + Integer.toHexString(individual.hashCode()).substring(0,6);
         metricCache.putFileCombination(individual, outputSet);
         individual.setJavaPath(outputSet);
 

@@ -27,6 +27,7 @@ public class GeneticAlgorithm {
     private double increaseSizeRate;
     private int maxTransformerValue;
     private int maxGeneLength;
+    private int currentGeneration;
     private RandomGenerator randomGenerator;
     private final GenotypeSupport genotypeSupport;
     private final MetricCache metricCache;
@@ -70,6 +71,7 @@ public class GeneticAlgorithm {
         this.genotypeSupport = genotypeSupport;
         metricCache = genotypeSupport.getMetricCache();
         this.paretoFront = paretoFront;
+        currentGeneration = 0;
     }
 
     /**
@@ -79,8 +81,9 @@ public class GeneticAlgorithm {
      */
     public MetamorphicPopulation evolvePopulation(MetamorphicPopulation pop) {
         logger.debug("Evolve the old population");
+        currentGeneration += 1;
         MetamorphicPopulation newPopulation = new MetamorphicPopulation(pop.size(),
-                randomGenerator, maxTransformerValue, false, genotypeSupport);
+                randomGenerator, maxTransformerValue, false, genotypeSupport, currentGeneration);
 
         // Keep our best individual
         if (elitism) {
@@ -101,6 +104,10 @@ public class GeneticAlgorithm {
             MetamorphicIndividual individual1 = tournamentSelection(pop, randomGenerator);
             MetamorphicIndividual individual2 = tournamentSelection(pop, randomGenerator);
             List<MetamorphicIndividual> newIndividuals = crossover(individual1, individual2);
+            // Set parents for new individuals
+            for(MetamorphicIndividual individual: newIndividuals) {
+                individual.setParents(individual1, individual2);
+            }
             newPopulation.saveIndividual(index, newIndividuals.get(0));
             index++;
             if (index < newPopulation.size()) {
@@ -145,8 +152,8 @@ public class GeneticAlgorithm {
      */
     private List<MetamorphicIndividual> crossover(MetamorphicIndividual individual1, MetamorphicIndividual individual2) {
         logger.debug("Performing crossover");
-        MetamorphicIndividual firstIndividual = new MetamorphicIndividual(genotypeSupport);
-        MetamorphicIndividual secondIndividual = new MetamorphicIndividual(genotypeSupport);
+        MetamorphicIndividual firstIndividual = new MetamorphicIndividual(genotypeSupport, currentGeneration);
+        MetamorphicIndividual secondIndividual = new MetamorphicIndividual(genotypeSupport, currentGeneration);
         List<MetamorphicIndividual> individualList = new ArrayList<>();
         // Loop through genes
         for (int i = 0; i < individual1.getLength(); i++) {
@@ -176,7 +183,7 @@ public class GeneticAlgorithm {
     private MetamorphicIndividual tournamentSelection(MetamorphicPopulation pop, RandomGenerator random) {
         // Create a tournament population
         MetamorphicPopulation tournament = new MetamorphicPopulation(tournamentSize, random,
-                maxTransformerValue, false, genotypeSupport);
+                maxTransformerValue, false, genotypeSupport, currentGeneration);
         // For each place in the tournament get a random individual
         for (int i = 0; i < tournamentSize; i++) {
             int randomId = (int) (Math.random() * pop.size());

@@ -31,7 +31,7 @@ public class MetamorphicIndividualTest {
         ConfigManagement configManagement = genotypeSupport.getConfigManagement();
         configManagement.setConfigFile("src/test/resources/config.properties");
         configManagement.initializeFields();
-        individual = new MetamorphicIndividual(genotypeSupport);
+        individual = new MetamorphicIndividual(genotypeSupport, 0);
     }
 
     @AfterEach

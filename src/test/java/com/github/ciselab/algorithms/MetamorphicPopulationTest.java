@@ -35,7 +35,7 @@ public class MetamorphicPopulationTest {
 
     @Test
     public void createPopulation_withInitializeTest() {
-        MetamorphicPopulation population = new MetamorphicPopulation(3, r, 6, true, genotypeSupport);
+        MetamorphicPopulation population = new MetamorphicPopulation(3, r, 6, true, genotypeSupport, 0);
         assertEquals(population.size(), 3);
         for(int i = 0; i < population.size(); i++) {
             assertNotNull(population.getIndividual(i));
@@ -44,7 +44,7 @@ public class MetamorphicPopulationTest {
 
     @Test
     public void populationStringTest() {
-        MetamorphicPopulation population = new MetamorphicPopulation(3, r, 6, true, genotypeSupport);
+        MetamorphicPopulation population = new MetamorphicPopulation(3, r, 6, true, genotypeSupport, 0);
         assertTrue(population.toString().contains("MetamorphicPopulation{"));
     }
 

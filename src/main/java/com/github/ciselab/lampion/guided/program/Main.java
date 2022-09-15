@@ -40,8 +40,8 @@ public class Main {
     private static boolean dataPointSpecific;
     private final static int maxTransformerValue = 6; // Including 0, so 7 transformers
     private final static int maxGeneLength = 20;
-    private static int popSize = 10;
-    private static int maxSteadyGenerations = 35;
+    private static int popSize = 1;
+    private static int maxSteadyGenerations = 2;
     private static int maxTimeInMin = 480;
     private final static Logger logger = LogManager.getLogger(Main.class);
     private static final MetricCache cache = new MetricCache();
@@ -109,13 +109,13 @@ public class Main {
         try {
             FileWriter resultWriter = new FileWriter(logDir + "GA_results.txt");
             MetamorphicPopulation myPop = new MetamorphicPopulation(popSize, randomGenerator,
-                    maxTransformerValue, false, genotypeSupport);
+                    maxTransformerValue, false, genotypeSupport, 0);
             for(int i = 0; i < popSize; i++) {
-                MetamorphicIndividual newIndiv = new MetamorphicIndividual(genotypeSupport);
+                MetamorphicIndividual newIndiv = new MetamorphicIndividual(genotypeSupport, 0);
                 newIndiv.populateIndividual(randomGenerator, 1, maxTransformerValue);
                 myPop.saveIndividual(i, newIndiv);
             }
-            MetamorphicIndividual initial = new MetamorphicIndividual(genotypeSupport);
+            MetamorphicIndividual initial = new MetamorphicIndividual(genotypeSupport, -1);
             writeInitialPopulationResults(resultWriter, myPop, initial);
 
             ArrayList<Double> fitnesses = new ArrayList<>();
@@ -142,6 +142,10 @@ public class Main {
 
                 logger.info("Generation: " + generationCount + " Fittest: " + myPop.getFittest().getFitness() + " Gene:");
                 logger.info(myPop.getFittest().toString());
+
+                // Write all current individuals to their respective json files
+                for(int index = 0; index < myPop.size(); index++)
+                    myPop.getIndividual(index).writeIndividualJSON();
 
                 myPop = algorithm.nextGeneration(myPop);
                 logger.debug("Population of generation " + generationCount + " = " + myPop);
@@ -182,8 +186,8 @@ public class Main {
         try {
             FileWriter resultWriter = new FileWriter(logDir + "GA_results.txt");
             MetamorphicPopulation myPop = new MetamorphicPopulation(popSize, random,
-                    maxTransformerValue, true, genotypeSupport);
-            MetamorphicIndividual best = new MetamorphicIndividual(genotypeSupport);
+                    maxTransformerValue, true, genotypeSupport, 0);
+            MetamorphicIndividual best = new MetamorphicIndividual(genotypeSupport, -1);
             double bestFitness = writeInitialPopulationResults(resultWriter, myPop, best);
             //if(dataPointSpecific)
             //    writeDataSpecificResults(resultWriter, best);

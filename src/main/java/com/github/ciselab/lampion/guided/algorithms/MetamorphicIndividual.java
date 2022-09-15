@@ -5,6 +5,9 @@ import com.github.ciselab.lampion.guided.metric.Metric;
 import com.github.ciselab.lampion.guided.support.GenotypeSupport;
 import com.github.ciselab.lampion.guided.support.MetricCache;
 
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.*;
 import java.util.function.Function;
 import java.util.random.RandomGenerator;
@@ -12,6 +15,9 @@ import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 /**
  * This class creates a metamorphic individual for the metamorphic population.
@@ -25,17 +31,22 @@ public class MetamorphicIndividual {
 
     // Path to where the altered Java Files are Stored (empty until transformers are run)
     protected Optional<String> javaPath = Optional.empty();
+    // Path to where the individual is displayed in a JSON format
+    protected Optional<String> jsonPath = Optional.empty();
     // Path to where the output of Code2Vec is stored for this Individual (empty if Code2Vec was not run)
     protected Optional<String> resultPath = Optional.empty();
 
     private List<BaseTransformer> transformers = new ArrayList<>();
     private Optional<Double> fitness = Optional.empty(); // Empty while not calculated or reset
     private Map<Metric,Double> metrics;
+    private List<MetamorphicIndividual> parents = new ArrayList<>();
+    private int generation;
 
-    public MetamorphicIndividual (GenotypeSupport gen) {
+    public MetamorphicIndividual (GenotypeSupport gen, int generation) {
         genotypeSupport = gen;
         metricCache = gen.getMetricCache();
         metrics = new HashMap<>();
+        this.generation = generation;
     }
 
     /**
@@ -53,6 +64,32 @@ public class MetamorphicIndividual {
             int seed = randomGenerator.nextInt();
             transformers.add(genotypeSupport.createTransformers(key, seed));
         }
+    }
+
+    /**
+     * Get generation of current individual.
+     * @return the generation.
+     */
+    public int getGeneration() {
+        return generation;
+    }
+
+    /**
+     * Set parents for this individual.
+     * @param parent1 parent 1.
+     * @param parent2 parent 2.
+     */
+    public void setParents(MetamorphicIndividual parent1, MetamorphicIndividual parent2) {
+        parents.add(parent1);
+        parents.add(parent2);
+    }
+
+    /**
+     * Get the parents of this individual.
+     * @return the parents.
+     */
+    public List<MetamorphicIndividual> getParents() {
+        return parents;
     }
 
     /**
@@ -247,6 +284,87 @@ public class MetamorphicIndividual {
         ).sum();
     }
 
+    /**
+     * Put current individual in the json object or adjust current object and write to file.
+     */
+    public void writeIndividualJSON() {
+        JSONObject jsonIndividual = new JSONObject();
+        if(jsonPath.isPresent()) {
+            // Call adjust json function to say age += 1
+            jsonIndividual = adjustJSONIndividual(jsonPath.get());
+            // if the object is empty we shouldn't write it to file
+            if(jsonIndividual.isEmpty())
+                return;
+        } else {
+            if(javaPath.isPresent()) { // Should be able to do this with the javaPath
+                jsonPath = Optional.of(javaPath.get() + ".json");
+
+                //Write JSON file
+                jsonIndividual = createNewJSON();
+            }
+        }
+        try (FileWriter file = new FileWriter(jsonPath.get())) {
+            //We can write any JSONArray or JSONObject instance to the file
+            file.write(jsonIndividual.toJSONString());
+            file.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Get current JSON object and increase the age attribute by one.
+     * @param fileName the file of the JSON object.
+     * @return the new JSON object.
+     */
+    private JSONObject adjustJSONIndividual(String fileName) {
+        JSONParser jsonParser = new JSONParser();
+
+        try (FileReader reader = new FileReader(fileName))
+        {
+            JSONObject jsonIndividual = (JSONObject) jsonParser.parse(reader);
+            int age = (int) jsonIndividual.get("age");
+            jsonIndividual.replace("age", age, age+1);
+            return jsonIndividual;
+        } catch (IOException | ParseException e) {
+            e.printStackTrace();
+        }
+        return new JSONObject();
+    }
+
+    /**
+     * Create new JSON object with all the data for this individual.
+     * @return the json object.
+     */
+    private JSONObject createNewJSON() {
+        JSONObject jsonIndividual = new JSONObject();
+        jsonIndividual.put("hash", hash());
+        jsonIndividual.put("hash_with_lifetime", hashWithLifetime(1));
+        List<MetamorphicIndividual> parents = getParents();
+        jsonIndividual.put("parent_1", individualToJSON(parents.get(0)));
+        jsonIndividual.put("parent_2", individualToJSON(parents.get(1)));
+        jsonIndividual.put("introduced_generation", getGeneration());
+        jsonIndividual.put("age", "1");
+        jsonIndividual.put("genotype", individualToJSON(this));
+        metrics.forEach((key, value) -> jsonIndividual.put(key, value));
+        return jsonIndividual;
+    }
+
+    /**
+     * Transforms metamorphic individual to a JSON compatible string.
+     * @param individual the individual.
+     * @return the JSON compatible string.
+     */
+    private String individualToJSON(MetamorphicIndividual individual) {
+        String output = "[\n";
+        for(BaseTransformer transformer: individual.getTransformers()) {
+            String[] temp = transformer.getClass().toString().split("\\.");
+            String addition = temp[temp.length-1];
+            output += "{ transformer: " +  addition + ", seed: " + transformer.getSeed() + " }";
+        }
+        return output + "\n]";
+    }
+
     @Override
     public String toString() {
         String geneString = "[";
@@ -260,5 +378,20 @@ public class MetamorphicIndividual {
         } else {
             return geneString.substring(0, geneString.length() - 2) + "]";
         }
+    }
+
+    public int hash() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((transformers == null) ? 0 : transformers.hashCode());
+        return result;
+    }
+
+    public int hashWithLifetime(int lifetime) {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((transformers == null) ? 0 : transformers.hashCode());
+        result = prime * result + lifetime ^ lifetime;
+        return result;
     }
 }

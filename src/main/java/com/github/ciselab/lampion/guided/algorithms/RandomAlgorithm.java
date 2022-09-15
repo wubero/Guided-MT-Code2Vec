@@ -13,6 +13,7 @@ import java.util.random.RandomGenerator;
 public class RandomAlgorithm {
 
     private int maxTransformerValue;
+    private int currentGeneration;
     private RandomGenerator randomGenerator;
     private final GenotypeSupport genotypeSupport;
     private final MetricCache metricCache;
@@ -31,14 +32,16 @@ public class RandomAlgorithm {
         genotypeSupport = gen;
         metricCache = gen.getMetricCache();
         this.paretoFront = paretoFront;
+        currentGeneration = 0;
     }
 
     public MetamorphicPopulation nextGeneration(MetamorphicPopulation pop) {
         int newLength = pop.getIndividual(0).getLength() + 1;
+        currentGeneration += 1;
         logger.debug("Creating a new population of length " + newLength + " through the random algorithm.");
-        MetamorphicPopulation newPop = new MetamorphicPopulation(pop.size(), randomGenerator, maxTransformerValue, false, genotypeSupport);
+        MetamorphicPopulation newPop = new MetamorphicPopulation(pop.size(), randomGenerator, maxTransformerValue, false, genotypeSupport, currentGeneration);
         for(int i = 0; i < pop.size(); i++) {
-            MetamorphicIndividual newIndiv = new MetamorphicIndividual(genotypeSupport);
+            MetamorphicIndividual newIndiv = new MetamorphicIndividual(genotypeSupport, currentGeneration);
             newIndiv.populateIndividual(randomGenerator, newLength, maxTransformerValue);
             newPop.saveIndividual(i, newIndiv);
         }

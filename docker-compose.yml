@@ -16,7 +16,14 @@ services:
       - ./compose_output:/app/Guided-MT-Code2Vec/genetic_output
       - ./src/test/resources/code_files:/app/Guided-MT-Code2Vec/genetic_input
       - ./Docker/config.properties:/config/config.properties
+      # Copy this in if you want to see all data created, otherwise it will be deleted after container lifetime
+      - ./compose_output/data/:/app/Guided-MT-Code2Vec/code2vec/data/
+      # Chose one of your models
+      - ./code2vec/models/java14_model/:/model/
+      #- ./code2vec/models/java-lang-release/:/model/
     environment:
       target: /app/Guided-MT-Code2Vec/genetic_input
       output: /app/Guided-MT-Code2Vec/genetic_output
+      model: /model/saved_model_iter8.release
+      #model: /model/saved_model_iter3.release
       configfile: /config/config.properties

@@ -40,8 +40,8 @@ public class Main {
     private static boolean dataPointSpecific;
     private final static int maxTransformerValue = 6; // Including 0, so 7 transformers
     private final static int maxGeneLength = 20;
-    private static int popSize = 1;
-    private static int maxSteadyGenerations = 2;
+    private static int popSize = 10;
+    private static int maxSteadyGenerations = 35;
     private static int maxTimeInMin = 480;
     private final static Logger logger = LogManager.getLogger(Main.class);
     private static final MetricCache cache = new MetricCache();
@@ -64,13 +64,16 @@ public class Main {
 
         if(args.length == 0) {
             logger.info("No arguments found - loading default values");
-        } else if (args.length == 3) {
-            logger.info("Received three arguments - Config input: " + args[0] + ", data input: " + args[1]
-                    + " and output: " + args[2]);
-            CONFIG_MANAGER.setConfigFile(args[0]);
-            FileManagement.setDataDir(args[1]);
-            logDir = args[2] + "/";
+        } else if (args.length == 4) {
+            logger.info("Received four arguments - Config input: " + args[0]
+                    +", model : " + args[1]
+                    + ", data input: " + args[2]
+                    + " and output: " + args[3]);
 
+            CONFIG_MANAGER.setConfigFile(args[0]);
+            genotypeSupport.setModelPath(args[1]);
+            FileManagement.setDataDir(args[2]);
+            logDir = args[3] + "/";
         } else {
             logger.error("Received an unknown amount of arguments");
             return;
@@ -219,6 +222,10 @@ public class Main {
 
                 logger.info("Generation: " + generationCount + " Fittest: " + myPop.getFittest().getFitness() + " Gene:");
                 logger.info(myPop.getFittest().toString());
+
+                // Write all current individuals to their respective json files
+                for(int index = 0; index < myPop.size(); index++)
+                    myPop.getIndividual(index).writeIndividualJSON();
 
                 myPop = geneticAlgorithm.evolvePopulation(myPop);
                 logger.debug("Population of generation " + generationCount + " = " + myPop);

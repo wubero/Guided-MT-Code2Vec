@@ -3,16 +3,20 @@ package com.github.ciselab.lampion.guided.metric.metrics;
 import com.github.ciselab.lampion.guided.algorithms.MetamorphicIndividual;
 import com.github.ciselab.lampion.guided.metric.Metric;
 
+import java.io.File;
 import java.util.List;
 
 public class Recall extends Metric {
+    private static final String EXPECTEDFILE =  "F1_score_log.txt";
 
     public Recall() {
         this.name = Name.REC;
     }
 
     public double calculateScore(String path) {
-        List<String> lines = readPredictions(path);
+        if(!path.contains("results"))
+            path = path + File.separator + "results";
+        List<String> lines = readPredictions(path + File.separator + EXPECTEDFILE);
         double score = -1;
         for(String i: lines) {
             if(i.contains("recall")) {

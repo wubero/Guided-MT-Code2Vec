@@ -3,6 +3,7 @@ package com.github.ciselab.lampion.guided.metric.metrics;
 import com.github.ciselab.lampion.guided.algorithms.MetamorphicIndividual;
 import com.github.ciselab.lampion.guided.metric.Metric;
 
+import java.io.File;
 import java.util.List;
 
 /**
@@ -10,13 +11,16 @@ import java.util.List;
  * This metric is already calculated by the code2vec project and gotten from a file.
  */
 public class F1 extends Metric {
+    private static final String EXPECTEDFILE =  "F1_score_log.txt";
 
     public F1(){
         this.name = Name.F1;
     }
 
     private double calculateScore(String path) {
-        List<String> lines = readPredictions(path);
+        if(!path.contains("results"))
+            path = path + File.separator + "results";
+        List<String> lines = readPredictions(path + File.separator + EXPECTEDFILE);
         double score = -1;
         for(String i: lines) {
             if(i.contains("F1")) {

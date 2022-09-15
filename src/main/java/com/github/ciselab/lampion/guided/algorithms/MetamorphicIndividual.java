@@ -8,6 +8,7 @@ import com.github.ciselab.lampion.guided.support.MetricCache;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.File;
 import java.util.*;
 import java.util.function.Function;
 import java.util.random.RandomGenerator;
@@ -183,8 +184,10 @@ public class MetamorphicIndividual {
     protected Map<Metric,Double> inferMetrics(){
         Map<Metric,Double> intermediateMetrics;
         if(this.resultPath.isEmpty()){
-          String resultDirectory =
-                  genotypeSupport.runCode2vec(this.javaPath.get(),this.javaPath.get()+"/results/");
+            String destination= javaPath.get() +File.separator + "results/";
+
+            String resultDirectory =
+                  genotypeSupport.runCode2vec(this.javaPath.get(),destination);
           this.setResultPath(resultDirectory);
           intermediateMetrics =
                   metricCache.getMetrics().stream()
@@ -208,7 +211,7 @@ public class MetamorphicIndividual {
         if(getLength() > 1) {
             int drop = randomGen.nextInt(0, getLength());
             transformers.remove(drop);
-            logger.debug("The gene " + this.hashCode() + " has decreased its size to " + this.getLength());
+            logger.debug("The gene " + Integer.toHexString(this.hashCode()).substring(0,6) + " has decreased its size to " + this.getLength());
             if(metricCache.getMetricResults(this).isPresent()) {
                 metrics = metricCache.getMetricResults(this).get();
                 fitness = Optional.of(calculateFitness());
@@ -256,7 +259,7 @@ public class MetamorphicIndividual {
             inferMetrics();
             metricCache.fillFitness(this, metrics);
         }
-        logger.debug("The gene " + this.hashCode() + " has calculated its fitness, it is: " + fitness);
+        logger.debug("The gene " + Integer.toHexString(this.hashCode()).substring(0,6) +  " has calculated its fitness, it is: " + fitness.get());
         return fitness.get();
     }
 
@@ -268,10 +271,6 @@ public class MetamorphicIndividual {
     public void setMetrics(Map<Metric,Double> results) {
         this.metrics = results;
         fitness = Optional.of(calculateFitness());
-    }
-
-    public void setMetric(Metric m, double d){
-        metrics.put(m,d);
     }
 
     /**
@@ -296,8 +295,8 @@ public class MetamorphicIndividual {
             if(jsonIndividual.isEmpty())
                 return;
         } else {
-            if(javaPath.isPresent()) { // Should be able to do this with the javaPath
-                jsonPath = Optional.of(javaPath.get() + ".json");
+            if(resultPath.isPresent()) { // Should be able to do this with the javaPath
+                jsonPath = Optional.of(resultPath.get() + "individual.json");
 
                 //Write JSON file
                 jsonIndividual = createNewJSON();

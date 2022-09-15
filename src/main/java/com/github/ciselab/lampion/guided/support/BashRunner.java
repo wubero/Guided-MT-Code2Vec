@@ -51,14 +51,14 @@ public class BashRunner {
 
             int exitVal = process.waitFor();
             if (exitVal == 0) {
-                logger.debug(" --- Command run successfully");
+                logger.trace(" --- Command run successfully");
             } else {
                 if(countFailed < 5) {
                     TimeUnit.SECONDS.sleep(1);
                     runBashCommand(command, countFailed+1);
                 } else {
-                    logger.debug("The command: " + command + "\n Will not run, quiting the system.");
-                    System.exit(0);
+                    logger.debug("The command: " + command + "\n does not succed after 5 tries, quiting the system.");
+                    System.exit(1);
                 }
             }
         } catch (IOException | InterruptedException e) {

@@ -31,7 +31,7 @@ public class ParetoFront {
     public Set<double[]> getFrontier() {
        return frontier.stream().map(
                 x -> {
-                    double[] calculatedMetrics = new double[]{metrics.size()};
+                    double[] calculatedMetrics = new double[metrics.size()];
                     for (int i = 0; i<metrics.size();i++){
                         calculatedMetrics[i] = metrics.get(i).apply(x);
                     }

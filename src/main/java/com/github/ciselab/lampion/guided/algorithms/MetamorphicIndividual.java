@@ -184,7 +184,9 @@ public class MetamorphicIndividual {
     protected Map<Metric,Double> inferMetrics(){
         Map<Metric,Double> intermediateMetrics;
         if(this.resultPath.isEmpty()){
-            String destination= javaPath.get() +File.separator + "results/";
+            if(this.javaPath.isEmpty())
+                setJavaPath(genotypeSupport.runTransformations(this, genotypeSupport.getCurrentDataset()));
+            String destination= javaPath.get() + "/results/";
 
             String resultDirectory =
                   genotypeSupport.runCode2vec(this.javaPath.get(),destination);
@@ -337,15 +339,17 @@ public class MetamorphicIndividual {
      */
     private JSONObject createNewJSON() {
         JSONObject jsonIndividual = new JSONObject();
-        jsonIndividual.put("hash", hash());
-        jsonIndividual.put("hash_with_lifetime", hashWithLifetime(1));
-        List<MetamorphicIndividual> parents = getParents();
-        jsonIndividual.put("parent_1", individualToJSON(parents.get(0)));
-        jsonIndividual.put("parent_2", individualToJSON(parents.get(1)));
-        jsonIndividual.put("introduced_generation", getGeneration());
+        metrics.forEach((key, value) -> jsonIndividual.put(key.getName(), value));
         jsonIndividual.put("age", "1");
+        jsonIndividual.put("introduced_generation", getGeneration());
+        List<MetamorphicIndividual> parents = getParents();
+        if(!parents.isEmpty()) {
+            jsonIndividual.put("parent_2", individualToJSON(parents.get(1)));
+            jsonIndividual.put("parent_1", individualToJSON(parents.get(0)));
+        }
+        jsonIndividual.put("hash_with_lifetime", hashWithLifetime(1));
+        jsonIndividual.put("hash", hash());
         jsonIndividual.put("genotype", individualToJSON(this));
-        metrics.forEach((key, value) -> jsonIndividual.put(key, value));
         return jsonIndividual;
     }
 
@@ -355,13 +359,13 @@ public class MetamorphicIndividual {
      * @return the JSON compatible string.
      */
     private String individualToJSON(MetamorphicIndividual individual) {
-        String output = "[\n";
+        String output = "[";
         for(BaseTransformer transformer: individual.getTransformers()) {
             String[] temp = transformer.getClass().toString().split("\\.");
             String addition = temp[temp.length-1];
             output += "{ transformer: " +  addition + ", seed: " + transformer.getSeed() + " }";
         }
-        return output + "\n]";
+        return output + "]";
     }
 
     @Override

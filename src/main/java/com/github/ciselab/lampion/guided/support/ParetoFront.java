@@ -28,15 +28,12 @@ public class ParetoFront {
         metrics = cache.getMetrics();
     }
 
-    public Set<double[]> getFrontier() {
-       return frontier.stream().map(
-                x -> {
-                    double[] calculatedMetrics = new double[]{metrics.size()};
-                    for (int i = 0; i<metrics.size();i++){
-                        calculatedMetrics[i] = metrics.get(i).apply(x);
-                    }
-                    return calculatedMetrics;
-                }
+    public Set<List<Double>> getFrontier() {
+        return frontier.stream().map(
+                individual ->
+                    metrics.stream()
+                            .map(m -> m.apply(individual))
+                            .collect(Collectors.toList())
         ).collect(Collectors.toSet());
     }
 
@@ -93,5 +90,12 @@ public class ParetoFront {
                 .noneMatch(p -> p.first < p.second);
     }
 
+    public String displayPareto() {
+        Set<List<Double>> paretoValues = this.getFrontier();
+        String out = "{";
+        for(var v: paretoValues)
+            out += v.toString() + ", ";
+        return out.substring(0, out.length()-2) + "}";
+    }
 
 }

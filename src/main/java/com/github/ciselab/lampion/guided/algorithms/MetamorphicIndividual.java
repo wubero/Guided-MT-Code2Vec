@@ -146,6 +146,10 @@ public class MetamorphicIndividual {
      */
     protected Map<Metric,Double> inferMetrics(){
         Map<Metric,Double> intermediateMetrics;
+        if(javaPath.isEmpty()){
+            String jPath = genotypeSupport.runTransformations(this, genotypeSupport.getCurrentDataset());
+            this.setJavaPath(jPath);
+        }
         if(this.resultPath.isEmpty()){
             String destination= javaPath.get() +File.separator + "results/";
 

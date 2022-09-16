@@ -45,7 +45,7 @@ public class Main {
     private static int maxTimeInMin = 480;
     private final static Logger logger = LogManager.getLogger(Main.class);
     private static final MetricCache cache = new MetricCache();
-    private static final ParetoFront PARETO_FRONT = new ParetoFront(cache);
+    private static final ParetoFront paretoFront = new ParetoFront(cache);
     private static final GenotypeSupport genotypeSupport = new GenotypeSupport(cache);
     private static final ConfigManagement CONFIG_MANAGER = genotypeSupport.getConfigManagement();
 
@@ -103,7 +103,7 @@ public class Main {
     }
 
     public static void runRandomAlgo() {
-        RandomAlgorithm algorithm = new RandomAlgorithm(genotypeSupport, PARETO_FRONT);
+        RandomAlgorithm algorithm = new RandomAlgorithm(genotypeSupport, paretoFront);
         RandomGenerator randomGenerator = new SplittableRandom(CONFIG_MANAGER.getSeed());
         logger.info("Using randomGenerator algorithm");
         algorithm.initializeParameters(maxTransformerValue, randomGenerator);
@@ -137,7 +137,7 @@ public class Main {
                         " of " + myPop.getAverageSize() + "\n");
 
                 algorithm.checkPareto(myPop);
-                logger.debug("Current Pareto set = " + displayPareto(PARETO_FRONT.getFrontier()));
+                logger.debug("Current Pareto set = " + paretoFront.displayPareto() );
 
                 resultWriter.write("Generation: " + generationCount + ", best: " + getBestForLog(generationFitness) + ", worst: " + getWorstForLog(generationFitness) +
                         ", average: " + getAverageForLog(generationFitness) + ", median: " + getMedianForLog(generationFitness) + "\n");
@@ -174,7 +174,7 @@ public class Main {
      */
     public static void runSimpleGA() {
         LocalTime start = LocalTime.now();
-        GeneticAlgorithm geneticAlgorithm = new GeneticAlgorithm(genotypeSupport, PARETO_FRONT);
+        GeneticAlgorithm geneticAlgorithm = new GeneticAlgorithm(genotypeSupport, paretoFront);
         boolean converged = false;
         RandomGenerator random = new SplittableRandom(CONFIG_MANAGER.getSeed());
         String GA_parameters = geneticAlgorithm.initializeParameters(uniformRate, mutationRate, tournamentSize, elitism, increaseSizeRate,
@@ -211,7 +211,11 @@ public class Main {
                 if (steadyGens > maxSteadyGenerations)
                     converged = true;
                 geneticAlgorithm.checkPareto(myPop);
-                logger.debug("Current Pareto set = " + displayPareto(PARETO_FRONT.getFrontier()));
+                if(paretoFront.getFrontier().isEmpty()) {
+                    logger.debug("Current Pareto set is empty");
+                } else {
+                    logger.debug("Current Pareto set = " + paretoFront.displayPareto());
+                }
 
                 resultWriter.write("Generation: " + generationCount + ", result: " + myPop.getFittest().getFitness() + "\n");
                 resultWriter.write("Gene: " + myPop.getFittest() + "\n");
@@ -267,7 +271,7 @@ public class Main {
         //logger.info("The metric results corresponding to the transformations are: " + Arrays.toString(best.getMetrics()));
 
         // check best against pareto
-        PARETO_FRONT.addToParetoOptimum(best);
+        paretoFront.addToParetoOptimum(best);
         return bestFitness;
     }
 
@@ -278,7 +282,7 @@ public class Main {
      */
     private static void writeResultsAfterAlgorithm(FileWriter resultWriter) throws IOException {
         resultWriter.write("Metrics are: " + Arrays.toString(cache.getMetrics().toArray()) + "\n");
-        resultWriter.write("Pareto set: " + displayPareto(PARETO_FRONT.getFrontier()) + "\n");
+        resultWriter.write("Pareto set: " + paretoFront.displayPareto() +  "\n");
 
         long code2vecTime = genotypeSupport.getTotalCode2vevTime();
         int code2vecSec = (int) (code2vecTime % 60);
@@ -336,18 +340,6 @@ public class Main {
      */
     public static void setMaxTimeInMin(int time) {
         maxTimeInMin = time;
-    }
-
-    /**
-     * Display the Pareto set for the logger.
-     * @param pareto the Pareto set.
-     * @return the String that can be displayed in the logger.
-     */
-    private static String displayPareto(Set<double[]> pareto) {
-        String out = "{";
-        for(double[] i: pareto)
-            out += Arrays.toString(i) + ", ";
-        return out.substring(0, out.length()-2) + "}";
     }
 
     /**

@@ -91,7 +91,7 @@ public class Engine {
         classes = codeRoot.getElements(c -> c instanceof CtClass);
         methods = codeRoot.getElements(c -> c instanceof CtMethod);
 
-        logger.info("Found " + classes.size() + " Classes and "
+        logger.debug("Found " + classes.size() + " Classes and "
                 + codeRoot.getElements(f -> f instanceof CtMethod).size() + " methods at " + codeDirectory );
         if(classes.size() == 0 || methods.size() == 0) {
             logger.error("Either found no classes or no methods - exiting early. " +
@@ -152,10 +152,11 @@ public class Engine {
         Instant endOfTransformations = Instant.now();
         logger.info("Applying the Transformations took "
                 + Duration.between(startOfEngine,endOfTransformations) + " seconds");
-        logger.info("Of the " + results.size() + " Transformations applied, "
-                + results.stream().filter(u -> u.equals(new EmptyTransformationResult())).count() + " where malformed");
-        logger.info(transformationFailures + " transformations produced (Spoon-)errors");
-
+        if (results.stream().filter(u -> u.equals(new EmptyTransformationResult())).count()>0) {
+            logger.info("Of the " + results.size() + " Transformations applied, "
+                    + results.stream().filter(u -> u.equals(new EmptyTransformationResult())).count() + " where malformed");
+            logger.info(transformationFailures + " transformations produced (Spoon-)errors");
+        }
         // Step 2.4:
         // If enabled, remove all comments (by setting them invisible)
         if (removeAllComments) {

@@ -36,7 +36,7 @@ public class GenotypeSupportTest {
         configManagement.setConfigFile("src/test/resources/config.properties");
         configManagement.initializeFields();
 
-        var testObject = new MetamorphicIndividual(support);
+        var testObject = new MetamorphicIndividual(support, 0);
         List<BaseTransformer> transformers = new ArrayList<>();
         File[] files = new File("src/test/resources/code_files").listFiles();
         File directory = new File(dataDir + "code_files");
@@ -63,7 +63,7 @@ public class GenotypeSupportTest {
         configManagement.setConfigFile("src/test/resources/config.properties");
         configManagement.initializeFields();
 
-        var testObject = new MetamorphicIndividual(support);
+        var testObject = new MetamorphicIndividual(support, 0);
 
         List<BaseTransformer> transformers = new ArrayList<>();
         File[] files = new File("src/test/resources/code_files").listFiles();

@@ -15,20 +15,21 @@ public class MetamorphicPopulation {
      * @param randomGenerator the random generator. This is kept the same everywhere for testing purposes.
      * @param maxValue the maximum transformer value.
      * @param initialize whether the population should be initialized or just created as an object.
+     * @param generation the generation of the current population.
      */
     public MetamorphicPopulation(int popSize, RandomGenerator randomGenerator, int maxValue, boolean initialize
-            , GenotypeSupport gen) {
+            , GenotypeSupport gen, int generation) {
         genotypeSupport = gen;
         individuals = new MetamorphicIndividual[popSize];
         if(initialize) {
             int cutOff = popSize/2;
             for (int i = 0; i < cutOff; i++) {
-                MetamorphicIndividual individual = new MetamorphicIndividual(genotypeSupport);
+                MetamorphicIndividual individual = new MetamorphicIndividual(genotypeSupport, generation);
                 individual.populateIndividual(randomGenerator, 1, maxValue);
                 saveIndividual(i, individual);
             }
             for (int j = cutOff; j < popSize; j++) {
-                MetamorphicIndividual individual = new MetamorphicIndividual(genotypeSupport);
+                MetamorphicIndividual individual = new MetamorphicIndividual(genotypeSupport, generation);
                 individual.populateIndividual(randomGenerator, 2, maxValue);
                 saveIndividual(j, individual);
             }

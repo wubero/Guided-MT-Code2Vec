@@ -34,6 +34,7 @@ public class ParetoFront {
                     metrics.stream()
                             .map(m -> m.apply(individual))
                             .collect(Collectors.toList())
+
         ).collect(Collectors.toSet());
     }
 

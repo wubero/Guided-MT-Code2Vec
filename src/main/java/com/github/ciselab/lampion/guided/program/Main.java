@@ -40,8 +40,8 @@ public class Main {
     private static boolean dataPointSpecific;
     private final static int maxTransformerValue = 6; // Including 0, so 7 transformers
     private final static int maxGeneLength = 20;
-    private static int popSize = 10;
-    private static int maxSteadyGenerations = 35;
+    private static int popSize = 1;
+    private static int maxSteadyGenerations = 2;
     private static int maxTimeInMin = 480;
     private final static Logger logger = LogManager.getLogger(Main.class);
     private static final MetricCache cache = new MetricCache();

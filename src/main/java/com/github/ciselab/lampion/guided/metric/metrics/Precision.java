@@ -22,7 +22,7 @@ public class Precision extends Metric {
         if(!path.contains("results"))
             path = path + File.separator + "results";
         List<String> lines = readPredictions(path  + File.separator + EXPECTEDFILE);
-        double score = -1;
+        Double score = Double.NaN;
         for(String i: lines) {
             if(i.contains("precision")) {
                 score = Double.parseDouble(i.split("precision: ")[1].split(",")[0]);

@@ -24,7 +24,7 @@ public abstract class Metric implements Function<MetamorphicIndividual, Double> 
         EDITDIST,
         PREDLENGTH,
         /**
-         * Secondary metrics are not required to use the
+         * Secondary metrics do not require code2vec, they originate from transformation only
          */
         INPUTLENGTH,
         TRANSFORMATIONS,

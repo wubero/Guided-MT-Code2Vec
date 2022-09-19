@@ -21,7 +21,7 @@ public class F1 extends Metric {
         if(!path.contains("results"))
             path = path + File.separator + "results";
         List<String> lines = readPredictions(path + File.separator + EXPECTEDFILE);
-        double score = -1;
+        Double score = Double.NaN;
         for(String i: lines) {
             if(i.contains("F1")) {
                 score = Double.parseDouble(i.split("F1: ")[1]);

@@ -1,28 +1,47 @@
 package com.github.ciselab.metric.metrics;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
+import com.github.ciselab.lampion.guided.algorithms.MetamorphicIndividual;
+import com.github.ciselab.lampion.guided.metric.metrics.F1;
+import com.github.ciselab.lampion.guided.metric.metrics.PercentageMRR;
 import com.github.ciselab.lampion.guided.support.GenotypeSupport;
+import com.github.ciselab.lampion.guided.support.MetricCache;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 public class Percentage_MRRTest {
 
-    /*
-    TODO:Reimplement
     @Tag("File")
     @Test
-    public void checkNameTest() {
-        Percentage_MRR metric = new Percentage_MRR(GenotypeSupport.dir_path + "/src/test/resources/testPredictionsWithScore.txt");
-        assertEquals("PercentageMRR", metric.getName());
+    public void testPMRR_PathIsOk_shouldGiveValue(){
+        MetricCache cache = new MetricCache();
+        GenotypeSupport support = new GenotypeSupport(cache);
+        PercentageMRR metric = new PercentageMRR();
+
+        MetamorphicIndividual testObject = new MetamorphicIndividual(support);
+        testObject.setResultPath("./src/test/resources/metric_files");
+
+        var result = metric.apply(testObject);
+
+        assertNotNull(result);
+        assertNotEquals(Double.NaN,result);
+        assertTrue(result>=0  && result <=1);
     }
 
-    @Tag("File")
     @Test
-    public void calculateScoreTest() {
-        Percentage_MRR metric = new Percentage_MRR(GenotypeSupport.dir_path + "/src/test/resources/testPredictionsWithScore.txt");
-        assertEquals(0.2525, metric.calculateScore());
+    public void testPMRR_PathIsBad_NaNValue(){
+        MetricCache cache = new MetricCache();
+        GenotypeSupport support = new GenotypeSupport(cache);
+        PercentageMRR metric = new PercentageMRR();
+
+        MetamorphicIndividual testObject = new MetamorphicIndividual(support);
+        testObject.setResultPath("./src/test/bad_path");
+
+        var result = metric.apply(testObject);
+
+        assertNotNull(result);
+        assertEquals(Double.NaN,result);
     }
-     */
 
 }

@@ -1,37 +1,53 @@
 package com.github.ciselab.metric.metrics;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
+import com.github.ciselab.lampion.guided.algorithms.MetamorphicIndividual;
+import com.github.ciselab.lampion.guided.metric.Metric;
+import com.github.ciselab.lampion.guided.metric.metrics.EditDistance;
 import com.github.ciselab.lampion.guided.support.GenotypeSupport;
+import com.github.ciselab.lampion.guided.support.MetricCache;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 public class EditDistanceTest {
-    /* TODO: Reimplement
-    @Tag("File")
+
+
     @Test
     public void checkNameTest() {
-        EditDistance metric = new EditDistance(GenotypeSupport.dir_path + "/src/test/resources/testPredictionsWithoutScore.txt");
-        assertEquals("EditDistance", metric.getName());
+        EditDistance metric = new EditDistance();
+        assertEquals("EDITDIST", metric.getName());
     }
 
     @Tag("File")
     @Test
-    public void calculateScoreTest() {
-        EditDistance metric = new EditDistance(GenotypeSupport.dir_path + "/src/test/resources/testPredictionsWithoutScore.txt");
-        assertEquals(0.75, metric.calculateScore());
+    public void testEditDistance_PathIsOk_shouldGiveValue(){
+        MetricCache cache = new MetricCache();
+        GenotypeSupport support = new GenotypeSupport(cache);
+        EditDistance metric = new EditDistance();
+
+        MetamorphicIndividual testObject = new MetamorphicIndividual(support);
+        testObject.setResultPath("./src/test/resources/metric_files");
+
+        var result = metric.apply(testObject);
+
+        assertNotNull(result);
+        assertNotEquals(Double.NaN,result);
+        assertTrue(result>=0);
     }
 
-    @Tag("File")
     @Test
-    public void editDistanceTest() {
-        EditDistance metric = new EditDistance(GenotypeSupport.dir_path + "/src/test/resources/testPredictionsWithoutScore.txt");
-        String[] original = new String[]{"kitten", "sunday", "Lampion", "pre|head"};
-        String[] predicted = new String[]{"sitten", "saturday", "Lampion", "pre|head"};
-        int[] expectedResults = new int[]{1, 3, 0, 0};
-        for(int i = 0; i < original.length; i++) {
-            assertEquals(metric.editDistance(original[i], predicted[i]), expectedResults[i]);
-        }
+    public void testEditDistance_PathIsBad_NaNValue(){
+        MetricCache cache = new MetricCache();
+        GenotypeSupport support = new GenotypeSupport(cache);
+        EditDistance metric = new EditDistance();
+
+        MetamorphicIndividual testObject = new MetamorphicIndividual(support);
+        testObject.setResultPath("./src/test/bad_path");
+
+        var result = metric.apply(testObject);
+
+        assertNotNull(result);
+        assertEquals(Double.NaN,result);
     }
-    */
 }

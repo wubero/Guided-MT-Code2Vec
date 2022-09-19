@@ -17,7 +17,7 @@ public class Recall extends Metric {
         if(!path.contains("results"))
             path = path + File.separator + "results";
         List<String> lines = readPredictions(path + File.separator + EXPECTEDFILE);
-        double score = -1;
+        Double score = Double.NaN;
         for(String i: lines) {
             if(i.contains("recall")) {
                 score = Double.parseDouble(i.split("recall: ")[1].split(",")[0]);

@@ -7,6 +7,9 @@ import com.github.ciselab.lampion.core.transformations.TransformerRegistry;
 import com.github.ciselab.lampion.core.transformations.transformers.*;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Random;
 
 import com.github.ciselab.lampion.guided.algorithms.MetamorphicIndividual;
@@ -120,8 +123,18 @@ public class GenotypeSupport {
             i.setTryingToCompile(false);
             registry.registerTransformer(i);
         }
-
-        String outputSet = Integer.toHexString(individual.hashCode()).substring(0,6);
+        String dir = "";
+        if(individual.getGeneration() == -1)
+            dir = "initialGen/";
+        else
+            dir = "gen" + individual.getGeneration() + "/";
+        try {
+            if (!Files.isDirectory(Path.of(dataDir + dir)))
+                Files.createDirectory(Path.of(dataDir + dir));
+        } catch (IOException e) {
+            logger.error(e);
+        }
+        String outputSet = dir + Integer.toHexString(individual.hashCode()).substring(0,6);
         metricCache.putFileCombination(individual, outputSet);
         individual.setJavaPath(outputSet);
 
@@ -165,10 +178,18 @@ public class GenotypeSupport {
         FileManagement.removeSubDirs(new File(path + "/test"), new File(path + "/test"));
         FileManagement.createDirs(path);
         // Preprocessing file.
-        String preprocess = "source preprocess.sh " + path + " " + dataset;
+        String data = dataset.split("/")[1];
+        String preprocess = "source preprocess.sh " + path + " " + data;
         bashRunner.runCommand(preprocess);
+
+        // move preprocessed files to correct folder
+        String move = "mv  " + dataDir + data + "/* " + dataDir+dataset + "/";
+        bashRunner.runCommand(move);
+        String del = "rmdir " + dataDir + data;
+        bashRunner.runCommand(del);
+
         // Evaluating code2vec model with preprocessed files.
-        String testData = "./data/" + dataset + "/" + dataset + ".test.c2v";
+        String testData = "./data/" + dataset + "/" + data + ".test.c2v";
         String eval = "python3 code2vec.py --load " + modelPath + " --test " + testData + " --logs-path eval_log.txt";
         bashRunner.runCommand(eval);
         // The evaluation writes to the result.txt file

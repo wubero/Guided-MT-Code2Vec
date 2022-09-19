@@ -46,10 +46,6 @@ public abstract class Metric implements Function<MetamorphicIndividual, Double> 
         objective = obj;
     }
 
-    public boolean getObjective(){
-        return objective;
-    }
-
     public String getName() {
         return name.toString();
     }

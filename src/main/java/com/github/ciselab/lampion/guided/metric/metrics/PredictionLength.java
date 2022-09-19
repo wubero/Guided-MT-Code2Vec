@@ -16,7 +16,7 @@ public class PredictionLength extends Metric {
 
     @Override
     public boolean isSecondary() {
-        return false;
+        return true;
     }
 
     private double calculateScore(String path) {
@@ -34,21 +34,19 @@ public class PredictionLength extends Metric {
                     if(predicted.charAt(j) != '|')
                         count++;
                     score += count;
+                    System.out.println(count);
                     scores.add((float) count);
                 }
             }
         }
+        System.out.println(score);
         return score/lines.size();
     }
 
     @Override
     public Double apply(MetamorphicIndividual individual) {
-        double score =  individual.getResultPath()
+        return  individual.getResultPath()
                 .map(i -> calculateScore(i))
                 .orElse(0.0);
-        if(!objective)
-            return 1-score;
-        else
-            return score;
     }
 }

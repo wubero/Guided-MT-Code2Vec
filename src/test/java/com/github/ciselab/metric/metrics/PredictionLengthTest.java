@@ -19,11 +19,10 @@ public class PredictionLengthTest {
         GenotypeSupport support = new GenotypeSupport(cache);
         PredictionLength metric = new PredictionLength();
 
-        MetamorphicIndividual testObject = new MetamorphicIndividual(support);
+        MetamorphicIndividual testObject = new MetamorphicIndividual(support, 0);
         testObject.setResultPath("./src/test/resources/metric_files");
 
         var result = metric.apply(testObject);
-
         assertNotNull(result);
         assertNotEquals(Double.NaN,result);
         assertTrue(result>=0 );
@@ -35,7 +34,7 @@ public class PredictionLengthTest {
         GenotypeSupport support = new GenotypeSupport(cache);
         PredictionLength metric = new PredictionLength();
 
-        MetamorphicIndividual testObject = new MetamorphicIndividual(support);
+        MetamorphicIndividual testObject = new MetamorphicIndividual(support, 0);
         testObject.setResultPath("./src/test/bad_path");
 
         var result = metric.apply(testObject);

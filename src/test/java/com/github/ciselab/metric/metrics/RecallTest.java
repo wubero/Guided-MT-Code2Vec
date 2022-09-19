@@ -19,7 +19,7 @@ public class RecallTest {
         GenotypeSupport support = new GenotypeSupport(cache);
         Recall metric = new Recall();
 
-        MetamorphicIndividual testObject = new MetamorphicIndividual(support);
+        MetamorphicIndividual testObject = new MetamorphicIndividual(support, 0);
         testObject.setResultPath("./src/test/resources/metric_files");
 
         var result = metric.apply(testObject);
@@ -35,7 +35,7 @@ public class RecallTest {
         GenotypeSupport support = new GenotypeSupport(cache);
         Recall metric = new Recall();
 
-        MetamorphicIndividual testObject = new MetamorphicIndividual(support);
+        MetamorphicIndividual testObject = new MetamorphicIndividual(support, 0);
         testObject.setResultPath("./src/test/bad_path");
 
         var result = metric.apply(testObject);

@@ -163,11 +163,10 @@ public class Main {
 
             algorithm.checkPareto(myPop);
             writeResultsAfterAlgorithm(resultWriter);
-
-            FileManagement.removeOtherDirs(FileManagement.dataDir);
-            logger.info("Clean up other files.");
-
             resultWriter.close();
+
+            logger.info("Clean up other files.");
+            FileManagement.removeOtherDirs(FileManagement.dataDir);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -253,10 +252,11 @@ public class Main {
 
             resultWriter.write("Average population size over entire run was " + averageSizeSum/generationCount);
 
-            FileManagement.removeOtherDirs(FileManagement.dataDir);
-            logger.info("Clean up other files.");
-
             resultWriter.close();
+
+            logger.info("Clean up other files.");
+            FileManagement.removeOtherDirs(FileManagement.dataDir);
+
         } catch (IOException e) {
             e.printStackTrace();
         }

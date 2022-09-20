@@ -49,4 +49,9 @@ public class PredictionLength extends Metric {
                 .map(i -> calculateScore(i))
                 .orElse(0.0);
     }
+
+    @Override
+    public boolean canBeBiggerThanOne() {
+        return true;
+    }
 }

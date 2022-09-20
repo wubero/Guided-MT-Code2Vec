@@ -78,6 +78,11 @@ public class EditDistance extends Metric {
     }
 
     @Override
+    public boolean canBeBiggerThanOne() {
+        return true;
+    }
+
+    @Override
     public Double apply(MetamorphicIndividual individual) {
         double score =  individual.getResultPath()
                 .map(i -> calculateScore(i))

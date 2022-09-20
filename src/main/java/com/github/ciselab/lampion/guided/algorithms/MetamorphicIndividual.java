@@ -8,7 +8,6 @@ import com.github.ciselab.lampion.guided.support.MetricCache;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.File;
 import java.util.*;
 import java.util.function.Function;
 import java.util.random.RandomGenerator;
@@ -43,6 +42,11 @@ public class MetamorphicIndividual {
     private List<MetamorphicIndividual> parents = new ArrayList<>();
     private int generation;
 
+    /**
+     * Constructor for a Metamorphic Individual.
+     * @param gen the genotype support, holding information e.g. on how to get metrics
+     * @param generation the generation this individual was created
+     */
     public MetamorphicIndividual (GenotypeSupport gen, int generation) {
         genotypeSupport = gen;
         metricCache = gen.getMetricCache();
@@ -197,10 +201,12 @@ public class MetamorphicIndividual {
           this.setResultPath(resultDirectory);
           intermediateMetrics =
                   metricCache.getMetrics().stream()
+                          .filter(m -> !m.isSecondary())
                           .collect(Collectors.toMap(Function.identity(),m -> m.apply(this)));
         } else {
             intermediateMetrics =
                     metricCache.getMetrics().stream()
+                            .filter(m -> !m.isSecondary())
                             .collect(Collectors.toMap(Function.identity(),m -> m.apply(this)));
         }
 
@@ -228,19 +234,6 @@ public class MetamorphicIndividual {
         }
     }
 
-    /*
-    /**
-     * Get the list of scores for every data point in the dataset for every metric.
-     * @return the list of all scores for every metric.
-
-    public Map<String, List<Float>> getScoresList() {
-        Map<String, List<Float>> metricScores = new HashMap<>();
-        for(Metric metric: metricCache.getMetrics()) {
-            metricScores.put(metric.getName(), metric.getScores());
-        }
-        return metricScores;
-    }
-    */
     /**
      * Create a new gene, transformer, for the metamorphic individual.
      * @param key the key for the transformer.
@@ -281,12 +274,16 @@ public class MetamorphicIndividual {
 
     /**
      * Calculate the global fitness of the metrics with the weights for each metric.
+     * Note: Metrics that can be bigger than 1 are ignored for Fitness Calculation, as they would scew the results.
      * @return The global fitness.
      */
     private double calculateFitness() {
-        return metricCache.getActiveMetrics().stream().mapToDouble(
-                m -> m.apply(this) * m.getWeight()
-        ).sum();
+        return metricCache.getActiveMetrics().stream()
+                .filter(m -> !m.canBeBiggerThanOne())
+                .mapToDouble(
+                    m -> m.apply(this) * m.getWeight()
+                )
+                .sum();
     }
 
     /**
@@ -387,6 +384,12 @@ public class MetamorphicIndividual {
         }
     }
 
+    /**
+     * We make a separation between the identity and the concept of an individual.
+     * If you have the same list of transformers, just at a different generation, you will create the same genotype.
+     * To keep track of time of individuals, we have "hashWithLifetime"
+     * @return
+     */
     public int hash() {
         final int prime = 31;
         int result = 1;

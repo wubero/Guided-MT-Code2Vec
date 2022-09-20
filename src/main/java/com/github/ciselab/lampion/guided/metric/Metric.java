@@ -94,6 +94,7 @@ public abstract class Metric implements Function<MetamorphicIndividual, Double> 
     }
 
     public abstract boolean isSecondary();
+    public abstract boolean canBeBiggerThanOne();
 
     /**
      * Maps a given String to the known Metric Enum Type

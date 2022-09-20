@@ -18,4 +18,10 @@ public class Transformations extends Metric {
     public Double apply(MetamorphicIndividual individual) {
         return (Double) (double) individual.getTransformers().size();
     }
+
+    @Override
+    public boolean canBeBiggerThanOne() {
+        return true;
+    }
+
 }

@@ -55,4 +55,9 @@ public class MRR extends Metric {
         else
             return score;
     }
+
+    @Override
+    public boolean canBeBiggerThanOne() {
+        return false;
+    }
 }

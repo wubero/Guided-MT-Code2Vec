@@ -17,11 +17,10 @@ experiment-package/
 │   ├── [...]
 │   └── File300.java
 ├── model
-│   ├── java14_model
-│   │   ├── dictionaries.bin
-│   │   ├── saved_model_iter8.release.data-00000-of-00001
-│   │   ├── saved_model_iter8.release.index
-│   │   └── saved_model_iter8.release.meta
+│   ├── dictionaries.bin
+│   ├── saved_model_iter8.release.data-00000-of-00001
+│   ├── saved_model_iter8.release.index
+│   └── saved_model_iter8.release.meta
 ├── pareto-F1-MRR-min
 │   ├── docker-compose-pareto-F1-MRR-1105.yaml
 │   ├── [...]
@@ -40,14 +39,14 @@ To run the Shell scripts, do:
 
 ```sh
 PARALLEL_EXPERIMENTS=10
-bash experiments.sh $PARALLEL_EXPERIMENTS
+bash runner.sh $PARALLEL_EXPERIMENTS
 ```
 
 To run in background: 
 
 ```
 PARALLEL_EXPERIMENTS=10
-nohup sh experiments.sh $PARALLEL_EXPERIMENTS > experiments.log &
+nohup sh runner.sh $PARALLEL_EXPERIMENTS > experiments.log &
 ```
 
 We recommend 1 or 2 experiments in parallel for desktop users and ~10 Experiments on a proper server.

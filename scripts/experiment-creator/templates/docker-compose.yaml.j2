@@ -23,7 +23,7 @@ services:
       - ../compose-output/{{metric}}-{{modifier}}/seed-{{seed}}:/app/Guided-MT-Code2Vec/genetic_output
       - ../experiment-data:/app/Guided-MT-Code2Vec/genetic_input:ro
       - ../model:/model/      
-      - ./compose-output/{{metric}}-{{modifier}}/seed-{{seed}}/data/:/app/Guided-MT-Code2Vec/code2vec/data/
+      - ../compose-output/{{metric}}-{{modifier}}/seed-{{seed}}/data/:/app/Guided-MT-Code2Vec/code2vec/data/
       - ./{{properties_file}}:/config/config.properties
     environment:
       target: /app/Guided-MT-Code2Vec/genetic_input

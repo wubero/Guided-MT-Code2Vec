@@ -32,6 +32,13 @@
             "properties_file": "f1-mrr-min.properties"
         },
         {
+            "metric": "pareto-F1-MRR",
+            "f1_weight": -1,
+            "mrr_weight":-1,
+            "modifier": "max",
+            "properties_file": "f1-mrr-min.properties"
+        },
+        {
             "metric": "pareto-MRR-trans",
             "trans_num_weight": 1,
             "mrr_weight":1,

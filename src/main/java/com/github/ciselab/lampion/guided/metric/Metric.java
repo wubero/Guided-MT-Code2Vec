@@ -52,10 +52,7 @@ public abstract class Metric implements Function<MetamorphicIndividual, Double> 
 
     public double getWeight(){return weight;}
     public void setWeight(double weight){
-        if (weight < 0){
-            throw new UnsupportedOperationException("Received negative weight for Metric - weight must be 0 or more");
-        }
-        if (weight > 1){
+        if (weight > 1 || weight < -1){
             logger.warn("Unusual weight received for Metric: " + weight);
         }
         this.weight = weight;

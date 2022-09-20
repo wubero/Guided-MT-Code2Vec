@@ -11,6 +11,8 @@ import java.util.Optional;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import static java.lang.Math.abs;
+
 public class MetricCache {
 
     List<Metric> metricList = new ArrayList<>(); // Any at all, including secondary
@@ -34,7 +36,7 @@ public class MetricCache {
 
     public void addMetric(Metric metric) {
         metricList.add(metric);
-        if (metric.getWeight()>0){
+        if (metric.getWeight()!=0){
             activeMetrics.add(metric);
         }
     }
@@ -104,16 +106,15 @@ public class MetricCache {
     /**
      * Initialize all weight properties and objectives.
      */
-    public void initWeights(boolean max) {
+    public void initWeights() {
         removeZeroWeights();
         normalizeWeights();
 
-        metricList.forEach(m -> m.setObjective(max));
+        metricList.forEach(m -> m.setObjective(m.getWeight()>0));
     }
 
     /**
-     * Remove all metrics that have a weight of zero.
-     * These do not have to be calculated or initialized.
+     * Remove all metrics that have a weight of zero from activeMetrics.
      */
     private void removeZeroWeights() {
         var toRemove = activeMetrics.stream().filter(m -> m.getWeight() == 0).toList();
@@ -125,13 +126,16 @@ public class MetricCache {
      * The resulting weights will be summed up 1, with the old proportions kept.
      */
     private void normalizeWeights() {
-        final double sum = activeMetrics.stream().mapToDouble(x -> x.getWeight()).sum();
+        final double sum = activeMetrics.stream().mapToDouble(x -> abs(x.getWeight())).sum();
         if (sum <= 0){
-            logger.error("Combined weight is smaller or equal zero. There should be at least one metric enabled.");
+            logger.error("Combined (absolute) weight is smaller or equal zero. There should be at least one metric enabled.");
             throw new IllegalArgumentException("There should be at least one metric enabled.");
         } else {
             activeMetrics.stream().forEach(
-                    m -> m.setWeight(m.getWeight()/sum)
+                    m -> {
+                        int coefficient =  m.getWeight() < 0 ? -1 : 1;
+                        m.setWeight(coefficient * m.getWeight()/sum);
+                    }
             );
         }
     }

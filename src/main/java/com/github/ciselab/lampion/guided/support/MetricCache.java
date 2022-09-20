@@ -32,10 +32,6 @@ public class MetricCache {
         return activeMetrics.stream().map(x -> x.getWeight()).toList();
     }
 
-    public List<Boolean> getObjectives() {
-        return activeMetrics.stream().map(x -> x.getObjective()).toList();
-    }
-
     public void addMetric(Metric metric) {
         metricList.add(metric);
         if (metric.getWeight()>0){

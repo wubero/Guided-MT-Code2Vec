@@ -119,14 +119,16 @@ public class ConfigManagement {
             var metric = createMetric(n);
             try {
                 metric.setWeight(Float.parseFloat(prop.getProperty(n.toString())));
-            } catch (Exception e){
+            } catch (Exception e) {
                 // This can happen in case of bad parsing, or missing property.
                 // Just do nothing, go on with keeping the Metric at default weight 0
             }
             metricCache.addMetric(metric);
         }
-
         metricCache.initWeights(maximize);
+        for(Metric metric: metricCache.getMetrics()) {
+            metric.setObjective(Float.parseFloat(prop.get(metric.getName()).toString()) > 0);
+        }
         return prop;
     }
 

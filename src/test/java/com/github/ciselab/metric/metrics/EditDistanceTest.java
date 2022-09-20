@@ -26,7 +26,7 @@ public class EditDistanceTest {
         GenotypeSupport support = new GenotypeSupport(cache);
         EditDistance metric = new EditDistance();
 
-        MetamorphicIndividual testObject = new MetamorphicIndividual(support);
+        MetamorphicIndividual testObject = new MetamorphicIndividual(support, 0);
         testObject.setResultPath("./src/test/resources/metric_files");
 
         var result = metric.apply(testObject);
@@ -42,7 +42,7 @@ public class EditDistanceTest {
         GenotypeSupport support = new GenotypeSupport(cache);
         EditDistance metric = new EditDistance();
 
-        MetamorphicIndividual testObject = new MetamorphicIndividual(support);
+        MetamorphicIndividual testObject = new MetamorphicIndividual(support, 0);
         testObject.setResultPath("./src/test/bad_path");
 
         var result = metric.apply(testObject);

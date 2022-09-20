@@ -46,7 +46,7 @@ public class InputLength extends Metric {
 
     @Override
     public Double apply(MetamorphicIndividual individual) {
-        return individual.getJavaPath()
+        return individual.getResultPath()
                 .map(i -> calculateScore(i))
                 .orElse(0.0);
     }

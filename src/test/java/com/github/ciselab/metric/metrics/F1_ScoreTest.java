@@ -25,7 +25,7 @@ public class F1_ScoreTest {
         GenotypeSupport support = new GenotypeSupport(cache);
         F1 metric = new F1();
 
-        MetamorphicIndividual testObject = new MetamorphicIndividual(support);
+        MetamorphicIndividual testObject = new MetamorphicIndividual(support, 0);
         testObject.setResultPath("./src/test/resources/metric_files");
 
         var result = metric.apply(testObject);
@@ -41,7 +41,7 @@ public class F1_ScoreTest {
         GenotypeSupport support = new GenotypeSupport(cache);
         F1 metric = new F1();
 
-        MetamorphicIndividual testObject = new MetamorphicIndividual(support);
+        MetamorphicIndividual testObject = new MetamorphicIndividual(support, 0);
         testObject.setResultPath("./src/test/bad_path");
 
         var result = metric.apply(testObject);

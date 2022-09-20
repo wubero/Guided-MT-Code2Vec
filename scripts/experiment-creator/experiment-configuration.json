@@ -51,7 +51,69 @@
             "f1_weight":1,
             "modifier": "min",
             "properties_file": "f1-trans-min.properties"
+        },
+        
+        {
+            "metric": "random-F1",
+            "use_genetic_algorithm": "false",
+            "f1_weight": 1,
+            "modifier": "min",
+            "properties_file": "f1-min.properties"
+        },
+        {
+            "metric": "random-F1",
+            "use_genetic_algorithm": "false",
+            "f1_weight": -1,
+            "modifier": "max",
+            "properties_file": "f1-max.properties"
+        },
+        {
+            "metric": "random-MRR",
+            "use_genetic_algorithm": "false",
+            "mrr_weight": 1,
+            "modifier": "min",
+            "properties_file": "mrr-min.properties"
+        },
+        {
+            "metric": "random-MRR",
+            "use_genetic_algorithm": "false",
+            "mrr_weight": -1,
+            "modifier": "max",
+            "properties_file": "mrr-max.properties"
+        },
+        {
+            "metric": "random-pareto-F1-MRR",
+            "use_genetic_algorithm": "false",
+            "f1_weight": 1,
+            "mrr_weight":1,
+            "modifier": "min",
+            "properties_file": "f1-mrr-min.properties"
+        },
+        {
+            "metric": "random-pareto-F1-MRR",
+            "use_genetic_algorithm": "false",
+            "f1_weight": -1,
+            "mrr_weight":-1,
+            "modifier": "max",
+            "properties_file": "f1-mrr-min.properties"
+        },
+        {
+            "metric": "random-pareto-MRR-trans",
+            "use_genetic_algorithm": "false",
+            "trans_num_weight": 1,
+            "mrr_weight":1,
+            "modifier": "min",
+            "properties_file": "mrr-trans-min.properties"
+        },
+        {
+            "metric": "random-pareto-F1-trans",
+            "use_genetic_algorithm": "false",
+            "trans_num_weight": 1,
+            "f1_weight":1,
+            "modifier": "min",
+            "properties_file": "f1-trans-min.properties"
         }
+
     ],
 
     "seeds":[

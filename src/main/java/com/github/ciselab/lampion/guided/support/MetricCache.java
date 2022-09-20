@@ -132,10 +132,7 @@ public class MetricCache {
             throw new IllegalArgumentException("There should be at least one metric enabled.");
         } else {
             activeMetrics.stream().forEach(
-                    m -> {
-                        int coefficient =  m.getWeight() < 0 ? -1 : 1;
-                        m.setWeight(coefficient * m.getWeight()/sum);
-                    }
+                    m -> m.setWeight(m.getWeight()/sum)
             );
         }
     }

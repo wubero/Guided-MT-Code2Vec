@@ -34,12 +34,10 @@ public class PredictionLength extends Metric {
                     if(predicted.charAt(j) != '|')
                         count++;
                     score += count;
-                    System.out.println(count);
                     scores.add((float) count);
                 }
             }
         }
-        System.out.println(score);
         return score/lines.size();
     }
 

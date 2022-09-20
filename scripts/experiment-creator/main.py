@@ -7,7 +7,7 @@ import argparse                                     # For handling a nice comman
 
 def run(
         grid_config_file: str,
-        preprocessing_image: str = None) -> None:
+        dockerimage: str = None) -> None:
     """
     Primary Method of this file. It will
     1. Read the templates
@@ -19,8 +19,8 @@ def run(
     6. Copy helpers and nearby contents necessary for a replication package
 
     :param grid_config_file: the path to a .json file containing the information how to do the grid experiment.
-    :param preprocessing_image: The image used in the preprocessing composes.
-        Must have label attached, e.g.: "ciselab/guided-mt-code2vec:1.0"
+    :param dockerimage: The image used in the composes.
+        Must have label attached, e.g.: "ciselab/guided-mt-code2vec:1.1"
     
     """
     file_loader = FileSystemLoader('templates')
@@ -43,7 +43,7 @@ def run(
 
     for experiment in experiments:
         experiment_dir =  os.path.join(output_dir_grid_experiment,experiment['metric']+"-"+experiment['modifier'])
-        print(experiment_dir)
+        print(f"Filling {experiment_dir} ...")
         os.makedirs(experiment_dir, exist_ok=True)
 
         config_file_path = os.path.join(experiment_dir,experiment["properties_file"])
@@ -53,9 +53,9 @@ def run(
         config_file.close()
 
         for seed in seeds:
-            compose_file_path = os.path.join(experiment_dir,f"docker-compose-{experiment['metric']}-{seed}.yaml")
+            compose_file_path = os.path.join(experiment_dir,f"docker-compose-{experiment['metric']}-{seed}-{experiment['modifier']}.yaml")
             compose_file = open(compose_file_path, "w")
-            compose_content = compose_template.render(**experiment,seed=seed)
+            compose_content = compose_template.render(**experiment,seed=seed,docker_image=dockerimage)
             compose_file.write(compose_content)
             compose_file.close()
 
@@ -86,11 +86,11 @@ if __name__ == '__main__':
                                                  'Experiment')
     parser.add_argument('configfile', metavar='cf', type=str, nargs=1,
                         help='The config file to create the grid experiment from')
-    parser.add_argument('-preprocessing_image', nargs='?', type=str,
+    parser.add_argument('-dockerimage', nargs='?', type=str,
                         default="ciselab/guided-mt-code2vec:latest",
-                        help="Which preprocessing docker-image (and version) to use. Version must be specified. ")
+                        help="Which  docker-image (and version) to use. Version must be specified. ")
 
     args = parser.parse_args()
 
     run(args.configfile[0],
-        preprocessing_image=args.preprocessing_image)
+        dockerimage=args.dockerimage)

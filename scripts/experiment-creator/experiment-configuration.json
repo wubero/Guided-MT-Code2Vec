@@ -7,6 +7,24 @@
             "properties_file": "f1-min.properties"
         },
         {
+            "metric": "F1",
+            "f1_weight": -1,
+            "modifier": "max",
+            "properties_file": "f1-max.properties"
+        },
+        {
+            "metric": "MRR",
+            "mrr_weight": 1,
+            "modifier": "min",
+            "properties_file": "mrr-min.properties"
+        },
+        {
+            "metric": "MRR",
+            "mrr_weight": -1,
+            "modifier": "max",
+            "properties_file": "mrr-max.properties"
+        },
+        {
             "metric": "pareto-F1-MRR",
             "f1_weight": 1,
             "mrr_weight":1,
@@ -15,10 +33,17 @@
         },
         {
             "metric": "pareto-MRR-trans",
-            "trans_num-weight": 1,
+            "trans_num_weight": 1,
             "mrr_weight":1,
             "modifier": "min",
             "properties_file": "mrr-trans-min.properties"
+        },
+        {
+            "metric": "pareto-F1-trans",
+            "trans_num_weight": 1,
+            "f1_weight":1,
+            "modifier": "min",
+            "properties_file": "f1-trans-min.properties"
         }
     ],
 

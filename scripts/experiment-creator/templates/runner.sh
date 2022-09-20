@@ -6,6 +6,6 @@
 cores=$1
 echo "Running all experiments on ${cores} cores"
 
-find . -name "docker-compose-*.yml" -print0 | xargs -I {} -0 -P ${cores} sh -c 'docker-compose -f {} up; docker-compose -f {} down'
+find . -name "docker-compose-*.yaml" -print0 | xargs -I {} -0 -P ${cores} sh -c 'docker-compose -f {} up; docker-compose -f {} down'
 
 echo "Finished running all experiments"

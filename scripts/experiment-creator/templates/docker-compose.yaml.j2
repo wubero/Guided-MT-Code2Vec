@@ -9,6 +9,7 @@ metric::string (F1,MRR,..., Intended also for paretos pareto-f1-mrr)
 seed::int
 modifier::string (max,min)
 properties-file::path (must be pointing to the concrete xxx.properties)
+model_name: the exact name of the model, matching the Code2Vec release
 -----------
 Derived: 
 experiment-id::string = {{metric}} + {{seed}} + {{modifier}} (e.g. f1-5-max)
@@ -25,11 +26,13 @@ services:
     volumes:
       - ../compose_output/{{metric}}-{{modifier}}/seed-{{seed}}:/app/Guided-MT-Code2Vec/genetic_output
       - ../experiment_data:/app/Guided-MT-Code2Vec/genetic_input
+      - ../model:/model/
       - {{properties_file}}:/config/config.properties
     environment:
       target: /app/Guided-MT-Code2Vec/genetic_input
       output: /app/Guided-MT-Code2Vec/genetic_output
       configfile: /config/config.properties
+      model: /model/{{model_name | default("saved_model_iter8.release",true)}}
     container_name: guided-mt-code2vec-{{metric}}-{{seed}}-{{modifier}}
     networks:
       - guided-mt-code2vec-{{metric}}-{{seed}}-{{modifier}}

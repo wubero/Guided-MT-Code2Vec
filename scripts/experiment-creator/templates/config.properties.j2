@@ -1,4 +1,4 @@
-version=1.0
+version=1.1
 
 # This file is automatically managed by Jinja2. 
 # It is created by a template and should not be manually changed.
@@ -21,16 +21,16 @@ macro_seed::int
 
 # The metrics with their weights.
 MRR={{mrr_weight|default(0,true)}}
-F1Score={{f1_weight|default(0,true)}}
-PercentageMRR={{pmrr_weight|default(0,true)}}
-Precision={{precision_weight|default(0,true)}}
-Recall={{recall_weight|default(0,true)}}
-EditDistance={{edit_weight|default(0,true)}}
+F1={{f1_weight|default(0,true)}}
+PMRR={{pmrr_weight|default(0,true)}}
+PREC={{precision_weight|default(0,true)}}
+REC={{recall_weight|default(0,true)}}
+EDITDIST={{edit_weight|default(0,true)}}
 
 # Secondary metrics
-InputLength={{input_length_weight|default(0,true)}}
-PredictionLength={{pred_length_weight|default(0,true)}}
-NumberOfTransformations={{trans_num_weight|default(0,true)}}
+INPUTLENGTH={{input_length_weight|default(0,true)}}
+PREDLENGTH={{pred_length_weight|default(0,true)}}
+TRANSFORMATIONS={{trans_num_weight|default(0,true)}}
 
 # Should the genetic algorithm minimize (min) or maximize (max) the metrics given above.
 Optimization_objective={{modifier|default(min,true)}}

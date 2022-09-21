@@ -1,6 +1,5 @@
 package com.github.ciselab.support;
 
-import static com.github.ciselab.lampion.guided.support.FileManagement.dataDir;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -25,7 +24,8 @@ public class FileManagementTest {
 
     @AfterEach
     public void after() {
-        FileManagement.removeOtherDirs(dataDir);
+        var config = new Configuration();
+        FileManagement.removeOtherDirs(config.program.getDataDirectoryPath());
     }
 
     @Tag("File")
@@ -40,7 +40,7 @@ public class FileManagementTest {
         assertTrue(myDir.mkdir());
         assertTrue(myDir.exists());
         assertTrue(currDir.exists());
-        FileManagement.removeOtherDirs(dataDir);
+        FileManagement.removeOtherDirs(config.program.getDataDirectoryPath());
         assertFalse(myDir.exists());
         assertTrue(currDir.exists());
     }
@@ -56,7 +56,7 @@ public class FileManagementTest {
         if(files!=null) {
             int l = files.length;
             FileManagement.setDataDir(config.program.getDataDirectoryPath() + "/src/test/resources/code_files");
-            File[] dataFiles = new File(dataDir + "generation_0").listFiles();
+            File[] dataFiles = new File(config.program.getDataDirectoryPath() + "generation_0").listFiles();
             assertNotNull(dataFiles);
             assertEquals(l, dataFiles.length);
         } else {
@@ -67,10 +67,12 @@ public class FileManagementTest {
     @Tag("File")
     @Test
     public void createDirsTest() {
-        File f = new File(dataDir + "test_dir");
+        var config = new Configuration();
+
+        File f = new File(config.program.getDataDirectoryPath() + "test_dir");
         assertTrue(f.mkdir());
         assertTrue(f.isDirectory());
         assertTrue(FileManagement.createDirs(f.getPath()));
-        FileManagement.removeOtherDirs(dataDir);
+        FileManagement.removeOtherDirs(config.program.getDataDirectoryPath());
     }
 }

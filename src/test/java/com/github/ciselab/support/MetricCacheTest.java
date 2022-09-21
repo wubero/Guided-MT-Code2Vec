@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.io.IOException;
 
 import com.github.ciselab.lampion.guided.configuration.ConfigManagement;
+import com.github.ciselab.lampion.guided.configuration.Configuration;
 import com.github.ciselab.lampion.guided.support.FileManagement;
 import com.github.ciselab.lampion.guided.support.MetricCache;
 import org.junit.jupiter.api.AfterEach;
@@ -16,7 +17,8 @@ public class MetricCacheTest {
 
     @AfterEach
     public void after() {
-        FileManagement.removeOtherDirs(FileManagement.dataDir);
+        var config = new Configuration();
+        FileManagement.removeOtherDirs(config.program.getDataDirectoryPath());
     }
 
     @Tag("File")

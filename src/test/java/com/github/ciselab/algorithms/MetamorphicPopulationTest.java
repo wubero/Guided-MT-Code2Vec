@@ -22,7 +22,8 @@ public class MetamorphicPopulationTest {
 
     @AfterEach
     public void after() {
-        FileManagement.removeOtherDirs(FileManagement.dataDir);
+        var config = new Configuration();
+        FileManagement.removeOtherDirs(config.program.getDataDirectoryPath());
     }
 
     @Test

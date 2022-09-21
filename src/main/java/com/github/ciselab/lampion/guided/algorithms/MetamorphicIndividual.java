@@ -299,7 +299,7 @@ public class MetamorphicIndividual {
                 return;
         } else {
             if(resultPath.isPresent()) { // Should be able to do this with the javaPath
-                jsonPath = Optional.of(resultPath.get() + "individual.json");
+                jsonPath = Optional.of(resultPath.get() + ".json");
 
                 //Write JSON file
                 jsonIndividual = createNewJSON();

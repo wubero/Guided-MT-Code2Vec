@@ -65,10 +65,10 @@ public class Main {
         if(args.length == 0) {
             logger.info("No arguments found - loading default values");
         } else if (args.length == 4) {
-            logger.info("Received four arguments - Config input: " + args[0]
-                    +", model : " + args[1]
-                    + ", data input: " + args[2]
-                    + " and output: " + args[3]);
+            logger.debug("Received four arguments - Config input: " + args[0]
+                    +"\n\t model : " + args[1]
+                    + "\n\t data input: " + args[2]
+                    + "\n\t and output: " + args[3]);
 
             CONFIG_MANAGER.setConfigFile(args[0]);
             genotypeSupport.setModelPath(args[1]);
@@ -105,12 +105,12 @@ public class Main {
     public static void runRandomAlgo() {
         RandomAlgorithm algorithm = new RandomAlgorithm(genotypeSupport, paretoFront);
         RandomGenerator randomGenerator = new SplittableRandom(CONFIG_MANAGER.getSeed());
-        logger.info("Using randomGenerator algorithm");
+        logger.info("Using Random-Search");
         algorithm.initializeParameters(maxTransformerValue, randomGenerator);
 
         // Create an initial population
         try {
-            FileWriter resultWriter = new FileWriter(logDir + "GA_results.txt");
+            FileWriter resultWriter = new FileWriter(logDir + "results.txt");
             MetamorphicPopulation myPop = new MetamorphicPopulation(popSize, randomGenerator,
                     maxTransformerValue, false, genotypeSupport, 0);
             for(int i = 0; i < popSize; i++) {
@@ -176,6 +176,7 @@ public class Main {
      * Run the custom simple genetic algorithm created for variable length chromosomes.
      */
     public static void runSimpleGA() {
+        logger.info("Using Genetic Search");
         LocalTime start = LocalTime.now();
         GeneticAlgorithm geneticAlgorithm = new GeneticAlgorithm(genotypeSupport, paretoFront);
         boolean converged = false;
@@ -201,7 +202,7 @@ public class Main {
             while (!converged && timeDiffSmaller(start)) {
 
                 generationCount++;
-                logger.info("Generation " + generationCount);
+                logger.info("Starting Generation " + generationCount);
                 resultWriter.write("Generation " + generationCount + " has an average population size" +
                         " of " + myPop.getAverageSize() + "\n");
                 averageSizeSum += myPop.getAverageSize();
@@ -223,8 +224,8 @@ public class Main {
                 resultWriter.write("Generation: " + generationCount + ", result: " + myPop.getFittest().getFitness() + "\n");
                 resultWriter.write("Gene: " + myPop.getFittest() + "\n");
 
-                logger.info("Generation: " + generationCount + " Fittest: " + myPop.getFittest().getFitness() + " Gene:");
-                logger.info(myPop.getFittest().toString());
+                logger.info("Generation: " + generationCount + " Fittest: " + myPop.getFittest().getFitness());
+                logger.debug("Fittest Gene: " + myPop.getFittest().toString());
 
                 // Write all current individuals to their respective json files
                 for(int index = 0; index < myPop.size(); index++)
@@ -247,8 +248,6 @@ public class Main {
 
             geneticAlgorithm.checkPareto(myPop);
             writeResultsAfterAlgorithm(resultWriter);
-            //if(dataPointSpecific)
-            //    writeDataSpecificResults(resultWriter, best);
 
             resultWriter.write("Average population size over entire run was " + averageSizeSum/generationCount);
 

@@ -19,12 +19,10 @@ import java.util.stream.Collectors;
  */
 public class ParetoFront {
 
-    private final MetricCache metricCache;
     private Set<MetamorphicIndividual> frontier = new HashSet<>();
     private List<Metric> metrics;
 
     public ParetoFront(MetricCache cache) {
-        this.metricCache = cache;
         metrics = cache.getMetrics();
     }
 
@@ -36,10 +34,6 @@ public class ParetoFront {
                             .collect(Collectors.toList())
 
         ).collect(Collectors.toSet());
-    }
-
-    public void setFrontier(Set<MetamorphicIndividual> newFrontier) {
-        frontier = newFrontier;
     }
 
     /**

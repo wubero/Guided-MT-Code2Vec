@@ -57,7 +57,7 @@ public class GeneticAlgorithm {
         maxTransformerValue = maxValue;
         maxGeneLength = maxLength;
         this.randomGenerator = randomGenerator;
-        return String.format(Locale.UK,"{uniform rate: %.4f, mutation rate: %.4f, tournament size: %d, elitism: %b, increase rate: %.4f," +
+        return String.format(Locale.UK,"{mutation rate: %.4f, tournament size: %d, elitism: %b, increase rate: %.4f," +
                 " max transformer value: %d, max gene length: %d}",
                 (float) uRate, mRate, tSize, elite, increaseRate, maxValue, maxLength);
     }

@@ -19,7 +19,6 @@ public class MetricCache {
     List<Metric> activeMetrics = new ArrayList<>(); // Metrics that Guide Fitness
 
     private final Map<MetamorphicIndividual, String> fileLookup = new HashMap<>();
-
     private final Map<MetamorphicIndividual,Map<Metric,Double>> lookup = new HashMap<>();
 
     private final Logger logger = LogManager.getLogger(MetricCache.class);
@@ -27,7 +26,6 @@ public class MetricCache {
     public List<Metric> getMetrics() {
         return metricList;
     }
-
     public List<Metric> getActiveMetrics() { return activeMetrics;}
 
     public List<Double> getWeights() {

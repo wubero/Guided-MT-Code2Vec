@@ -3,11 +3,10 @@ package com.github.ciselab.support;
 import static java.lang.Math.abs;
 import static org.junit.jupiter.api.Assertions.*;
 
-import java.io.FileNotFoundException;
+import java.io.IOException;
 
 import com.github.ciselab.lampion.guided.configuration.ConfigManagement;
 import com.github.ciselab.lampion.guided.support.FileManagement;
-import com.github.ciselab.lampion.guided.support.GenotypeSupport;
 import com.github.ciselab.lampion.guided.support.MetricCache;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Tag;
@@ -20,47 +19,12 @@ public class MetricCacheTest {
         FileManagement.removeOtherDirs(FileManagement.dataDir);
     }
 
-    /*
-    TODO: Reimplement
-    @Test
-    public void putFilesTest() {
-        MetricCache cache = new MetricCache();
-        GenotypeSupport support = new GenotypeSupport(cache);
-        ConfigManagement config = support.getConfigManagement();
-        config.setConfigFile("src/test/resources/config.properties");
-        config.initializeFields();
-
-        List<BaseTransformer> transformers = new ArrayList<>();
-        cache.putFileCombination(transformers, "testFile");
-        assertEquals(cache.getDir(transformers).get(), "testFile");
-    }
-
-    @Test
-    public void storeFilesTest() {
-        MetricCache cache = new MetricCache();
-        GenotypeSupport support = new GenotypeSupport(cache);
-        ConfigManagement config = support.getConfigManagement();
-        config.setConfigFile("src/test/resources/config.properties");
-        config.initializeFields();
-
-        List<BaseTransformer> transformers = new ArrayList<>();
-        double[] arr = new double[]{10,3};
-        cache.storeFiles(transformers, "file", arr);
-
-        assertTrue(cache.getDir(transformers).isPresent());
-        assertEquals(cache.getDir(transformers).get(), "file");
-        assertTrue(cache.getMetricResult(transformers).isPresent());
-        assertSame(cache.getMetricResult(transformers).get(), arr);
-    }
-*/
     @Tag("File")
     @Test
-    public void initWeightsTest_allMetricsActive() throws FileNotFoundException {
-        MetricCache cache = new MetricCache();
-        GenotypeSupport support = new GenotypeSupport(cache);
-        ConfigManagement config = support.getConfigManagement();
-        config.setConfigFile("src/test/resources/config_examples/config.properties");
-        config.initializeFields();
+    public void initWeightsTest_allMetricsActive() throws IOException {
+        String path = "src/test/resources/config_examples/config.properties";
+
+        MetricCache cache = ConfigManagement.initializeMetricCache(path);
 
         cache.initWeights();
 
@@ -75,12 +39,10 @@ public class MetricCacheTest {
 
     @Tag("File")
     @Test
-    public void initWeightsTest_negativeMetric_Works() throws FileNotFoundException {
-        MetricCache cache = new MetricCache();
-        GenotypeSupport support = new GenotypeSupport(cache);
-        ConfigManagement config = support.getConfigManagement();
-        config.setConfigFile("src/test/resources/config_examples/negativeMetric.properties");
-        config.initializeFields();
+    public void initWeightsTest_negativeMetric_Works() throws IOException {
+        String path = "src/test/resources/config_examples/negativeMetric.properties";
+
+        MetricCache cache = ConfigManagement.initializeMetricCache(path);
 
         cache.initWeights();
 
@@ -95,13 +57,10 @@ public class MetricCacheTest {
 
     @Tag("File")
     @Test
-    public void initWeightsTest_twoNegativeMetric_Works() throws FileNotFoundException {
-        MetricCache cache = new MetricCache();
-        GenotypeSupport support = new GenotypeSupport(cache);
-        ConfigManagement config = support.getConfigManagement();
-        config.setConfigFile("src/test/resources/config_examples/twoNegativeMetrics.properties");
-        config.initializeFields();
+    public void initWeightsTest_twoNegativeMetric_Works() throws IOException {
+        String path = "src/test/resources/config_examples/twoNegativeMetrics.properties";
 
+        MetricCache cache = ConfigManagement.initializeMetricCache(path);
         cache.initWeights();
 
         float sum = 0;
@@ -115,12 +74,10 @@ public class MetricCacheTest {
 
     @Tag("File")
     @Test
-    public void initWeightsTest_mixedMetrics_Works() throws FileNotFoundException {
-        MetricCache cache = new MetricCache();
-        GenotypeSupport support = new GenotypeSupport(cache);
-        ConfigManagement config = support.getConfigManagement();
-        config.setConfigFile("src/test/resources/config_examples/mixedMetrics.properties");
-        config.initializeFields();
+    public void initWeightsTest_mixedMetrics_Works() throws IOException {
+        String path = "src/test/resources/config_examples/mixedMetrics.properties";
+
+        MetricCache cache = ConfigManagement.initializeMetricCache(path);
 
         cache.initWeights();
 
@@ -136,12 +93,10 @@ public class MetricCacheTest {
 
     @Tag("File")
     @Test
-    public void initWeightsTest_mixedMetrics2_OneNegativeOnePositive() throws FileNotFoundException {
-        MetricCache cache = new MetricCache();
-        GenotypeSupport support = new GenotypeSupport(cache);
-        ConfigManagement config = support.getConfigManagement();
-        config.setConfigFile("src/test/resources/config_examples/mixedMetrics2.properties");
-        config.initializeFields();
+    public void initWeightsTest_mixedMetrics2_OneNegativeOnePositive() throws IOException {
+        String path = "src/test/resources/config_examples/mixedMetrics2.properties";
+
+        MetricCache cache = ConfigManagement.initializeMetricCache(path);
 
         cache.initWeights();
 

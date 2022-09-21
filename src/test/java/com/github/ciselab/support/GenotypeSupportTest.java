@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.github.ciselab.lampion.guided.algorithms.MetamorphicIndividual;
+import com.github.ciselab.lampion.guided.configuration.Configuration;
 import com.github.ciselab.lampion.guided.support.FileManagement;
 import com.github.ciselab.lampion.guided.support.GenotypeSupport;
 import com.github.ciselab.lampion.guided.support.MetricCache;
@@ -30,11 +31,9 @@ public class GenotypeSupportTest {
     @Tag("File")
     @Test
     public void runTransformationsTest() throws IOException {
-        var cache = new MetricCache();
-        var support =  new GenotypeSupport(cache);
-        var configManagement = support.getConfigManagement();
-        configManagement.setConfigFile("src/test/resources/config.properties");
-        configManagement.initializeFields();
+        var config = new Configuration();
+        MetricCache cache = new MetricCache();
+        var support =  new GenotypeSupport(cache,config);
 
         var testObject = new MetamorphicIndividual(support, 0);
         List<BaseTransformer> transformers = new ArrayList<>();
@@ -57,11 +56,9 @@ public class GenotypeSupportTest {
     @Tag("File")
     @Test
     public void runCode2vecInferenceTest() throws IOException {
-        var cache = new MetricCache();
-        var support =  new GenotypeSupport(cache);
-        var configManagement = support.getConfigManagement();
-        configManagement.setConfigFile("src/test/resources/config.properties");
-        configManagement.initializeFields();
+        var config = new Configuration();
+        MetricCache cache = new MetricCache();
+        var support =  new GenotypeSupport(cache,config);
 
         var testObject = new MetamorphicIndividual(support, 0);
 

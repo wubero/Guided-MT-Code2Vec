@@ -6,6 +6,7 @@ import com.github.ciselab.lampion.guided.algorithms.MetamorphicPopulation;
 import com.github.ciselab.lampion.guided.algorithms.RandomAlgorithm;
 import com.github.ciselab.lampion.guided.configuration.ConfigManagement;
 import com.github.ciselab.lampion.guided.configuration.Configuration;
+import com.github.ciselab.lampion.guided.metric.Metric;
 import com.github.ciselab.lampion.guided.support.*;
 
 import java.io.FileNotFoundException;
@@ -377,5 +378,21 @@ public class Main {
             return values.get(values.size()-1);
         else
             return values.get(0);
+    }
+
+    /**
+     * This is meant for Testing Only!
+     * @param config
+     */
+    public static void setConfig(Configuration config){
+        Main.config = config;
+    }
+
+    /**
+     * This is meant for Testing only!
+     * @param cache
+     */
+    public static void setCache(MetricCache cache){
+        Main.cache = cache;
     }
 }

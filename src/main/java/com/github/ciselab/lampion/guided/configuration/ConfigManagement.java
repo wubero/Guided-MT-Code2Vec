@@ -1,9 +1,6 @@
-package com.github.ciselab.lampion.guided.support;
-
-import static com.github.ciselab.lampion.guided.support.GenotypeSupport.dir_path;
+package com.github.ciselab.lampion.guided.configuration;
 
 import com.github.ciselab.lampion.core.program.Engine.TransformationScope;
-import com.github.ciselab.lampion.guided.configuration.Configuration;
 import com.github.ciselab.lampion.guided.metric.Metric;
 import com.github.ciselab.lampion.guided.metric.metrics.EditDistance;
 import com.github.ciselab.lampion.guided.metric.metrics.F1;
@@ -15,76 +12,18 @@ import com.github.ciselab.lampion.guided.metric.metrics.PredictionLength;
 import com.github.ciselab.lampion.guided.metric.metrics.Recall;
 import com.github.ciselab.lampion.guided.metric.metrics.Transformations;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 import java.util.Random;
+
+import com.github.ciselab.lampion.guided.support.MetricCache;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 public class ConfigManagement {
 
-    private final MetricCache metricCache;
-    private final BashRunner bashRunner;
-    public String configFile = dir_path + "/src/main/resources/config.properties";
-    private long seed = 200;
-    private boolean removeAllComments = false;
-    private TransformationScope transformationScope = TransformationScope.perClass;
-    private boolean maximize = true;
     private static final Logger logger = LogManager.getLogger(ConfigManagement.class);
-    private boolean useGA = true;
-
-    public ConfigManagement(MetricCache metricCache, BashRunner bashRunner) {
-        this.metricCache = metricCache;
-        this.bashRunner = bashRunner;
-    }
-
-
-    public boolean getUseGa() {
-        return useGA;
-    }
-
-    public long getSeed() {
-        return seed;
-    }
-
-    public boolean getRemoveAllComments() {
-        return removeAllComments;
-    }
-
-    public TransformationScope getTransformationScope() {
-        return transformationScope;
-    }
-
-    public boolean getMaximize() {
-        return maximize;
-    }
-
-    public void setConfigFile(String config) {
-        configFile = config;
-    }
-
-    public void setMaximize(boolean max) {
-        maximize = max;
-    }
-
-    /**
-     * Initialize global fields with config file data.
-     */
-    public Properties initializeFields() throws FileNotFoundException {
-        Properties prop = new Properties();
-        try {
-            InputStream input = new FileInputStream(configFile);
-            // load a properties file
-            prop.load(input);
-        } catch (IOException e) {
-            logger.error("Cannot load property file.");
-            throw new FileNotFoundException("Could not find (or read) Configuration-File!");
-        }
-
-        return prop;
-    }
 
     /**
      * Tries to read the config.properties at a given path.

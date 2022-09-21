@@ -1,9 +1,7 @@
 package com.github.ciselab.program;
 
-import com.github.ciselab.lampion.guided.algorithms.MetamorphicIndividual;
-import com.github.ciselab.lampion.guided.algorithms.MetamorphicPopulation;
 import com.github.ciselab.lampion.guided.program.Main;
-import com.github.ciselab.lampion.guided.support.ConfigManagement;
+import com.github.ciselab.lampion.guided.configuration.ConfigManagement;
 import com.github.ciselab.lampion.guided.support.FileManagement;
 import com.github.ciselab.lampion.guided.support.GenotypeSupport;
 import com.github.ciselab.lampion.guided.support.MetricCache;
@@ -12,8 +10,7 @@ import java.io.FileNotFoundException;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Properties;
-import java.util.SplittableRandom;
-import java.util.random.RandomGenerator;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;

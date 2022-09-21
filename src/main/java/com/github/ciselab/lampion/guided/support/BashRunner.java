@@ -5,6 +5,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.concurrent.TimeUnit;
+
+import com.github.ciselab.lampion.guided.configuration.ProgramConfiguration;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -14,11 +16,12 @@ import org.apache.logging.log4j.Logger;
  */
 public class BashRunner {
 
-    private String path_bash = "C:/Program Files/Git/bin/bash.exe";
     private final Logger logger = LogManager.getLogger(BashRunner.class);
 
-    public void setPath_bash(String path) {
-        path_bash = path;
+    ProgramConfiguration config;
+
+    public BashRunner(ProgramConfiguration config){
+        this.config = config;
     }
 
     /**
@@ -36,8 +39,8 @@ public class BashRunner {
     private void runBashCommand(String command, Integer countFailed) {
         try {
             ProcessBuilder processBuilder = new ProcessBuilder();
-            processBuilder.directory(new File(GenotypeSupport.dir_path + "/code2vec/"));
-            processBuilder.command(path_bash, "-c", command);
+            processBuilder.directory(new File(config.getDirectoryPath() + "/code2vec/"));
+            processBuilder.command(config.getBashPath(), "-c", command);
 
             Process process = processBuilder.start();
 
@@ -53,11 +56,11 @@ public class BashRunner {
             if (exitVal == 0) {
                 logger.trace(" --- Command run successfully");
             } else {
-                if(countFailed < 5) {
+                if(countFailed < config.getBashRetries()) {
                     TimeUnit.SECONDS.sleep(1);
                     runBashCommand(command, countFailed+1);
                 } else {
-                    logger.debug("The command: " + command + "\n does not succed after 5 tries, quiting the system.");
+                    logger.debug("The command: " + command + "\n does not succed after " + config.getBashRetries() + " tries, quiting the system.");
                     System.exit(1);
                 }
             }

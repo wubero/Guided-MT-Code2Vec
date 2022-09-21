@@ -1,7 +1,5 @@
 package com.github.ciselab.lampion.guided.support;
 
-import static com.github.ciselab.lampion.guided.support.FileManagement.dataDir;
-
 import com.github.ciselab.lampion.core.program.EngineResult;
 import com.github.ciselab.lampion.core.transformations.TransformerRegistry;
 import com.github.ciselab.lampion.core.transformations.transformers.*;
@@ -10,9 +8,9 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Random;
 
 import com.github.ciselab.lampion.guided.algorithms.MetamorphicIndividual;
+import com.github.ciselab.lampion.guided.configuration.Configuration;
 import com.github.ciselab.lampion.guided.program.Engine;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -26,31 +24,25 @@ import spoon.reflect.CtModel;
  * and then evaluates the pre-trained code2vec model.
  */
 public class GenotypeSupport {
-
-    public static final String dir_path = System.getProperty("user.dir").replace("\\", "/");
     private final String currentDataset = "generation_0";
-    // Default Model Path for 1.0 was "models/java14_model/saved_model_iter8.release"
-    private String modelPath;
-    private final BashRunner bashRunner = new BashRunner();
+
+    private Configuration config;
+    private final BashRunner bashRunner;
     private final MetricCache metricCache;
-    private final ConfigManagement configManagement;
 
     private final Logger logger = LogManager.getLogger(GenotypeSupport.class);
 
     private long totalCode2vecTime = 0;
     private long totalTransformationTime = 0;
 
-    public GenotypeSupport(MetricCache cache) {
+    public GenotypeSupport(MetricCache cache, Configuration config) {
         metricCache = cache;
-        configManagement = new ConfigManagement(cache, bashRunner);
+        this.config = config;
+        this.bashRunner = new BashRunner(config.program);
     }
 
     public MetricCache getMetricCache() {
         return metricCache;
-    }
-
-    public ConfigManagement getConfigManagement() {
-        return configManagement;
     }
 
     public String getCurrentDataset() {
@@ -129,8 +121,8 @@ public class GenotypeSupport {
         else
             dir = "gen" + individual.getGeneration() + "/";
         try {
-            if (!Files.isDirectory(Path.of(dataDir + dir)))
-                Files.createDirectory(Path.of(dataDir + dir));
+            if (!Files.isDirectory(Path.of(config.program.getDataDirectoryPath() + dir)))
+                Files.createDirectory(Path.of(config.program.getDataDirectoryPath() + dir));
         } catch (IOException e) {
             logger.error(e);
         }
@@ -138,10 +130,10 @@ public class GenotypeSupport {
         metricCache.putFileCombination(individual, outputSet);
         individual.setJavaPath(outputSet);
 
-        Engine engine = new Engine(dataDir + input, dataDir + outputSet + "/test", registry);
-        engine.setNumberOfTransformationsPerScope(individual.getTransformers().size(), configManagement.getTransformationScope());
-        engine.setRandomSeed(configManagement.getSeed());
-        engine.setRemoveAllComments(configManagement.getRemoveAllComments());
+        Engine engine = new Engine(config.program.getDataDirectoryPath() + input, config.program.getDataDirectoryPath() + outputSet + "/test", registry);
+        engine.setNumberOfTransformationsPerScope(individual.getTransformers().size(), config.lampion.getTransformationScope());
+        engine.setRandomSeed(config.program.getSeed());
+        engine.setRemoveAllComments(config.lampion.isRemoveAllComments());
 
         Launcher launcher = new spoon.Launcher();
         launcher.addInputResource(engine.getCodeDirectory());
@@ -174,7 +166,7 @@ public class GenotypeSupport {
     public String runCode2vec(String dataset, String destination) {
         logger.info("Starting code2vec inference");
         long start = System.currentTimeMillis();
-        String path = dataDir + dataset;
+        String path = config.program.getDataDirectoryPath() + dataset;
         FileManagement.removeSubDirs(new File(path + "/test"), new File(path + "/test"));
         FileManagement.createDirs(path);
         // Preprocessing file.
@@ -183,14 +175,14 @@ public class GenotypeSupport {
         bashRunner.runCommand(preprocess);
 
         // move preprocessed files to correct folder
-        String move = "mv  " + dataDir + data + "/* " + dataDir+dataset + "/";
+        String move = "mv  " + config.program.getDataDirectoryPath() + data + "/* " + config.program.getDataDirectoryPath()+dataset + "/";
         bashRunner.runCommand(move);
-        String del = "rmdir " + dataDir + data;
+        String del = "rmdir " + config.program.getDataDirectoryPath() + data;
         bashRunner.runCommand(del);
 
         // Evaluating code2vec model with preprocessed files.
         String testData = "./data/" + dataset + "/" + data + ".test.c2v";
-        String eval = "python3 code2vec.py --load " + modelPath + " --test " + testData + " --logs-path eval_log.txt";
+        String eval = "python3 code2vec.py --load " + config.program.getModelPath() + " --test " + testData + " --logs-path eval_log.txt";
         bashRunner.runCommand(eval);
         // The evaluation writes to the result.txt file
 
@@ -198,7 +190,7 @@ public class GenotypeSupport {
         totalCode2vecTime += diff;
         logger.info("Code2vec inference of this generation took: " + diff + " seconds");
 
-        String resolvedDestination = dataDir + destination;
+        String resolvedDestination = config.program.getDataDirectoryPath() + destination;
 
         bashRunner.runCommand("mkdir -p " + resolvedDestination);
 
@@ -214,10 +206,4 @@ public class GenotypeSupport {
         return path;
     }
 
-    public void setModelPath(String arg) {
-        if (arg == null || arg.isEmpty() || arg.isBlank()){
-            throw new IllegalArgumentException("Model Path cannot be null or empty");
-        }
-        this.modelPath = arg;
-    }
 }

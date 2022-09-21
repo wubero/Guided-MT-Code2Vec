@@ -13,7 +13,8 @@ import org.apache.logging.log4j.Logger;
 public class FileManagement {
 
     private static final Logger logger = LogManager.getLogger(FileManagement.class);
-    public static String dataDir = GenotypeSupport.dir_path + "/code2vec/data/";
+    public static String dataDir;
+    //public static String dataDir = GenotypeSupport.dir_path + "/code2vec/data/";
 
     /**
      * Replace contents in dataDir with the contents in data.

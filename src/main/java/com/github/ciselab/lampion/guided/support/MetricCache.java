@@ -139,4 +139,11 @@ public class MetricCache {
         this.lookup.put(i,inferMetrics);
     }
 
+    /*
+    Returns true if ATLEAST one metric has negative weight.
+    In case of multiple positive weights and one negative, the result will be true.
+     */
+    public boolean doMaximize(){
+        return activeMetrics.stream().anyMatch(m -> m.getWeight()<0);
+    }
 }

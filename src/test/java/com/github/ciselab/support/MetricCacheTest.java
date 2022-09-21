@@ -3,22 +3,13 @@ package com.github.ciselab.support;
 import static java.lang.Math.abs;
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.github.ciselab.lampion.core.transformations.transformers.BaseTransformer;
-import com.github.ciselab.lampion.core.transformations.transformers.IfTrueTransformer;
-import com.github.ciselab.lampion.core.transformations.transformers.RandomParameterNameTransformer;
-
 import java.io.FileNotFoundException;
-import java.util.ArrayList;
-import java.util.List;
 
-import com.github.ciselab.lampion.guided.algorithms.MetamorphicIndividual;
-import com.github.ciselab.lampion.guided.support.ConfigManagement;
+import com.github.ciselab.lampion.guided.configuration.ConfigManagement;
 import com.github.ciselab.lampion.guided.support.FileManagement;
 import com.github.ciselab.lampion.guided.support.GenotypeSupport;
 import com.github.ciselab.lampion.guided.support.MetricCache;
-import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 

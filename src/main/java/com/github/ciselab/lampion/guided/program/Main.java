@@ -37,10 +37,9 @@ public class Main {
     private final static boolean elitism = false;
     private final static double increaseSizeRate = 0.7;
 
-    private static boolean dataPointSpecific;
     private final static int maxTransformerValue = 6; // Including 0, so 7 transformers
     private final static int maxGeneLength = 20;
-    private static int popSize = 1;
+    private static int popSize = 10;
     private static int maxSteadyGenerations = 2;
     private static int maxTimeInMin = 480;
     private final static Logger logger = LogManager.getLogger(Main.class);
@@ -79,7 +78,6 @@ public class Main {
             return;
         }
         logger.info("Configuration: " + CONFIG_MANAGER.initializeFields());
-        dataPointSpecific = CONFIG_MANAGER.getDataPointSpecific();
         if(CONFIG_MANAGER.getUseGa())
             runSimpleGA();
         else

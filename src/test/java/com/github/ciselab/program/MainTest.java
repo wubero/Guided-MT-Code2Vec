@@ -5,18 +5,11 @@ import com.github.ciselab.lampion.guided.metric.Metric;
 import com.github.ciselab.lampion.guided.metric.metrics.F1;
 import com.github.ciselab.lampion.guided.program.Main;
 import com.github.ciselab.lampion.guided.support.FileManagement;
-import java.io.FileNotFoundException;
-import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.Properties;
 
 import com.github.ciselab.lampion.guided.support.MetricCache;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 public class MainTest {
 
@@ -25,7 +18,7 @@ public class MainTest {
         FileManagement.removeOtherDirs(FileManagement.dataDir);
     }
 
-
+    /*TODO REIMPLEMENT
     @Tag("Slow")
     @Tag("File")
     @Test
@@ -44,5 +37,7 @@ public class MainTest {
 
         Main.runSimpleGA();
     }
+    
+     */
 
 }

@@ -30,7 +30,7 @@ public class GeneticAlgorithmTest {
         var config = new Configuration();
         MetricCache cache = new MetricCache();
         GenotypeSupport support = new GenotypeSupport(cache,config);
-        GeneticAlgorithm geneticAlgorithm = new GeneticAlgorithm(config.genetic,support,new ParetoFront(cache),new SplittableRandom(101010));
+        GeneticAlgorithm geneticAlgorithm = new GeneticAlgorithm(config.genetic,cache,support,new ParetoFront(cache),new SplittableRandom(101010));
 
     }
 

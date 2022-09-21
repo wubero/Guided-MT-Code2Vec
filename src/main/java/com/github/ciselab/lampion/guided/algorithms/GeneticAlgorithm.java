@@ -35,11 +35,11 @@ public class GeneticAlgorithm {
      * @param genotypeSupport the genotypeSupport.
      * @param paretoFront the pareto front.
      */
-    public GeneticAlgorithm(GeneticConfiguration config, GenotypeSupport genotypeSupport, ParetoFront paretoFront, RandomGenerator generator) {
+    public GeneticAlgorithm(GeneticConfiguration config, MetricCache cache, GenotypeSupport genotypeSupport, ParetoFront paretoFront, RandomGenerator generator) {
         this.genotypeSupport = genotypeSupport;
         this.randomGenerator = generator;
         this.config = config;
-        metricCache = genotypeSupport.getMetricCache();
+        metricCache = cache;
         this.paretoFront = paretoFront;
         currentGeneration = 0;
     }

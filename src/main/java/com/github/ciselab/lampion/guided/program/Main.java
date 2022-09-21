@@ -161,7 +161,7 @@ public class Main {
      */
     public static void runSimpleGA() {
         RandomGenerator random = new SplittableRandom(config.program.getSeed());
-        GeneticAlgorithm geneticAlgorithm = new GeneticAlgorithm(config.genetic,genotypeSupport, paretoFront,random);
+        GeneticAlgorithm geneticAlgorithm = new GeneticAlgorithm(config.genetic,cache,genotypeSupport, paretoFront,random);
 
         logger.info("Using Genetic Search");
         LocalTime start = LocalTime.now();

@@ -1,6 +1,7 @@
 package com.github.ciselab.support;
 
 import static com.github.ciselab.lampion.guided.support.FileManagement.dataDir;
+import static junit.framework.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -60,6 +61,61 @@ public class ConfigManagerTest {
 
     @Tag("File")
     @Test
+    public void initializeFieldsTest_usingGAs_shouldHaveGA() throws FileNotFoundException {
+        MetricCache metricCache = new MetricCache();
+        GenotypeSupport genotypeSupport = new GenotypeSupport(metricCache);
+        ConfigManagement configManagement = genotypeSupport.getConfigManagement();
+
+        configManagement.setConfigFile("src/test/resources/config_examples/ga.properties");
+        Properties prop = configManagement.initializeFields();
+
+
+        assertTrue(configManagement.getUseGa());
+    }
+
+    @Tag("File")
+    @Test
+    public void initializeFieldsTest_usingRandom_shouldHaveRandom() throws FileNotFoundException {
+        MetricCache metricCache = new MetricCache();
+        GenotypeSupport genotypeSupport = new GenotypeSupport(metricCache);
+        ConfigManagement configManagement = genotypeSupport.getConfigManagement();
+
+        configManagement.setConfigFile("src/test/resources/config_examples/random.properties");
+        Properties prop = configManagement.initializeFields();
+
+        assertFalse(configManagement.getUseGa());
+    }
+
+    @Tag("File")
+    @Test
+    public void initializeFieldsTest_usingGAs2_shouldHaveGA() throws FileNotFoundException {
+        // File has different spelling of True
+        MetricCache metricCache = new MetricCache();
+        GenotypeSupport genotypeSupport = new GenotypeSupport(metricCache);
+        ConfigManagement configManagement = genotypeSupport.getConfigManagement();
+
+        configManagement.setConfigFile("src/test/resources/config_examples/ga2.properties");
+        Properties prop = configManagement.initializeFields();
+
+
+        assertTrue(configManagement.getUseGa());
+    }
+
+    @Tag("File")
+    @Test
+    public void initializeFieldsTest_usingRandom2_shouldHaveRandom() throws FileNotFoundException {
+        // File has different spelling of False
+        MetricCache metricCache = new MetricCache();
+        GenotypeSupport genotypeSupport = new GenotypeSupport(metricCache);
+        ConfigManagement configManagement = genotypeSupport.getConfigManagement();
+
+        configManagement.setConfigFile("src/test/resources/config_examples/random2.properties");
+        Properties prop = configManagement.initializeFields();
+
+        assertFalse(configManagement.getUseGa());
+    }
+    @Tag("File")
+    @Test
     public void initializeFieldsTest_withoutMetrics() {
         MetricCache metricCache = new MetricCache();
         GenotypeSupport genotypeSupport = new GenotypeSupport(metricCache);
@@ -80,4 +136,5 @@ public class ConfigManagerTest {
 
         assertThrows(FileNotFoundException.class, () -> configManagement.initializeFields());
     }
+
 }

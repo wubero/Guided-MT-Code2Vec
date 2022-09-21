@@ -87,11 +87,11 @@ public class ConfigManagement {
         }
 
         if(prop.get("useGA") != null)
-            useGA = prop.get("useGA").equals("true");
+            useGA = Boolean.parseBoolean(prop.get("useGA").toString());
         else
             useGA = false;
         if(prop.get("dataPointSpecific") != null)
-            dataPointSpecific = prop.get("dataPointSpecific").equals("true");
+            dataPointSpecific = Boolean.parseBoolean(prop.get("dataPointSpecific").toString());
         else
             dataPointSpecific = false;
         if(prop.get("Optimization_objective") != null)

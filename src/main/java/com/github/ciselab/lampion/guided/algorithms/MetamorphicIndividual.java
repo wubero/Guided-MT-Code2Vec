@@ -362,7 +362,6 @@ public class MetamorphicIndividual {
      */
     private JSONArray individualToJSON(MetamorphicIndividual individual) {
         JSONArray jsonArray = new JSONArray();
-        String output = "[";
         for(BaseTransformer transformer: individual.getTransformers()) {
             JSONObject jsonTransformer = new JSONObject();
             String[] temp = transformer.getClass().toString().split("\\.");

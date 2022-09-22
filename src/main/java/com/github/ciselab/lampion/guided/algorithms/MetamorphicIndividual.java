@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -359,14 +360,18 @@ public class MetamorphicIndividual {
      * @param individual the individual.
      * @return the JSON compatible string.
      */
-    private String individualToJSON(MetamorphicIndividual individual) {
+    private JSONArray individualToJSON(MetamorphicIndividual individual) {
+        JSONArray jsonArray = new JSONArray();
         String output = "[";
         for(BaseTransformer transformer: individual.getTransformers()) {
+            JSONObject jsonTransformer = new JSONObject();
             String[] temp = transformer.getClass().toString().split("\\.");
-            String addition = temp[temp.length-1];
-            output += "{ transformer: " +  addition + ", seed: " + transformer.getSeed() + " }";
+            String name = temp[temp.length-1];
+            jsonTransformer.put("transformer", name);
+            jsonTransformer.put("seed", transformer.getSeed());
+            jsonArray.add(jsonTransformer);
         }
-        return output + "]";
+        return jsonArray;
     }
 
     @Override

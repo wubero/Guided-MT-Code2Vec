@@ -14,18 +14,21 @@ import org.apache.logging.log4j.Logger;
 public class FileManagement {
 
     private static final Logger logger = LogManager.getLogger(FileManagement.class);
-    public static String dataDir;
+
+    public static final String dataDir = "DEPRECATED";
+
 
     /**
      * Due to Code2Vec Logic, all Code2Vec Results are produced in the same place.
      * This means, to persist them over multiple files, we have to save them somewhere else.
      * This method copies the contents of Code2Vec (placed under FileManagent.dataDir) to the folder passed as argument.
-     * @param data the new data-place.
      */
-    public static void copyWorkingDirectoryToOtherPath(String data) {
-        logger.debug("Trying to copy " + dataDir + " to " + data);
+    /*
+    public static void copyWorkingDirectoryToOtherPath(String origin, String target) {
+        logger.debug("Trying to copy " + origin + " to " + target);
         try {
-            String path = Path.of(dataDir,"gen0").toAbsolutePath().toString();
+            //String path = Path.of(origin,"gen0").toAbsolutePath().toString();
+            String path = Path.of(origin).toAbsolutePath().toString();
             File dir = new File(path);
             if(!dir.exists()) {
                 if(dir.mkdirs())
@@ -37,7 +40,7 @@ public class FileManagement {
                     file.delete();
                 }
             }
-            File newDir = new File(data);
+            File newDir = new File(target);
             File[] newFiles = newDir.listFiles();
             if (newFiles != null) {
                 for (File f : newFiles) {
@@ -45,9 +48,32 @@ public class FileManagement {
                 }
             }
         } catch (IOException e) {
-            logger.warn("Files couldn't be moved to data directory ("+dataDir+")");
+            logger.warn("Files couldn't be moved to data directory ("+origin+"->"+target+")");
             e.printStackTrace();
         }
+    }
+
+     */
+    public static void copyDirectory(String sourceDirectoryLocation, String destinationDirectoryLocation)
+            throws IOException {
+        logger.debug("Copying " + sourceDirectoryLocation + " to " + destinationDirectoryLocation);
+        //String path = Path.of(sourceDirectoryLocation).toAbsolutePath().toString();
+        File dir = new File(sourceDirectoryLocation);
+        if(!dir.exists()) {
+            if(dir.mkdirs())
+                logger.debug("Created directory ("+sourceDirectoryLocation+")necessary for the data.");
+        }
+
+        Files.walk(Paths.get(sourceDirectoryLocation))
+                .forEach(source -> {
+                    Path destination = Paths.get(destinationDirectoryLocation, source.toString()
+                            .substring(sourceDirectoryLocation.length()));
+                    try {
+                        Files.copy(source, destination);
+                    } catch (IOException e) {
+                        logger.error(e);
+                    }
+                });
     }
 
     /**
@@ -110,7 +136,4 @@ public class FileManagement {
         directoryToBeDeleted.delete();
     }
 
-    public static void setDataDirectory(String datadir){
-        FileManagement.dataDir = datadir;
-    }
 }

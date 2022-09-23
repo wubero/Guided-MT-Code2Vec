@@ -77,9 +77,13 @@ public class Main {
                     Path.of(config.program.getCode2vecDirectory().toString(),"data").toString()
             );
             paretoFront = new ParetoFront(cache);
-            FileManagement.setDataDirectory(args[2]);
             genotypeSupport = new GenotypeSupport(cache,config);
-            FileManagement.copyWorkingDirectoryToOtherPath(config.program.getDirectoryPath().toAbsolutePath().toString());
+            /*
+            FileManagement.copyDirectory(
+                    config.program.getDirectoryPath().toAbsolutePath().toString(),
+                    config.program.getDataDirectoryPath().toAbsolutePath().toString()
+            );
+            */
 
             logDir = args[3] + "/";
         } else {
@@ -110,6 +114,7 @@ public class Main {
                 myPop.saveIndividual(i, newIndiv);
             }
             MetamorphicIndividual initial = new MetamorphicIndividual(genotypeSupport, -1);
+            initial.setJavaPath(config.program.getDirectoryPath().toString());
             writeInitialPopulationResults(resultWriter, myPop, initial);
 
             ArrayList<Double> fitnesses = new ArrayList<>();
@@ -181,6 +186,7 @@ public class Main {
             MetamorphicPopulation myPop = new MetamorphicPopulation(config.genetic.getPopSize(), random,
                     maxTransformerValue, true, genotypeSupport, 0);
             MetamorphicIndividual best = new MetamorphicIndividual(genotypeSupport, -1);
+            best.setJavaPath(config.program.getDirectoryPath().toString());
             double bestFitness = writeInitialPopulationResults(resultWriter, myPop, best);
             //if(dataPointSpecific)
             //    writeDataSpecificResults(resultWriter, best);

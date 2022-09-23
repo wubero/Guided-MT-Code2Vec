@@ -183,7 +183,9 @@ public class GenotypeSupport {
         bashRunner.runCommand(preprocess);
 
         // move preprocessed files to correct folder
-        String move = "mv  " + config.program.getDataDirectoryPath() + data + "/* " + config.program.getDataDirectoryPath()+dataset + "/";
+        String move = "mv  "
+                + config.program.getDataDirectoryPath().toAbsolutePath() + "/* "
+                + dataset + "/";
         bashRunner.runCommand(move);
         String del = "rmdir " + config.program.getDataDirectoryPath() + data;
         bashRunner.runCommand(del);

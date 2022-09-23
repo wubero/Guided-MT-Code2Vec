@@ -14,8 +14,8 @@ services:
     image: ciselab/guided-mt-code2vec:latest
     volumes:
       - ./compose_output:/app/Guided-MT-Code2Vec/genetic_output
-      - ./src/test/resources/code_files:/app/Guided-MT-Code2Vec/genetic_input
-      - ./Docker/config.properties:/config/config.properties
+      - ./src/test/resources/code_files:/app/Guided-MT-Code2Vec/genetic_input:ro
+      - ./Docker/config.properties:/config/config.properties:ro
       # Copy this in if you want to see all data created, otherwise it will be deleted after container lifetime
       - ./compose_output/data/:/app/Guided-MT-Code2Vec/code2vec/data/
       # Chose one of your models

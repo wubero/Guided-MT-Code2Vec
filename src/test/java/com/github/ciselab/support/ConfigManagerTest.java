@@ -30,7 +30,7 @@ public class ConfigManagerTest {
 
         var config = ConfigManagement.readConfig(path);
 
-        assertTrue(config.program.isUseGA());
+        assertTrue(config.program.useGA());
     }
 
     @Tag("File")
@@ -40,7 +40,7 @@ public class ConfigManagerTest {
 
         var config = ConfigManagement.readConfig(path);
 
-        assertFalse(config.program.isUseGA());
+        assertFalse(config.program.useGA());
     }
 
     @Tag("File")
@@ -50,7 +50,7 @@ public class ConfigManagerTest {
 
         var config = ConfigManagement.readConfig(path);
 
-        assertTrue(config.program.isUseGA());
+        assertTrue(config.program.useGA());
     }
 
     @Tag("File")
@@ -60,7 +60,7 @@ public class ConfigManagerTest {
 
         var config = ConfigManagement.readConfig(path);
 
-        assertFalse(config.program.isUseGA());
+        assertFalse(config.program.useGA());
     }
 
     @Tag("File")
@@ -70,7 +70,7 @@ public class ConfigManagerTest {
 
         var config = ConfigManagement.readConfig(path);
 
-        assertTrue(config.program.isUseGA());
+        assertTrue(config.program.useGA());
         assertEquals(105,config.program.getSeed());
         assertEquals("F:/My/Path",config.program.getBashPath());
     }

@@ -6,12 +6,12 @@ import com.github.ciselab.lampion.guided.algorithms.MetamorphicPopulation;
 import com.github.ciselab.lampion.guided.algorithms.RandomAlgorithm;
 import com.github.ciselab.lampion.guided.configuration.ConfigManagement;
 import com.github.ciselab.lampion.guided.configuration.Configuration;
-import com.github.ciselab.lampion.guided.metric.Metric;
 import com.github.ciselab.lampion.guided.support.*;
 
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.time.Duration;
 import java.time.LocalTime;
 import java.util.*;
@@ -68,7 +68,10 @@ public class Main {
             cache = ConfigManagement.initializeMetricCache(args[0]);
 
             config.program.setModelPath(args[1]);
-            config.program.setDataDirectoryPath(args[2]);
+            config.program.setDirectoryPath(args[2]);
+            config.program.setDataDirectoryPath(
+                    Path.of(config.program.getDirectoryPath(),"/code2vec/data/").toString()
+            );
             paretoFront = new ParetoFront(cache);
             FileManagement.setDataDir(args[2]);
             genotypeSupport = new GenotypeSupport(cache,config);
@@ -79,7 +82,7 @@ public class Main {
             return;
         }
 
-        if(config.program.isUseGA())
+        if(config.program.useGA())
             runSimpleGA();
         else
             runRandomAlgo();

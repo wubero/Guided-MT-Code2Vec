@@ -22,8 +22,8 @@ services:
       - ./code2vec/models/java14_model/:/model/
       #- ./code2vec/models/java-lang-release/:/model/
     environment:
-      target: /app/Guided-MT-Code2Vec/genetic_input
-      output: /app/Guided-MT-Code2Vec/genetic_output
+      target: /app/Guided-MT-Code2Vec/genetic_input/
+      output: /app/Guided-MT-Code2Vec/genetic_output/
       model: /model/saved_model_iter8.release
       #model: /model/saved_model_iter3.release
       configfile: /config/config.properties

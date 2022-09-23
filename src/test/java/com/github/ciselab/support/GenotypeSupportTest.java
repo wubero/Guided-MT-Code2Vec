@@ -25,7 +25,7 @@ public class GenotypeSupportTest {
     public void after() {
 
         var config = new Configuration();
-        FileManagement.removeOtherDirs(config.program.getDataDirectoryPath());
+        FileManagement.removeOtherDirs(config.program.getDataDirectoryPath().toString());
     }
 
     @Tag("Slow")

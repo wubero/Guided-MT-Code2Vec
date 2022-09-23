@@ -25,7 +25,7 @@ public class FileManagementTest {
     @AfterEach
     public void after() {
         var config = new Configuration();
-        FileManagement.removeOtherDirs(config.program.getDataDirectoryPath());
+        FileManagement.removeOtherDirs(config.program.getDataDirectoryPath().toString());
     }
 
     @Tag("File")
@@ -40,7 +40,7 @@ public class FileManagementTest {
         assertTrue(myDir.mkdir());
         assertTrue(myDir.exists());
         assertTrue(currDir.exists());
-        FileManagement.removeOtherDirs(config.program.getDataDirectoryPath());
+        FileManagement.removeOtherDirs(config.program.getDataDirectoryPath().toString());
         assertFalse(myDir.exists());
         assertTrue(currDir.exists());
     }
@@ -73,6 +73,6 @@ public class FileManagementTest {
         assertTrue(f.mkdir());
         assertTrue(f.isDirectory());
         assertTrue(FileManagement.createDirs(f.getPath()));
-        FileManagement.removeOtherDirs(config.program.getDataDirectoryPath());
+        FileManagement.removeOtherDirs(config.program.getDataDirectoryPath().toString());
     }
 }

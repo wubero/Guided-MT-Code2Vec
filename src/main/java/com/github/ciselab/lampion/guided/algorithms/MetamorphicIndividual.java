@@ -188,12 +188,12 @@ public class MetamorphicIndividual {
     protected Map<Metric,Double> inferMetrics(){
         Map<Metric,Double> intermediateMetrics;
         if(javaPath.isEmpty()){
-            String jPath = genotypeSupport.runTransformations(this, genotypeSupport.getCurrentDataset());
+            String jPath = genotypeSupport.runTransformations(this, genotypeSupport.getInitialDataset());
             this.setJavaPath(jPath);
         }
         if(this.resultPath.isEmpty()){
             if(this.javaPath.isEmpty())
-                setJavaPath(genotypeSupport.runTransformations(this, genotypeSupport.getCurrentDataset()));
+                setJavaPath(genotypeSupport.runTransformations(this, genotypeSupport.getInitialDataset()));
             String destination= javaPath.get() + "/results/";
 
             String resultDirectory =
@@ -253,7 +253,7 @@ public class MetamorphicIndividual {
      */
     public double getFitness() {
         if (fitness.isEmpty() || fitness.get() < 0.0) {
-            String name = genotypeSupport.runTransformations(this, genotypeSupport.getCurrentDataset());
+            String name = genotypeSupport.runTransformations(this, genotypeSupport.getInitialDataset());
             setJavaPath(name);
             inferMetrics();
             metricCache.fillFitness(this, metrics);

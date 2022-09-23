@@ -3,6 +3,7 @@ package com.github.ciselab.lampion.guided.support;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -14,19 +15,21 @@ public class FileManagement {
 
     private static final Logger logger = LogManager.getLogger(FileManagement.class);
     public static String dataDir;
-    //public static String dataDir = GenotypeSupport.dir_path + "/code2vec/data/";
 
     /**
-     * Replace contents in dataDir with the contents in data.
-     * @param data the new data.
+     * Due to Code2Vec Logic, all Code2Vec Results are produced in the same place.
+     * This means, to persist them over multiple files, we have to save them somewhere else.
+     * This method copies the contents of Code2Vec (placed under FileManagent.dataDir) to the folder passed as argument.
+     * @param data the new data-place.
      */
-    public static void setDataDir(String data) {
+    public static void copyWorkingDirectoryToOtherPath(String data) {
+        logger.debug("Trying to copy " + dataDir + " to " + data);
         try {
-            String path = dataDir + "generation_0";
+            String path = Path.of(dataDir,"gen0").toAbsolutePath().toString();
             File dir = new File(path);
             if(!dir.exists()) {
                 if(dir.mkdirs())
-                    logger.info("Created directory necessary for the data.");
+                    logger.debug("Created directory ("+path+")necessary for the data.");
             }
             File[] files = dir.listFiles();
             if (files != null) {
@@ -42,7 +45,7 @@ public class FileManagement {
                 }
             }
         } catch (IOException e) {
-            logger.warn("Files couldn't be moved to data directory");
+            logger.warn("Files couldn't be moved to data directory ("+dataDir+")");
             e.printStackTrace();
         }
     }
@@ -105,5 +108,9 @@ public class FileManagement {
             }
         }
         directoryToBeDeleted.delete();
+    }
+
+    public static void setDataDirectory(String datadir){
+        FileManagement.dataDir = datadir;
     }
 }

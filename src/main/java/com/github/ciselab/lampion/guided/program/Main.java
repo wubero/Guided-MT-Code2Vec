@@ -59,10 +59,11 @@ public class Main {
         if(args.length == 0) {
             logger.info("No arguments found - loading default values");
         } else if (args.length == 4) {
-            logger.debug("Received four arguments - Config input: " + args[0]
-                    +"\n\t model : " + args[1]
-                    + "\n\t data input: " + args[2]
-                    + "\n\t and output: " + args[3]);
+            logger.debug("Received four arguments "
+                    + "\nConfig input: " + args[0]
+                    + "\nmodel: " + args[1]
+                    + "\ndata input: " + args[2]
+                    + "\ndata output: " + args[3]);
 
             config = ConfigManagement.readConfig(args[0]);
             cache = ConfigManagement.initializeMetricCache(args[0]);
@@ -70,18 +71,19 @@ public class Main {
             config.program.setModelPath(args[1]);
             config.program.setDirectoryPath(args[2]);
             config.program.setCode2vecDirectory(
-                    Path.of(config.program.getDirectoryPath().toString(),"/code2vec/").toString()
+                    Path.of(config.program.getBasePath().toAbsolutePath().toString(),"/code2vec/").toString()
             );
             config.program.setDataDirectoryPath(
-                    Path.of(config.program.getDirectoryPath().toString(),"/code2vec/data/").toString()
+                    Path.of(config.program.getCode2vecDirectory().toString(),"data").toString()
             );
             paretoFront = new ParetoFront(cache);
-            FileManagement.setDataDir(args[2]);
+            FileManagement.setDataDirectory(args[2]);
             genotypeSupport = new GenotypeSupport(cache,config);
+            FileManagement.copyWorkingDirectoryToOtherPath(config.program.getDirectoryPath().toAbsolutePath().toString());
 
             logDir = args[3] + "/";
         } else {
-            logger.error("Received an unknown amount of arguments");
+            logger.error("Received an unsupported amount of arguments");
             return;
         }
 

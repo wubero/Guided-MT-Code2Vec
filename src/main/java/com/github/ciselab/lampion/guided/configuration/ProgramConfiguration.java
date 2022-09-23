@@ -17,6 +17,7 @@ public class ProgramConfiguration {
     private Path dataPath = Path.of(directoryPath.toString(),"/code2vec/data/");
     private Path bashPath = Path.of("C:/Program Files/Git/bin/bash.exe");
 
+    private Path basePath = Path.of(System.getProperty("user.dir"));
     private Path code2vecDirectory = Path.of(directoryPath.toString(),"code2vec");
     private String modelPath = "models/java14_model/saved_model_iter8.release";
     private Integer bashRetries = 3;
@@ -107,4 +108,9 @@ public class ProgramConfiguration {
 
         logger.debug("Code2Vec Directory set to:" + this.code2vecDirectory);
     }
+
+    public Path getBasePath(){
+        return this.basePath;
+    }
+
 }

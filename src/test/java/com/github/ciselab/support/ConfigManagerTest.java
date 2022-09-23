@@ -72,7 +72,7 @@ public class ConfigManagerTest {
 
         assertTrue(config.program.useGA());
         assertEquals(105,config.program.getSeed());
-        assertEquals("F:/My/Path",config.program.getBashPath());
+        assertEquals("F:/My/Path",config.program.getBashPath().toString());
     }
 
 

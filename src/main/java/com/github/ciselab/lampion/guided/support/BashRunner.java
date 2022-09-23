@@ -39,8 +39,8 @@ public class BashRunner {
     private void runBashCommand(String command, Integer countFailed) {
         try {
             ProcessBuilder processBuilder = new ProcessBuilder();
-            processBuilder.directory(new File(config.getDirectoryPath() + "/code2vec/"));
-            processBuilder.command(config.getBashPath(), "-c", command);
+            processBuilder.directory(new File(config.getCode2vecDirectory().toAbsolutePath().toString()));
+            processBuilder.command(config.getBashPath().toAbsolutePath().toString(), "-c", command);
 
             Process process = processBuilder.start();
 

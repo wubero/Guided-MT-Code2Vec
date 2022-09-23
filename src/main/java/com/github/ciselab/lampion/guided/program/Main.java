@@ -69,8 +69,11 @@ public class Main {
 
             config.program.setModelPath(args[1]);
             config.program.setDirectoryPath(args[2]);
+            config.program.setCode2vecDirectory(
+                    Path.of(config.program.getDirectoryPath().toString(),"/code2vec/").toString()
+            );
             config.program.setDataDirectoryPath(
-                    Path.of(config.program.getDirectoryPath(),"/code2vec/data/").toString()
+                    Path.of(config.program.getDirectoryPath().toString(),"/code2vec/data/").toString()
             );
             paretoFront = new ParetoFront(cache);
             FileManagement.setDataDir(args[2]);

@@ -3,7 +3,6 @@ package com.github.ciselab.lampion.guided.configuration;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.io.File;
 import java.nio.file.Path;
 
 public class ProgramConfiguration {
@@ -14,10 +13,11 @@ public class ProgramConfiguration {
 
     private long seed = 2022;
 
-    private String directoryPath = System.getProperty("user.dir").replace("\\", "/");
-    private String dataDirectoryPath = directoryPath + "/code2vec/data/";
-    private String bashPath = "C:/Program Files/Git/bin/bash.exe";
+    private Path directoryPath = Path.of(System.getProperty("user.dir"));
+    private Path dataPath = Path.of(directoryPath.toString(),"/code2vec/data/");
+    private Path bashPath = Path.of("C:/Program Files/Git/bin/bash.exe");
 
+    private Path code2vecDirectory = Path.of(directoryPath.toString(),"code2vec");
     private String modelPath = "models/java14_model/saved_model_iter8.release";
     private Integer bashRetries = 3;
 
@@ -51,49 +51,36 @@ public class ProgramConfiguration {
         this.useGA = useGA;
     }
 
-    public String getDirectoryPath() {
+    public Path getDirectoryPath() {
         return directoryPath;
     }
 
     public void setDirectoryPath(String directoryPath) {
         if(directoryPath == null || directoryPath.isEmpty())
             throw new IllegalArgumentException("Data Directory cannot be null or empty");
-
-        if(directoryPath.endsWith("/") || directoryPath.endsWith("\\"))
-            this.directoryPath = dataDirectoryPath;
-        else{
-            this.directoryPath = dataDirectoryPath + File.separator;
-        }
-        this.directoryPath = Path.of(this.directoryPath).toAbsolutePath().toString();
-        logger.debug("Directory Path is set to:" + this.directoryPath);
+        this.directoryPath = Path.of(directoryPath);
+        logger.debug("Directory Path is set to:" + this.directoryPath.toString());
     }
 
-    public String getDataDirectoryPath() {
-        return dataDirectoryPath;
+    public Path getDataDirectoryPath() {
+        return dataPath;
     }
 
     public void setDataDirectoryPath(String dataDirectoryPath) {
         if(dataDirectoryPath == null || dataDirectoryPath.isEmpty())
             throw new IllegalArgumentException("Data Directory cannot be null or empty");
 
-        if(dataDirectoryPath.endsWith("/") || dataDirectoryPath.endsWith("\\"))
-            this.dataDirectoryPath = dataDirectoryPath;
-        else{
-            this.dataDirectoryPath = dataDirectoryPath + File.separator;
-        }
-        // add data directory if it is not there yet
-        if (! dataDirectoryPath.contains(this.directoryPath)){
-            this.dataDirectoryPath = Path.of(getDirectoryPath(),this.dataDirectoryPath).toAbsolutePath().toString();
-        }
-        logger.debug("Data Directory set to:" + this.dataDirectoryPath);
+        this.dataPath = Path.of(dataDirectoryPath);
+
+        logger.debug("Data Directory set to:" + this.dataPath);
     }
 
-    public String getBashPath() {
+    public Path getBashPath() {
         return bashPath;
     }
 
     public void setBashPath(String bashPath) {
-        this.bashPath = bashPath;
+        this.bashPath = Path.of(bashPath);
     }
 
     public long getSeed(){
@@ -106,5 +93,18 @@ public class ProgramConfiguration {
 
     public Integer getBashRetries() {
         return this.bashRetries;
+    }
+
+    public Path getCode2vecDirectory() {
+        return code2vecDirectory;
+    }
+
+    public void setCode2vecDirectory(String code2vecDirectory) {
+        if (code2vecDirectory == null || code2vecDirectory.isEmpty()){
+            throw new IllegalArgumentException("Model Directory cannot be null or empty");
+        }
+        this.code2vecDirectory = Path.of(code2vecDirectory);
+
+        logger.debug("Code2Vec Directory set to:" + this.code2vecDirectory);
     }
 }

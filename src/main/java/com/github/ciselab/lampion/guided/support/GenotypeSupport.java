@@ -24,7 +24,7 @@ import spoon.reflect.CtModel;
  * and then evaluates the pre-trained code2vec model.
  */
 public class GenotypeSupport {
-    private final String initialDataset = "gen0";
+    private final String initialDataset = "generation_0";
 
     private Configuration config;
     private final BashRunner bashRunner;

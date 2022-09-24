@@ -69,7 +69,8 @@ public class Main {
             cache = ConfigManagement.initializeMetricCache(args[0]);
 
             config.program.setModelPath(args[1]);
-            config.program.setDirectoryPath(args[2]);
+            FileManagement.copyDirectory(args[2],
+                    Path.of(config.program.getDataDirectoryPath().toAbsolutePath().toString() , "generation_0").toString());
             config.program.setCode2vecDirectory(
                     Path.of(config.program.getBasePath().toAbsolutePath().toString(),"/code2vec/").toString()
             );

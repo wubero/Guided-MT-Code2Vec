@@ -12,7 +12,7 @@ public class GeneticConfiguration {
     private int popSize = 10;
     private int tournamentSize = 4;
 
-    private int maxSteadyGenerations = 2;
+    private int maxSteadyGenerations = 35;
 
 
     public double getCrossoverRate() {

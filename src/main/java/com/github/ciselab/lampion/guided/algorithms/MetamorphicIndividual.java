@@ -339,7 +339,7 @@ public class MetamorphicIndividual {
      * Create new JSON object with all the data for this individual.
      * @return the json object.
      */
-    private JSONObject createNewJSON() {
+    public JSONObject createNewJSON() {
         JSONObject jsonIndividual = new JSONObject();
         metrics.forEach((key, value) -> jsonIndividual.put(key.getName(), value));
         jsonIndividual.put("age", "1");

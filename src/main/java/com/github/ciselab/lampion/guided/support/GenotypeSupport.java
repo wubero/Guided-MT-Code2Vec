@@ -134,6 +134,7 @@ public class GenotypeSupport {
         individual.setJavaPath(outputDir.toAbsolutePath().toString());
 
         Path engineInputPath = Path.of(config.program.getDataDirectoryPath().toAbsolutePath().toString(), input);
+        logger.debug("Path engine input path: " + engineInputPath);
         Path engineOutputPath = Path.of( outputDir.toAbsolutePath().toString() ,"test");
         Engine engine = new Engine(engineInputPath.toAbsolutePath().toString(),engineOutputPath.toAbsolutePath().toString() , registry);
 
@@ -178,21 +179,22 @@ public class GenotypeSupport {
         FileManagement.removeSubDirs(new File(path.toAbsolutePath() + "/test"), new File(path.toAbsolutePath() + "/test"));
         FileManagement.createDirs(path.toAbsolutePath().toString());
         // Preprocessing file.
-        String data = dataset.split("/")[1];
+        String[] datasetArray = dataset.split("/");
+        String data = datasetArray[datasetArray.length-1];
         String preprocess = "source preprocess.sh " + path.toAbsolutePath() + " " + data;
         bashRunner.runCommand(preprocess);
 
         // move preprocessed files to correct folder
         String move = "mv  "
-                + config.program.getDataDirectoryPath().toAbsolutePath() + "/* "
+                + config.program.getDataDirectoryPath().toAbsolutePath() + "/" + data + "/* "
                 + dataset + "/";
         bashRunner.runCommand(move);
-        String del = "rmdir " + config.program.getDataDirectoryPath() + data;
+        String del = "rmdir " + config.program.getDataDirectoryPath() + "/" + data;
         bashRunner.runCommand(del);
 
         // Evaluating code2vec model with preprocessed files.
-        Path testDataPath = Path.of("./data/" + dataset + "/" + data + ".test.c2v");
-        String eval = "python3 code2vec.py --load " + config.program.getModelPath() + " --test " + testDataPath.toAbsolutePath() + " --logs-path eval_log.txt";
+        Path testDataPath = Path.of(dataset + "/" + data + ".test.c2v");
+        String eval = "python3 code2vec.py --load " + config.program.getModelPath() + " --test " + testDataPath + " --logs-path eval_log.txt";
         bashRunner.runCommand(eval);
         // The evaluation writes to the result.txt file
 

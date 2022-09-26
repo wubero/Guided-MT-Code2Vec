@@ -342,7 +342,7 @@ public class MetamorphicIndividual {
     public JSONObject createNewJSON() {
         JSONObject jsonIndividual = new JSONObject();
         metrics.forEach((key, value) -> jsonIndividual.put(key.getName(), value));
-        jsonIndividual.put("age", "1");
+        jsonIndividual.put("age", 1);
         jsonIndividual.put("introduced_generation", getGeneration());
         List<MetamorphicIndividual> parents = getParents();
         if(!parents.isEmpty()) {

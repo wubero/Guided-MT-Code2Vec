@@ -1,6 +1,7 @@
 package com.github.ciselab.metric.metrics;
 
 import com.github.ciselab.lampion.guided.algorithms.MetamorphicIndividual;
+import com.github.ciselab.lampion.guided.configuration.Configuration;
 import com.github.ciselab.lampion.guided.metric.metrics.EditDistance;
 import com.github.ciselab.lampion.guided.metric.metrics.F1;
 import com.github.ciselab.lampion.guided.support.GenotypeSupport;
@@ -21,8 +22,9 @@ public class F1_ScoreTest {
     @Tag("File")
     @Test
     public void testF1Score_PathIsOk_shouldGiveValue(){
+        var config = new Configuration();
         MetricCache cache = new MetricCache();
-        GenotypeSupport support = new GenotypeSupport(cache);
+        GenotypeSupport support = new GenotypeSupport(cache,config);
         F1 metric = new F1();
 
         MetamorphicIndividual testObject = new MetamorphicIndividual(support, 0);
@@ -37,8 +39,9 @@ public class F1_ScoreTest {
 
     @Test
     public void testF1_PathIsBad_NaNValue(){
+        var config = new Configuration();
         MetricCache cache = new MetricCache();
-        GenotypeSupport support = new GenotypeSupport(cache);
+        GenotypeSupport support = new GenotypeSupport(cache,config);
         F1 metric = new F1();
 
         MetamorphicIndividual testObject = new MetamorphicIndividual(support, 0);

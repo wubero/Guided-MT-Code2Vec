@@ -1,5 +1,7 @@
 package com.github.ciselab.lampion.guided.algorithms;
 
+import com.github.ciselab.lampion.guided.configuration.GeneticConfiguration;
+import com.github.ciselab.lampion.guided.program.Main;
 import com.github.ciselab.lampion.guided.support.GenotypeSupport;
 import com.github.ciselab.lampion.guided.support.MetricCache;
 import com.github.ciselab.lampion.guided.support.ParetoFront;
@@ -19,57 +21,25 @@ import java.util.random.RandomGenerator;
  */
 public class GeneticAlgorithm {
 
-    /* GA parameters */
-    private double crossoverRate;
-    private double mutationRate;
-    private int tournamentSize;
-    private boolean elitism;
-    private double increaseSizeRate;
-    private int maxTransformerValue;
-    private int maxGeneLength;
-    private int currentGeneration;
+    GeneticConfiguration config;
+
     private RandomGenerator randomGenerator;
     private final GenotypeSupport genotypeSupport;
     private final MetricCache metricCache;
     private final ParetoFront paretoFront;
     private final Logger logger = LogManager.getLogger(GeneticAlgorithm.class);
-
-    /**
-     * Initialize all GA parameters.
-     * @param uRate the  uniform rate, should be a value between 0 and 1.
-     * @param mRate the mutation rate, should be a value between 0 and 1.
-     * @param tSize the tournament size, should be a value between 1 and the population size.
-     * @param elite elitism, should be true or false.
-     * @param increaseRate the increase rate, should be a value between 0 and 1.
-     * @param maxValue the maximum transformer value, default should be 7. This is all transformers currently specified
-     * @param maxLength the maximum individual length, should always be bigger than 1.
-     * @param randomGenerator the random generator.
-     * @return the parameters in a string for the logger.
-     */
-    public String initializeParameters(double uRate, double mRate, int tSize, boolean elite, double increaseRate,
-                                              int maxValue, int maxLength, RandomGenerator randomGenerator) {
-        logger.debug("Initialize parameters for the genetic algorithm.");
-        crossoverRate = uRate;
-        mutationRate = mRate;
-        tournamentSize = tSize;
-        elitism = elite;
-        increaseSizeRate = increaseRate;
-        maxTransformerValue = maxValue;
-        maxGeneLength = maxLength;
-        this.randomGenerator = randomGenerator;
-        return String.format(Locale.UK,"{uniform rate: %.4f, mutation rate: %.4f, tournament size: %d, elitism: %b, increase rate: %.4f," +
-                " max transformer value: %d, max gene length: %d}",
-                (float) uRate, mRate, tSize, elite, increaseRate, maxValue, maxLength);
-    }
+    private int currentGeneration;
 
     /**
      * Constructor for this class.
      * @param genotypeSupport the genotypeSupport.
      * @param paretoFront the pareto front.
      */
-    public GeneticAlgorithm(GenotypeSupport genotypeSupport, ParetoFront paretoFront) {
+    public GeneticAlgorithm(GeneticConfiguration config, MetricCache cache, GenotypeSupport genotypeSupport, ParetoFront paretoFront, RandomGenerator generator) {
         this.genotypeSupport = genotypeSupport;
-        metricCache = genotypeSupport.getMetricCache();
+        this.randomGenerator = generator;
+        this.config = config;
+        metricCache = cache;
         this.paretoFront = paretoFront;
         currentGeneration = 0;
     }
@@ -83,23 +53,11 @@ public class GeneticAlgorithm {
         logger.debug("Evolve the old population");
         currentGeneration += 1;
         MetamorphicPopulation newPopulation = new MetamorphicPopulation(pop.size(),
-                randomGenerator, maxTransformerValue, false, genotypeSupport, currentGeneration);
+                randomGenerator, Main.maxTransformerValue, false, genotypeSupport, currentGeneration);
 
-        // Keep our best individual
-        if (elitism) {
-            newPopulation.saveIndividual(0, pop.getFittest());
-        }
-
-        // Crossover population
-        int elitismOffset;
-        if (elitism) {
-            elitismOffset = 1;
-        } else {
-            elitismOffset = 0;
-        }
         // Loop over the population size and create new individuals with
         // crossover
-        int index = elitismOffset;
+        int index = 0;
         while (index < newPopulation.size()) {
             MetamorphicIndividual individual1 = tournamentSelection(pop, randomGenerator);
             MetamorphicIndividual individual2 = tournamentSelection(pop, randomGenerator);
@@ -117,8 +75,8 @@ public class GeneticAlgorithm {
         }
 
         // Mutate population
-        for (int i = elitismOffset; i < newPopulation.size(); i++) {
-            if( Math.random() <= mutationRate)
+        for (int i = 0; i < newPopulation.size(); i++) {
+            if( Math.random() <= config.getMutationRate())
                 mutate(newPopulation.getIndividual(i));
         }
 
@@ -137,8 +95,8 @@ public class GeneticAlgorithm {
      * @param individual The individual to increase or decrease the size of.
      */
     private void mutate(MetamorphicIndividual individual) {
-        if (Math.random() <= increaseSizeRate) {
-            individual.increase(maxGeneLength, randomGenerator, maxTransformerValue);
+        if (Math.random() <= config.getIncreaseSizeRate()) {
+            individual.increase(config.getMaxGeneLength(), randomGenerator, Main.maxTransformerValue);
         } else {
             individual.decrease(randomGenerator);
         }
@@ -158,7 +116,7 @@ public class GeneticAlgorithm {
         // Loop through genes
         for (int i = 0; i < individual1.getLength(); i++) {
             // Crossover
-            if (Math.random() <= crossoverRate) {
+            if (Math.random() <= config.getCrossoverRate()) {
                 firstIndividual.addGene(individual1.getGene(i));
                 if (i < individual2.getLength())
                     secondIndividual.addGene(individual2.getGene(i));
@@ -182,10 +140,10 @@ public class GeneticAlgorithm {
      */
     private MetamorphicIndividual tournamentSelection(MetamorphicPopulation pop, RandomGenerator random) {
         // Create a tournament population
-        MetamorphicPopulation tournament = new MetamorphicPopulation(tournamentSize, random,
-                maxTransformerValue, false, genotypeSupport, currentGeneration);
+        MetamorphicPopulation tournament = new MetamorphicPopulation(config.getTournamentSize(), random,
+                Main.maxTransformerValue, false, genotypeSupport, currentGeneration);
         // For each place in the tournament get a random individual
-        for (int i = 0; i < tournamentSize; i++) {
+        for (int i = 0; i < config.getTournamentSize(); i++) {
             int randomId = (int) (Math.random() * pop.size());
             tournament.saveIndividual(i, pop.getIndividual(randomId));
         }

@@ -11,6 +11,7 @@ import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtElement;
 import spoon.reflect.declaration.CtMethod;
 
+import java.nio.file.Path;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
@@ -29,8 +30,8 @@ public class Engine {
 
     Random random = new Random(globalRandomSeed);
 
-    String codeDirectory;
-    String outputDirectory;
+    Path codeDirectory;
+    Path outputDirectory;
     TransformerRegistry registry;
 
     // The scope by which to quantify the number of transformations, "setNumberOfTransformationsPerScope" for more info
@@ -70,8 +71,8 @@ public class Engine {
             logger.warn("Received Registry " + registry.name + " without any registered transformers.");
         }
         // Setting fields
-        this.codeDirectory = codeDirectory;
-        this.outputDirectory = outputDirectory;
+        this.codeDirectory = Path.of(codeDirectory);
+        this.outputDirectory = Path.of(outputDirectory);
         this.registry = registry;
     }
 
@@ -81,7 +82,7 @@ public class Engine {
 
         Instant startOfEngine = Instant.now();
 
-        EngineResult.Builder builder = new EngineResult.Builder(codeRoot, codeDirectory, outputDirectory, registry)
+        EngineResult.Builder builder = new EngineResult.Builder(codeRoot, codeDirectory.toAbsolutePath().toString(), outputDirectory.toAbsolutePath().toString(), registry)
                 .javaOutput(writeJavaOutput)
                 .randomSeed(random);
 
@@ -188,7 +189,7 @@ public class Engine {
      * @return the code directory.
      */
     public String getCodeDirectory() {
-        return codeDirectory;
+        return codeDirectory.toAbsolutePath().toString();
     }
 
     /**

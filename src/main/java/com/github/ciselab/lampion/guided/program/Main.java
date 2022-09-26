@@ -4,12 +4,14 @@ import com.github.ciselab.lampion.guided.algorithms.GeneticAlgorithm;
 import com.github.ciselab.lampion.guided.algorithms.MetamorphicIndividual;
 import com.github.ciselab.lampion.guided.algorithms.MetamorphicPopulation;
 import com.github.ciselab.lampion.guided.algorithms.RandomAlgorithm;
-import com.github.ciselab.lampion.guided.support.ConfigManagement;
+import com.github.ciselab.lampion.guided.configuration.ConfigManagement;
+import com.github.ciselab.lampion.guided.configuration.Configuration;
 import com.github.ciselab.lampion.guided.support.*;
 
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.time.Duration;
 import java.time.LocalTime;
 import java.util.*;
@@ -31,30 +33,23 @@ import org.apache.logging.log4j.Logger;
 public class Main {
 
     // GA parameters
-    private final static double uniformRate = 0.7;
-    private final static double mutationRate = 0.4;
-    private final static int tournamentSize = 4;
-    private final static boolean elitism = false;
-    private final static double increaseSizeRate = 0.7;
-
-    private final static int maxTransformerValue = 6; // Including 0, so 7 transformers
-    private final static int maxGeneLength = 20;
-    private static int popSize = 10;
-    private static int maxSteadyGenerations = 2;
-    private static int maxTimeInMin = 480;
     private final static Logger logger = LogManager.getLogger(Main.class);
-    private static final MetricCache cache = new MetricCache();
-    private static final ParetoFront paretoFront = new ParetoFront(cache);
-    private static final GenotypeSupport genotypeSupport = new GenotypeSupport(cache);
-    private static final ConfigManagement CONFIG_MANAGER = genotypeSupport.getConfigManagement();
+
+    private static MetricCache cache;
+    private static ParetoFront paretoFront;
+    private static Configuration config;
+    private static GenotypeSupport genotypeSupport;
 
     private static String logDir = "";
+
+    // Currently a magic number ...
+    public static final int maxTransformerValue = 6;
 
     /**
      * The main method for the Guided-MT-Code2Vec project.
      * @param args system arguments.
      */
-    public static void main(String[] args) throws FileNotFoundException {
+    public static void main(String[] args) throws FileNotFoundException,IOException {
         logger.info("Guided-MT started");
 
         // For processing it is important to always have the same format (e.g. 1.00 instead of 1,00)
@@ -64,67 +59,71 @@ public class Main {
         if(args.length == 0) {
             logger.info("No arguments found - loading default values");
         } else if (args.length == 4) {
-            logger.debug("Received four arguments - Config input: " + args[0]
-                    +"\n\t model : " + args[1]
-                    + "\n\t data input: " + args[2]
-                    + "\n\t and output: " + args[3]);
+            logger.debug("Received four arguments "
+                    + "\nConfig input: " + args[0]
+                    + "\nmodel: " + args[1]
+                    + "\ndata input: " + args[2]
+                    + "\ndata output: " + args[3]);
 
-            CONFIG_MANAGER.setConfigFile(args[0]);
-            genotypeSupport.setModelPath(args[1]);
-            FileManagement.setDataDir(args[2]);
+            config = ConfigManagement.readConfig(args[0]);
+            cache = ConfigManagement.initializeMetricCache(args[0]);
+            paretoFront = new ParetoFront(cache);
+            genotypeSupport = new GenotypeSupport(cache,config);
+
+            config.program.setModelPath(args[1]);
+            FileManagement.copyDirectory(args[2],
+                    Path.of(config.program.getDataDirectoryPath().toAbsolutePath().toString() , genotypeSupport.getInitialDataset()).toString());
+            config.program.setCode2vecDirectory(
+                    Path.of(config.program.getBasePath().toAbsolutePath().toString(),"/code2vec/").toString()
+            );
+            config.program.setDataDirectoryPath(
+                    Path.of(config.program.getCode2vecDirectory().toString(),"data").toString()
+            );
+            /*
+            FileManagement.copyDirectory(
+                    config.program.getDirectoryPath().toAbsolutePath().toString(),
+                    config.program.getDataDirectoryPath().toAbsolutePath().toString()
+            );
+            */
+
             logDir = args[3] + "/";
         } else {
-            logger.error("Received an unknown amount of arguments");
+            logger.error("Received an unsupported amount of arguments");
             return;
         }
-        logger.info("Configuration: " + CONFIG_MANAGER.initializeFields());
-        if(CONFIG_MANAGER.getUseGa())
+
+        if(config.program.useGA())
             runSimpleGA();
         else
             runRandomAlgo();
     }
 
-    /**
-     * Setter for the max steady generations stopping criteria, used in the tests.
-     * @param generations the maximum number of steady generations.
-     */
-    public static void setMaxGenerations(int generations) {
-        maxSteadyGenerations = generations;
-    }
-
-    /**
-     * Setter for the population size, used in tests.
-     * @param pop the population size.
-     */
-    public static void setPopSize(int pop) {
-        popSize = pop;
-    }
 
     public static void runRandomAlgo() {
         RandomAlgorithm algorithm = new RandomAlgorithm(genotypeSupport, paretoFront);
-        RandomGenerator randomGenerator = new SplittableRandom(CONFIG_MANAGER.getSeed());
+        RandomGenerator randomGenerator = new SplittableRandom(config.program.getSeed());
         logger.info("Using Random-Search");
-        algorithm.initializeParameters(maxTransformerValue, randomGenerator);
 
         // Create an initial population
         try {
             FileWriter resultWriter = new FileWriter(logDir + "results.txt");
-            MetamorphicPopulation myPop = new MetamorphicPopulation(popSize, randomGenerator,
+            MetamorphicPopulation myPop = new MetamorphicPopulation(config.genetic.getPopSize(), randomGenerator,
                     maxTransformerValue, false, genotypeSupport, 0);
-            for(int i = 0; i < popSize; i++) {
+            for(int i = 0; i < config.genetic.getPopSize(); i++) {
                 MetamorphicIndividual newIndiv = new MetamorphicIndividual(genotypeSupport, 0);
                 newIndiv.populateIndividual(randomGenerator, 1, maxTransformerValue);
                 myPop.saveIndividual(i, newIndiv);
             }
             MetamorphicIndividual initial = new MetamorphicIndividual(genotypeSupport, -1);
+            initial.setJavaPath(config.program.getDirectoryPath().toString());
             writeInitialPopulationResults(resultWriter, myPop, initial);
 
             ArrayList<Double> fitnesses = new ArrayList<>();
 
             int generationCount = 0;
-            while(myPop.getAverageSize() <= maxGeneLength) {
+            while(myPop.getAverageSize() <= config.genetic.getMaxGeneLength()) {
                 ArrayList<Double> generationFitness = new ArrayList<>();
-                for(int i = 0; i < popSize; i++) {
+                for(int i = 0; i < config.genetic.getPopSize(); i++) {
                     generationFitness.add(myPop.getIndividual(i).getFitness());
                     fitnesses.add(myPop.getIndividual(i).getFitness());
                 }
@@ -175,21 +174,20 @@ public class Main {
      * Run the custom simple genetic algorithm created for variable length chromosomes.
      */
     public static void runSimpleGA() {
+        RandomGenerator random = new SplittableRandom(config.program.getSeed());
+        GeneticAlgorithm geneticAlgorithm = new GeneticAlgorithm(config.genetic,cache,genotypeSupport, paretoFront,random);
+
         logger.info("Using Genetic Search");
         LocalTime start = LocalTime.now();
-        GeneticAlgorithm geneticAlgorithm = new GeneticAlgorithm(genotypeSupport, paretoFront);
         boolean converged = false;
-        RandomGenerator random = new SplittableRandom(CONFIG_MANAGER.getSeed());
-        String GA_parameters = geneticAlgorithm.initializeParameters(uniformRate, mutationRate, tournamentSize, elitism, increaseSizeRate,
-                maxTransformerValue, maxGeneLength, random);
-        logger.info("GA parameters: " + GA_parameters);
 
         // Create an initial population
         try {
             FileWriter resultWriter = new FileWriter(logDir + "GA_results.txt");
-            MetamorphicPopulation myPop = new MetamorphicPopulation(popSize, random,
+            MetamorphicPopulation myPop = new MetamorphicPopulation(config.genetic.getPopSize(), random,
                     maxTransformerValue, true, genotypeSupport, 0);
             MetamorphicIndividual best = new MetamorphicIndividual(genotypeSupport, -1);
+            best.setJavaPath(config.program.getDirectoryPath().toString());
             double bestFitness = writeInitialPopulationResults(resultWriter, myPop, best);
             //if(dataPointSpecific)
             //    writeDataSpecificResults(resultWriter, best);
@@ -211,7 +209,7 @@ public class Main {
                     steadyGens = 0;
                 } else
                     steadyGens++;
-                if (steadyGens > maxSteadyGenerations)
+                if (steadyGens > config.genetic.getMaxSteadyGenerations())
                     converged = true;
                 geneticAlgorithm.checkPareto(myPop);
                 if(paretoFront.getFrontier().isEmpty()) {
@@ -323,7 +321,7 @@ public class Main {
      * @return whether the population is fitter.
      */
     public static boolean isFitter(MetamorphicPopulation pop, double best) {
-        if(CONFIG_MANAGER.getMaximize()) {
+        if(cache.doMaximize()) {
             return pop.getFittest().getFitness() > best;
         } else {
             return pop.getFittest().getFitness() < best;
@@ -337,16 +335,9 @@ public class Main {
      */
     public static boolean timeDiffSmaller(LocalTime start) {
         long minutesBetween = Duration.between(start, LocalTime.now()).getSeconds() / 60;
-        return minutesBetween < maxTimeInMin;
+        return minutesBetween < config.program.getMaxTimeInMin();
     }
 
-    /**
-     * Setter for the maxTimeInMin field.
-     * @param time the time to set.
-     */
-    public static void setMaxTimeInMin(int time) {
-        maxTimeInMin = time;
-    }
 
     /**
      * Get median of list of doubles.
@@ -385,7 +376,7 @@ public class Main {
      */
     public static double getWorstForLog(ArrayList<Double> values) {
         Collections.sort(values);
-        if(CONFIG_MANAGER.getMaximize())
+        if(cache.doMaximize())
             return values.get(0);
         else
             return values.get(values.size()-1);
@@ -398,9 +389,25 @@ public class Main {
      */
     public static double getBestForLog(ArrayList<Double> values) {
         Collections.sort(values);
-        if(CONFIG_MANAGER.getMaximize())
+        if(cache.doMaximize())
             return values.get(values.size()-1);
         else
             return values.get(0);
+    }
+
+    /**
+     * This is meant for Testing Only!
+     * @param config
+     */
+    public static void setConfig(Configuration config){
+        Main.config = config;
+    }
+
+    /**
+     * This is meant for Testing only!
+     * @param cache
+     */
+    public static void setCache(MetricCache cache){
+        Main.cache = cache;
     }
 }

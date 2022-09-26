@@ -1,6 +1,7 @@
 package com.github.ciselab.metric.metrics;
 
 import com.github.ciselab.lampion.guided.algorithms.MetamorphicIndividual;
+import com.github.ciselab.lampion.guided.configuration.Configuration;
 import com.github.ciselab.lampion.guided.metric.metrics.F1;
 import com.github.ciselab.lampion.guided.metric.metrics.MRR;
 import com.github.ciselab.lampion.guided.support.GenotypeSupport;
@@ -15,8 +16,9 @@ public class MRRTest {
     @Tag("File")
     @Test
     public void testMRRScore_PathIsOk_shouldGiveValue(){
+        var config = new Configuration();
         MetricCache cache = new MetricCache();
-        GenotypeSupport support = new GenotypeSupport(cache);
+        GenotypeSupport support = new GenotypeSupport(cache,config);
         MRR metric = new MRR();
 
         MetamorphicIndividual testObject = new MetamorphicIndividual(support, 0);
@@ -31,8 +33,9 @@ public class MRRTest {
 
     @Test
     public void testMRR_PathIsBad_NaNValue(){
+        var config = new Configuration();
         MetricCache cache = new MetricCache();
-        GenotypeSupport support = new GenotypeSupport(cache);
+        GenotypeSupport support = new GenotypeSupport(cache,config);
         MRR metric = new MRR();
 
         MetamorphicIndividual testObject = new MetamorphicIndividual(support, 0);

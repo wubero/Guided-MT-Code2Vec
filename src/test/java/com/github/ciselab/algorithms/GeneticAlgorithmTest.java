@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import com.github.ciselab.lampion.guided.algorithms.GeneticAlgorithm;
 import com.github.ciselab.lampion.guided.algorithms.MetamorphicIndividual;
 import com.github.ciselab.lampion.guided.algorithms.MetamorphicPopulation;
+import com.github.ciselab.lampion.guided.configuration.Configuration;
 import com.github.ciselab.lampion.guided.support.FileManagement;
 import com.github.ciselab.lampion.guided.support.GenotypeSupport;
 import com.github.ciselab.lampion.guided.support.MetricCache;
@@ -20,18 +21,17 @@ public class GeneticAlgorithmTest {
 
     @AfterEach
     public void after() {
-        FileManagement.removeOtherDirs(FileManagement.dataDir);
+        var config = new Configuration();
+        FileManagement.removeOtherDirs(config.program.getDataDirectoryPath().toString());
     }
 
     @Test
     public void initializeParametersTest() {
+        var config = new Configuration();
         MetricCache cache = new MetricCache();
-        GenotypeSupport genotypeSupport = new GenotypeSupport(cache);
-        GeneticAlgorithm geneticAlgorithm = new GeneticAlgorithm(genotypeSupport,new ParetoFront(cache));
+        GenotypeSupport support = new GenotypeSupport(cache,config);
+        GeneticAlgorithm geneticAlgorithm = new GeneticAlgorithm(config.genetic,cache,support,new ParetoFront(cache),new SplittableRandom(101010));
 
-        String real = geneticAlgorithm.initializeParameters(0.7, 0.01, 3, true, 0.4, 6, 10, new SplittableRandom(101010));
-        String expected = "{uniform rate: 0.7000, mutation rate: 0.0100, tournament size: 3, elitism: true, increase rate: 0.4000, max transformer value: 6, max gene length: 10}";
-        assertEquals(expected, real);
     }
 
     /*

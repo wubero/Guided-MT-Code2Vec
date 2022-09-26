@@ -24,7 +24,7 @@ import spoon.reflect.CtModel;
  * and then evaluates the pre-trained code2vec model.
  */
 public class GenotypeSupport {
-    private final String initialDataset = "generation_0";
+    private final String initialDataset = "initialDataset";
 
     private Configuration config;
     private final BashRunner bashRunner;
@@ -115,7 +115,7 @@ public class GenotypeSupport {
             i.setTryingToCompile(false);
             registry.registerTransformer(i);
         }
-        String dir = individual.getGeneration() == -1 ? getInitialDataset() : "gen" + individual.getGeneration();
+        String dir = individual.getGeneration() == -1 ? "initialGen" : "gen" + individual.getGeneration();
         Path generationDirectory = Path.of(config.program.getDataDirectoryPath().toAbsolutePath().toString(),dir);
         try {
             if (!Files.isDirectory(generationDirectory)){

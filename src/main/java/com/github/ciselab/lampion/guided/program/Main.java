@@ -67,18 +67,18 @@ public class Main {
 
             config = ConfigManagement.readConfig(args[0]);
             cache = ConfigManagement.initializeMetricCache(args[0]);
+            paretoFront = new ParetoFront(cache);
+            genotypeSupport = new GenotypeSupport(cache,config);
 
             config.program.setModelPath(args[1]);
             FileManagement.copyDirectory(args[2],
-                    Path.of(config.program.getDataDirectoryPath().toAbsolutePath().toString() , "generation_0").toString());
+                    Path.of(config.program.getDataDirectoryPath().toAbsolutePath().toString() , genotypeSupport.getInitialDataset()).toString());
             config.program.setCode2vecDirectory(
                     Path.of(config.program.getBasePath().toAbsolutePath().toString(),"/code2vec/").toString()
             );
             config.program.setDataDirectoryPath(
                     Path.of(config.program.getCode2vecDirectory().toString(),"data").toString()
             );
-            paretoFront = new ParetoFront(cache);
-            genotypeSupport = new GenotypeSupport(cache,config);
             /*
             FileManagement.copyDirectory(
                     config.program.getDirectoryPath().toAbsolutePath().toString(),

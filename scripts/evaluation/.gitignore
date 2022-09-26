@@ -1,4 +1,9 @@
 data
+old_data
+*.csv
+*.tar.gz
+*.tar
+*.zip
 
 # Created by https://www.toptal.com/developers/gitignore/api/pycharm+all,python,jupyternotebooks
 # Edit at https://www.toptal.com/developers/gitignore?templates=pycharm+all,python,jupyternotebooks

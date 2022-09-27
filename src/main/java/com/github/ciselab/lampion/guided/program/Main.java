@@ -79,12 +79,6 @@ public class Main {
             config.program.setDataDirectoryPath(
                     Path.of(config.program.getCode2vecDirectory().toString(),"data").toString()
             );
-            /*
-            FileManagement.copyDirectory(
-                    config.program.getDirectoryPath().toAbsolutePath().toString(),
-                    config.program.getDataDirectoryPath().toAbsolutePath().toString()
-            );
-            */
 
             logDir = args[3] + "/";
         } else {

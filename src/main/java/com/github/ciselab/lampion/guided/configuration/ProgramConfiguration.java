@@ -5,6 +5,11 @@ import org.apache.logging.log4j.Logger;
 
 import java.nio.file.Path;
 
+/**
+ * This class covers the general program configurations of the Guided-MT-Program.
+ * This covers paths, seeds and general termination.
+ * An additional overview of paths can be found in the
+ */
 public class ProgramConfiguration {
 
     private static Logger logger = LogManager.getLogger(ProgramConfiguration.class);
@@ -29,10 +34,20 @@ public class ProgramConfiguration {
         this.modelPath = arg;
     }
 
+    /**
+     * The path at which the Code2Vec Model is stored.
+     * This refers to the .bin and .release files, not the working directory of Code2Vec
+     * @return the path to the model
+     */
     public String getModelPath(){
         return this.modelPath;
     }
 
+    /**
+     * The time until search algorithm finishes, in minutes.
+     * Genetic Search first checks for steady generations, before checking time.
+     * @return The time until search algorithm finishes, in minutes.
+     */
     public int getMaxTimeInMin() {
         return maxTimeInMin;
     }
@@ -44,6 +59,12 @@ public class ProgramConfiguration {
         this.maxTimeInMin = maxTimeInMin;
     }
 
+    /**
+     * Whether or not to use Genetic Algorithms.
+     * True  = Genetic Algorithm
+     * False = Random Search
+     * @return true if genetic algorithm, false for random search
+     */
     public boolean useGA() {
         return useGA;
     }
@@ -52,6 +73,11 @@ public class ProgramConfiguration {
         this.useGA = useGA;
     }
 
+    /**
+     * The path at which this program runs.
+     * Forms the baseline for the individuals path of saving results.
+     * @return  The path at which this program runs.
+     */
     public Path getDirectoryPath() {
         return directoryPath;
     }
@@ -63,6 +89,12 @@ public class ProgramConfiguration {
         logger.debug("Directory Path is set to:" + this.directoryPath.toString());
     }
 
+    /**
+     * The path to the codevec/data directory.
+     * This is the primary working directory. Any element needs to be put here before Code2Vec can run inference on it.
+     * As files in this directory are overwritten, we copy the results per individual to the individuals path.
+     * @return the path pointing to Code2Vec data for inference
+     */
     public Path getDataDirectoryPath() {
         return dataPath;
     }
@@ -76,14 +108,26 @@ public class ProgramConfiguration {
         logger.debug("Data Directory set to:" + this.dataPath);
     }
 
+    /**
+     * Path to the bash.exe
+     * Usually just "/bin/bash".
+     * @return Path to the bash.exe
+     */
     public Path getBashPath() {
         return bashPath;
     }
 
     public void setBashPath(String bashPath) {
+        if (bashPath == null || bashPath.isEmpty())
+            throw new IllegalArgumentException("BashPath cannot be null or empty");
         this.bashPath = Path.of(bashPath);
     }
 
+    /**
+     * The general seed used for engine-setup.
+     * The seed is only used in these java-parts and does not affect Code2Vec.
+     * @return seed used for data creation
+     */
     public long getSeed(){
         return this.seed;
     }
@@ -96,6 +140,10 @@ public class ProgramConfiguration {
         return this.bashRetries;
     }
 
+    /**
+     * Path to the Code2Vec Directory.
+     * @return Path to the Code2Vec Directory.
+     */
     public Path getCode2vecDirectory() {
         return code2vecDirectory;
     }
@@ -109,6 +157,11 @@ public class ProgramConfiguration {
         logger.debug("Code2Vec Directory set to:" + this.code2vecDirectory);
     }
 
+    /**
+     * The path at which the program is run.
+     * Default: System.getProperty("user.dir")
+     * @return
+     */
     public Path getBasePath(){
         return this.basePath;
     }

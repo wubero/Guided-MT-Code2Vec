@@ -17,7 +17,46 @@ trans_num_weight::double[-1,1]
 modifier::[min,max} 
 use_genetic_algorithm::bool (false_>random,true_>ga)
 macro_seed::int
+crossover_rate::double[0,1]
+elitism_rate::double[0,1]
+mutation_rate::double[0,1]
+increase_rate::double[0,1]
+max_gene_length::int[>=1]
+population_size::int[>=1]
+tournament_size::int[>=1]
+max_steady_generations::int[>=1]
 #}
+
+# ===== PROGRAM ATTRIBUTES =====
+
+# Should the program use the genetic algorithm (true) or the random algorithm (false)
+useGA={{use_genetic_algorithm|default(true,true)}}
+
+# The seed used for the randomness throughout the app
+# -1 means a new seed is created on startup
+seed={{macro_seed|default(-1,true)}}
+
+# ===== GENETIC ATTRIBUTES =====
+
+# How likely is a crossover to appear?
+crossoverrate={{crossover_rate|default(0.7,true)}}
+# How many of the "best individuals" fast-pass tournament? CURRENTLY NOT IMPLEMENTED
+elitismrate={{elitism_rate|default(0.3,true)}}
+# How likely is any single individual to mutate?
+mutationrate={{mutation_rate|default(0.4,true)}}
+# In case of mutation, how many % will grow? (1-increasrate will shrink)
+increaserate={{increase_rate|default(0.7,true)}}
+
+# Upper Limit for Gene-Length
+maxgenelength={{max_gene_length|default(20,true)}}
+# How many Individuals are in one population
+populationsize={{population_size|default(10,true)}}
+# How many individuals compete in one tournament
+tournamentsize={{tournament_size|default(4,true)}}
+# After how many unchanged generations do we abort early
+maxsteadygenerations={{max_steady_generations|default(2,true)}}
+
+# ===== METRIC ATTRIBUTES =====
 
 # The metrics with their weights.
 MRR={{mrr_weight|default(0,true)}}
@@ -32,33 +71,17 @@ INPUTLENGTH={{input_length_weight|default(0,true)}}
 PREDLENGTH={{pred_length_weight|default(0,true)}}
 TRANSFORMATIONS={{trans_num_weight|default(0,true)}}
 
-# Should the genetic algorithm minimize (min) or maximize (max) the metrics given above.
-Optimization_objective={{modifier|default(min,true)}}
 
-# Should the program use the genetic algorithm (true) or the random algorithm (false)
-useGA={{use_genetic_algorithm|default(true,true)}}
 
-# Whether the program should report the metric score for each individual datapoint, this is not supported for F1_score, recall or precision because
-# the code2vec model does not allow this.
-dataPointSpecific={{datapoint_specific_report|default(true,true)}}
-
-# currently supported: global, perMethod, perClass, perClassEach, perMethodEach (Spelling is important!).
-transformationscope=perClass
-# program uses the amount of transformations an individual has as the field transformations.
-# transformations=1
-
-# The seed used for the randomness throughout the app
-seed={{macro_seed|default(-1,true)}}
 
 # This is a path configuration for the dockerfile
 bash=/bin/bash
 
-# Whether the Transformers should try to compile after transformations, default true.
-# This should be kept for sanity, but some domains require snippets that cannot compile by design.
-compilingTransformers=true
-# Whether the Transformer should resolve references to their fully qualified name
-# e.g. new Arraylist() _> new java.utils.collections.ArrayList()
-setAutoImports=false
+# ===== OTHER ATTRIBUTES =====
+
+# currently supported: global, perMethod, perClass, perClassEach, perMethodEach (Spelling is important!).
+transformationscope=global
+
 # Whether or not all Comments will be removed before pretty printing
 # Does not infer with any transformations, but maybe removes them
 removeAllComments=false

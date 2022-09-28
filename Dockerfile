@@ -42,11 +42,10 @@ RUN pip install -r requirements.txt
 RUN apt-get update && apt install openjdk-17-jre bash -y
 
 # Copy everything that is needed, all files needed for code2vec to run are included in this.
-ADD code2vec/models/ /app/Guided-MT-Code2Vec/code2vec/models/
 ADD code2vec/JavaExtractor/ /app/Guided-MT-Code2Vec/code2vec/JavaExtractor/
 ADD code2vec/*.py /app/Guided-MT-Code2Vec/code2vec/
 ADD code2vec/*.sh /app/Guided-MT-Code2Vec/code2vec/
-
+RUN mkdir /app/Guided-MT-Code2Vec/code2vec/models/
 
 COPY --from=builder /output/Guided-MT-Code2Vec.jar /app/Guided-MT-Code2Vec
 

@@ -1,3 +1,4 @@
 [submodule "code2vec"]
 	path = code2vec
 	url = https://github.com/ciselab/code2vec.git
+        ignore = dirty

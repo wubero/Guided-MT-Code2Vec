@@ -19,7 +19,6 @@ public class MetricCache {
     List<Metric> activeMetrics = new ArrayList<>(); // Metrics that Guide Fitness
 
     private final Map<MetamorphicIndividual, String> fileLookup = new HashMap<>();
-
     private final Map<MetamorphicIndividual,Map<Metric,Double>> lookup = new HashMap<>();
 
     private final Logger logger = LogManager.getLogger(MetricCache.class);
@@ -27,7 +26,6 @@ public class MetricCache {
     public List<Metric> getMetrics() {
         return metricList;
     }
-
     public List<Metric> getActiveMetrics() { return activeMetrics;}
 
     public List<Double> getWeights() {
@@ -141,4 +139,11 @@ public class MetricCache {
         this.lookup.put(i,inferMetrics);
     }
 
+    /*
+    Returns true if ATLEAST one metric has negative weight.
+    In case of multiple positive weights and one negative, the result will be true.
+     */
+    public boolean doMaximize(){
+        return activeMetrics.stream().anyMatch(m -> m.getWeight()<0);
+    }
 }

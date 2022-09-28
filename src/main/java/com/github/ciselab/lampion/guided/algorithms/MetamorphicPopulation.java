@@ -74,7 +74,9 @@ public class MetamorphicPopulation {
         MetamorphicIndividual fittest = individuals[0];
         // Loop through individuals to find fittest
         for (int i = 1; i < size(); i++) {
-            if(genotypeSupport.getConfigManagement().getMaximize()) {
+            if(false){
+            //TODO: What to do about this?
+            //if(genotypeSupport.getConfigManagement().getMaximize()) {
                 if (fittest.getFitness() < getIndividual(i).getFitness())
                     fittest = getIndividual(i);
             } else {

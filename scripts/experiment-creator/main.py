@@ -37,6 +37,7 @@ def run(
 
     seeds = grid_configurations['seeds']
     experiments = grid_configurations['experiments']
+    genetic_configuration = grid_configurations["genetic_configuration"]
 
     output_dir_grid_experiment = "experiment-package"
     os.makedirs(output_dir_grid_experiment, exist_ok=True)
@@ -48,7 +49,7 @@ def run(
 
         config_file_path = os.path.join(experiment_dir,experiment["properties_file"])
         config_file = open(config_file_path, "w")
-        config_content = config_template.render(**experiment)
+        config_content = config_template.render(**experiment,**genetic_configuration)
         config_file.write(config_content)
         config_file.close()
 

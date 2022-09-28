@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -188,12 +189,12 @@ public class MetamorphicIndividual {
     protected Map<Metric,Double> inferMetrics(){
         Map<Metric,Double> intermediateMetrics;
         if(javaPath.isEmpty()){
-            String jPath = genotypeSupport.runTransformations(this, genotypeSupport.getCurrentDataset());
+            String jPath = genotypeSupport.runTransformations(this, genotypeSupport.getInitialDataset());
             this.setJavaPath(jPath);
         }
         if(this.resultPath.isEmpty()){
             if(this.javaPath.isEmpty())
-                setJavaPath(genotypeSupport.runTransformations(this, genotypeSupport.getCurrentDataset()));
+                setJavaPath(genotypeSupport.runTransformations(this, genotypeSupport.getInitialDataset()));
             String destination= javaPath.get() + "/results/";
 
             String resultDirectory =
@@ -253,7 +254,7 @@ public class MetamorphicIndividual {
      */
     public double getFitness() {
         if (fitness.isEmpty() || fitness.get() < 0.0) {
-            String name = genotypeSupport.runTransformations(this, genotypeSupport.getCurrentDataset());
+            String name = genotypeSupport.runTransformations(this, genotypeSupport.getInitialDataset());
             setJavaPath(name);
             inferMetrics();
             metricCache.fillFitness(this, metrics);
@@ -338,10 +339,10 @@ public class MetamorphicIndividual {
      * Create new JSON object with all the data for this individual.
      * @return the json object.
      */
-    private JSONObject createNewJSON() {
+    public JSONObject createNewJSON() {
         JSONObject jsonIndividual = new JSONObject();
         metrics.forEach((key, value) -> jsonIndividual.put(key.getName(), value));
-        jsonIndividual.put("age", "1");
+        jsonIndividual.put("age", 1);
         jsonIndividual.put("introduced_generation", getGeneration());
         List<MetamorphicIndividual> parents = getParents();
         if(!parents.isEmpty()) {
@@ -359,14 +360,17 @@ public class MetamorphicIndividual {
      * @param individual the individual.
      * @return the JSON compatible string.
      */
-    private String individualToJSON(MetamorphicIndividual individual) {
-        String output = "[";
+    private JSONArray individualToJSON(MetamorphicIndividual individual) {
+        JSONArray jsonArray = new JSONArray();
         for(BaseTransformer transformer: individual.getTransformers()) {
+            JSONObject jsonTransformer = new JSONObject();
             String[] temp = transformer.getClass().toString().split("\\.");
-            String addition = temp[temp.length-1];
-            output += "{ transformer: " +  addition + ", seed: " + transformer.getSeed() + " }";
+            String name = temp[temp.length-1];
+            jsonTransformer.put("transformer", name);
+            jsonTransformer.put("seed", transformer.getSeed());
+            jsonArray.add(jsonTransformer);
         }
-        return output + "]";
+        return jsonArray;
     }
 
     @Override

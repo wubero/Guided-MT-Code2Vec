@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.github.ciselab.lampion.guided.algorithms.MetamorphicIndividual;
+import com.github.ciselab.lampion.guided.configuration.Configuration;
 import com.github.ciselab.lampion.guided.support.FileManagement;
 import com.github.ciselab.lampion.guided.support.GenotypeSupport;
 import com.github.ciselab.lampion.guided.support.MetricCache;
@@ -16,30 +17,29 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
-import static com.github.ciselab.lampion.guided.support.FileManagement.dataDir;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class GenotypeSupportTest {
 
     @AfterEach
     public void after() {
-        FileManagement.removeOtherDirs(dataDir);
+
+        var config = new Configuration();
+        FileManagement.removeOtherDirs(config.program.getDataDirectoryPath().toString());
     }
 
     @Tag("Slow")
     @Tag("File")
     @Test
     public void runTransformationsTest() throws IOException {
-        var cache = new MetricCache();
-        var support =  new GenotypeSupport(cache);
-        var configManagement = support.getConfigManagement();
-        configManagement.setConfigFile("src/test/resources/config.properties");
-        configManagement.initializeFields();
+        var config = new Configuration();
+        MetricCache cache = new MetricCache();
+        var support =  new GenotypeSupport(cache,config);
 
         var testObject = new MetamorphicIndividual(support, 0);
         List<BaseTransformer> transformers = new ArrayList<>();
         File[] files = new File("src/test/resources/code_files").listFiles();
-        File directory = new File(dataDir + "code_files");
+        File directory = new File(config.program.getDataDirectoryPath() + "code_files");
         if(!directory.exists())
             directory.mkdir();
         if(files!=null) {
@@ -57,17 +57,15 @@ public class GenotypeSupportTest {
     @Tag("File")
     @Test
     public void runCode2vecInferenceTest() throws IOException {
-        var cache = new MetricCache();
-        var support =  new GenotypeSupport(cache);
-        var configManagement = support.getConfigManagement();
-        configManagement.setConfigFile("src/test/resources/config.properties");
-        configManagement.initializeFields();
+        var config = new Configuration();
+        MetricCache cache = new MetricCache();
+        var support =  new GenotypeSupport(cache,config);
 
         var testObject = new MetamorphicIndividual(support, 0);
 
         List<BaseTransformer> transformers = new ArrayList<>();
         File[] files = new File("src/test/resources/code_files").listFiles();
-        File directory = new File(dataDir + "code_files");
+        File directory = new File(config.program.getDataDirectoryPath() + "code_files");
         if(!directory.exists())
             directory.mkdir();
         if(files!=null) {

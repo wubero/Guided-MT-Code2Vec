@@ -1,4 +1,4 @@
-name: Java CI on PR - Guided-MT-Code2Vec
+name: CI Build
 
 on:
   pull_request:

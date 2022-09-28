@@ -1,4 +1,6 @@
 # Guided-MT-Code2vec
+[![Licence](https://img.shields.io/github/license/ciselab/lampion?color=purple)](https://img.shields.io/github/license/ciselab/lampion?color=purple)
+[![CI Build](https://github.com/ciselab/Guided-MT-Code2Vec/actions/workflows/Build.yml/badge.svg)](https://github.com/ciselab/Guided-MT-Code2Vec/actions/workflows/Build.yml) 
 
 This repository works with genetic programming to optimize metrics for code2vec method name prediction.
 For more information on the goals, concept and workflow refer to [the overview](./Resources/OVERVIEW.md)

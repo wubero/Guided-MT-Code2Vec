@@ -4,29 +4,15 @@ on:
   pull_request:
     branches:
       - main
-    paths:
-      - 'Guided-MT-Code2Vec/Java/**'
   push:
     branches:
       - main
-    paths:
-      - 'Guided-MT-Code2Vec/Java/**'
+  schedule:
+    - cron: "0 0 */2 * *"
 
 jobs:
-  buildWithMaven:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v3
-    - name: Set up JDK
-      uses: actions/setup-java@v2
-      with:
-        distribution: 'temurin'
-        java-version: '17'
-    - name: Build Guided-MT-Code2Vec
-      run: mvn package verify --file Guided-MT-Code2Vec/Java/pom.xml
 
-
-  buildWithDocker: 
+  dockerbuild: 
     runs-on: ubuntu-latest
     steps:
       -
@@ -39,8 +25,7 @@ jobs:
         with:
           # list of Docker images to use as base name for tags
           images: |
-            ghcr.io/ciselab/Guided-MT-Code2Vec/java
-            Guided-MT-Code2Vec/java
+            ghcr.io/ciselab/guided-mt-code2vec
           # generate Docker tags based on the following events/attributes
           tags: |
             type=schedule
@@ -49,25 +34,23 @@ jobs:
             type=sha
       -
         name: Set up QEMU
-        uses: docker/setup-qemu-action@v1
+        uses: docker/setup-qemu-action@v2
       -
         name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
+        uses: docker/setup-buildx-action@v2
       -
         name: Login to GHCR
         if: github.event_name != 'pull_request'
-        uses: docker/login-action@v1
+        uses: docker/login-action@v2
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       -
         name: Build and push
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v3
         with:
-          context: ./Guided-MT-Code2Vec/Java
-          build-args: |
-            "Guided-MT-Code2Vec_VERSION=1.0-SNAPSHOT"
+          context: ./
           push: false
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}

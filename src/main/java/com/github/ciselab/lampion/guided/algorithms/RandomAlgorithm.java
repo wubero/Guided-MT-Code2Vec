@@ -36,14 +36,14 @@ public class RandomAlgorithm {
     }
 
     public MetamorphicPopulation nextGeneration(MetamorphicPopulation pop) {
-        int newLength = pop.getIndividual(0).getLength() + 1;
+        int newLength = pop.getIndividual(0).get().getLength() + 1;
         currentGeneration += 1;
         logger.debug("Creating a new population of length " + newLength + " through the random algorithm.");
         MetamorphicPopulation newPop = new MetamorphicPopulation(pop.size(), randomGenerator, maxTransformerValue, false, genotypeSupport, currentGeneration);
         for(int i = 0; i < pop.size(); i++) {
             MetamorphicIndividual newIndiv = new MetamorphicIndividual(genotypeSupport, currentGeneration);
             newIndiv.populateIndividual(randomGenerator, newLength, maxTransformerValue);
-            newPop.saveIndividual(i, newIndiv);
+            newPop.saveIndividual(newIndiv);
         }
 
         // Check if fitness is already known, otherwise calculate it
@@ -62,8 +62,6 @@ public class RandomAlgorithm {
     public void checkPareto(MetamorphicPopulation population) {
         // This has to be an iteration, as the Pareto Front is maybe altered in during the run.
         // Hence, it has to be done step by step otherwise you get a concurrentmodificationexception
-        for(int i = 0; i < population.size(); i++) {
-            paretoFront.addToParetoOptimum(population.getIndividual(i));
-        }
+        population.getIndividuals().forEach(x -> paretoFront.addToParetoOptimum(x));
     }
 }

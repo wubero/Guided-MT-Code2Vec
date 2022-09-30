@@ -106,7 +106,7 @@ public class Main {
             for(int i = 0; i < config.genetic.getPopSize(); i++) {
                 MetamorphicIndividual newIndiv = new MetamorphicIndividual(genotypeSupport, 0);
                 newIndiv.populateIndividual(randomGenerator, 1, maxTransformerValue);
-                myPop.saveIndividual(i, newIndiv);
+                myPop.saveIndividual(newIndiv);
             }
             MetamorphicIndividual initial = new MetamorphicIndividual(genotypeSupport, -1);
             initial.setJavaPath(config.program.getDirectoryPath().toString());
@@ -118,8 +118,8 @@ public class Main {
             while(myPop.getAverageSize() <= config.genetic.getMaxGeneLength()) {
                 ArrayList<Double> generationFitness = new ArrayList<>();
                 for(int i = 0; i < config.genetic.getPopSize(); i++) {
-                    generationFitness.add(myPop.getIndividual(i).getFitness());
-                    fitnesses.add(myPop.getIndividual(i).getFitness());
+                    generationFitness.add(myPop.getIndividual(i).get().getFitness());
+                    fitnesses.add(myPop.getIndividual(i).get().getFitness());
                 }
 
                 generationCount++;
@@ -134,12 +134,13 @@ public class Main {
                         ", average: " + getAverageForLog(generationFitness) + ", median: " + getMedianForLog(generationFitness) + "\n");
 
 
-                logger.info("Generation: " + generationCount + " Fittest: " + myPop.getFittest().getFitness() + " Gene:");
+                logger.info("Generation: " + generationCount + " Fittest: " + myPop.getFittest().get().getFitness() + " Gene:");
                 logger.info(myPop.getFittest().toString());
 
                 // Write all current individuals to their respective json files
-                for(int index = 0; index < myPop.size(); index++)
-                    myPop.getIndividual(index).writeIndividualJSON();
+                for(var individual : myPop.getIndividuals()){
+                    individual.writeIndividualJSON();
+                }
 
                 myPop = algorithm.nextGeneration(myPop);
                 logger.debug("Population of generation " + generationCount + " = " + myPop);
@@ -198,8 +199,8 @@ public class Main {
                         " of " + myPop.getAverageSize() + "\n");
                 averageSizeSum += myPop.getAverageSize();
                 if (isFitter(myPop, bestFitness)) {
-                    bestFitness = myPop.getFittest().getFitness();
-                    best = myPop.getFittest();
+                    bestFitness = myPop.getFittest().get().getFitness();
+                    best = myPop.getFittest().get();
                     steadyGens = 0;
                 } else
                     steadyGens++;
@@ -212,15 +213,14 @@ public class Main {
                     logger.debug("Current Pareto set = " + paretoFront.displayPareto());
                 }
 
-                resultWriter.write("Generation: " + generationCount + ", result: " + myPop.getFittest().getFitness() + "\n");
+                resultWriter.write("Generation: " + generationCount + ", result: " + myPop.getFittest().get().getFitness() + "\n");
                 resultWriter.write("Gene: " + myPop.getFittest() + "\n");
 
-                logger.info("Generation: " + generationCount + " Fittest: " + myPop.getFittest().getFitness());
+                logger.info("Generation: " + generationCount + " Fittest: " + myPop.getFittest().get().getFitness());
                 logger.debug("Fittest Gene: " + myPop.getFittest().toString());
 
                 // Write all current individuals to their respective json files
-                for(int index = 0; index < myPop.size(); index++)
-                    myPop.getIndividual(index).writeIndividualJSON();
+                myPop.getIndividuals().stream().forEach(MetamorphicIndividual::writeIndividualJSON);
 
                 myPop = geneticAlgorithm.evolvePopulation(myPop);
                 logger.debug("Population of generation " + generationCount + " = " + myPop);
@@ -316,15 +316,15 @@ public class Main {
      */
     public static boolean isFitter(MetamorphicPopulation pop, double best) {
         if(cache.doMaximize()) {
-            return pop.getFittest().getFitness() > best;
+            return pop.getFittest().get().getFitness() > best;
         } else {
-            return pop.getFittest().getFitness() < best;
+            return pop.getFittest().get().getFitness() < best;
         }
     }
 
     /**
      * Calculate whether the amount of minutes between a start date and now is less than the threshold.
-     * @param start the start time.
+     * @param start the start time.s
      * @return whether the difference is less than the threshold.
      */
     public static boolean timeDiffSmaller(LocalTime start) {

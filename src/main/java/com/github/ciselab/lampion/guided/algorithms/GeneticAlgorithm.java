@@ -10,7 +10,6 @@ import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Optional;
 import java.util.random.RandomGenerator;
 
@@ -59,17 +58,17 @@ public class GeneticAlgorithm {
         // crossover
         int index = 0;
         while (index < newPopulation.size()) {
-            MetamorphicIndividual individual1 = tournamentSelection(pop, randomGenerator);
-            MetamorphicIndividual individual2 = tournamentSelection(pop, randomGenerator);
+            MetamorphicIndividual individual1 = tournamentSelection(pop, randomGenerator).get();
+            MetamorphicIndividual individual2 = tournamentSelection(pop, randomGenerator).get();
             List<MetamorphicIndividual> newIndividuals = crossover(individual1, individual2);
             // Set parents for new individuals
             for(MetamorphicIndividual individual: newIndividuals) {
                 individual.setParents(individual1, individual2);
             }
-            newPopulation.saveIndividual(index, newIndividuals.get(0));
+            newPopulation.saveIndividual(newIndividuals.get(0));
             index++;
             if (index < newPopulation.size()) {
-                newPopulation.saveIndividual(index, newIndividuals.get(1));
+                newPopulation.saveIndividual(newIndividuals.get(1));
                 index++;
             }
         }
@@ -77,7 +76,7 @@ public class GeneticAlgorithm {
         // Mutate population
         for (int i = 0; i < newPopulation.size(); i++) {
             if( Math.random() <= config.getMutationRate())
-                mutate(newPopulation.getIndividual(i));
+                mutate(newPopulation.getIndividual(i).get());
         }
 
         // Check if fitness is already known, otherwise calculate it
@@ -138,14 +137,14 @@ public class GeneticAlgorithm {
      * @param random the random generator used in this run.
      * @return the new metamorphic individual.
      */
-    private MetamorphicIndividual tournamentSelection(MetamorphicPopulation pop, RandomGenerator random) {
+    private Optional<MetamorphicIndividual> tournamentSelection(MetamorphicPopulation pop, RandomGenerator random) {
         // Create a tournament population
         MetamorphicPopulation tournament = new MetamorphicPopulation(config.getTournamentSize(), random,
                 Main.maxTransformerValue, false, genotypeSupport, currentGeneration);
         // For each place in the tournament get a random individual
         for (int i = 0; i < config.getTournamentSize(); i++) {
             int randomId = (int) (Math.random() * pop.size());
-            tournament.saveIndividual(i, pop.getIndividual(randomId));
+            tournament.saveIndividual(pop.getIndividual(randomId).get());
         }
         // Get the fittest
         return tournament.getFittest();
@@ -160,7 +159,7 @@ public class GeneticAlgorithm {
         // This has to be an iteration, as the Pareto Front is maybe altered in during the run.
         // Hence, it has to be done step by step otherwise you get a concurrentmodificationexception
         for(int i = 0; i < population.size(); i++) {
-            paretoFront.addToParetoOptimum(population.getIndividual(i));
+            paretoFront.addToParetoOptimum(population.getIndividual(i).get());
         }
     }
 

@@ -1,11 +1,17 @@
 package com.github.ciselab.lampion.guided.algorithms;
 
 import com.github.ciselab.lampion.guided.support.GenotypeSupport;
+
+import java.util.Comparator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Optional;
 import java.util.random.RandomGenerator;
 
 public class MetamorphicPopulation {
 
-    MetamorphicIndividual[] individuals;
+    List<MetamorphicIndividual> individuals;
+    int populationSize;
     GenotypeSupport genotypeSupport;
 
     /**
@@ -20,18 +26,19 @@ public class MetamorphicPopulation {
     public MetamorphicPopulation(int popSize, RandomGenerator randomGenerator, int maxValue, boolean initialize
             , GenotypeSupport gen, int generation) {
         genotypeSupport = gen;
-        individuals = new MetamorphicIndividual[popSize];
+        this.populationSize = popSize;
+        individuals = new LinkedList<>();
         if(initialize) {
             int cutOff = popSize/2;
             for (int i = 0; i < cutOff; i++) {
                 MetamorphicIndividual individual = new MetamorphicIndividual(genotypeSupport, generation);
                 individual.populateIndividual(randomGenerator, 1, maxValue);
-                saveIndividual(i, individual);
+                saveIndividual(individual);
             }
             for (int j = cutOff; j < popSize; j++) {
                 MetamorphicIndividual individual = new MetamorphicIndividual(genotypeSupport, generation);
                 individual.populateIndividual(randomGenerator, 2, maxValue);
-                saveIndividual(j, individual);
+                saveIndividual(individual);
             }
         }
     }
@@ -45,7 +52,7 @@ public class MetamorphicPopulation {
         for(MetamorphicIndividual i: individuals) {
             sum += i.getLength();
         }
-        return sum/individuals.length;
+        return sum/individuals.size();
     }
 
     /**
@@ -53,38 +60,30 @@ public class MetamorphicPopulation {
      * @param index the population index.
      * @return the metamorphic individual.
      */
-    public MetamorphicIndividual getIndividual(int index) {
-        return individuals[index];
+    public Optional<MetamorphicIndividual> getIndividual(int index) {
+        if (individuals.size()>index){
+            return Optional.of(individuals.get(index));
+        } else {
+            return Optional.empty();
+        }
     }
 
     /**
      * Changes a metamorphic individual at a given index.
-     * @param index the index.
      * @param individual the metamorphic individual.
      */
-    public void saveIndividual(int index, MetamorphicIndividual individual) {
-        individuals[index] = individual;
+    public void saveIndividual(MetamorphicIndividual individual) {
+        individuals.add(individual);
     }
 
     /**
      * Get the fittest metamorphic individual of the metamorphic population.
      * @return the fittest metamorphic individual.
      */
-    public MetamorphicIndividual getFittest() {
-        MetamorphicIndividual fittest = individuals[0];
-        // Loop through individuals to find fittest
-        for (int i = 1; i < size(); i++) {
-            if(false){
-            //TODO: What to do about this?
-            //if(genotypeSupport.getConfigManagement().getMaximize()) {
-                if (fittest.getFitness() < getIndividual(i).getFitness())
-                    fittest = getIndividual(i);
-            } else {
-                if (fittest.getFitness() > getIndividual(i).getFitness())
-                    fittest = getIndividual(i);
-            }
-        }
-        return fittest;
+    public Optional<MetamorphicIndividual> getFittest() {
+        return individuals.stream()
+                .sorted(Comparator.comparingDouble((MetamorphicIndividual x) -> x.getFitness()))
+                .findFirst();
     }
 
     /**
@@ -92,7 +91,7 @@ public class MetamorphicPopulation {
      * @return the size of the population.
      */
     public int size() {
-        return individuals.length;
+        return populationSize;
     }
 
     @Override
@@ -104,5 +103,9 @@ public class MetamorphicPopulation {
             return output.substring(0, output.length()-2) + "}";
         else
             return output;
+    }
+
+    public List<MetamorphicIndividual> getIndividuals() {
+        return this.individuals;
     }
 }

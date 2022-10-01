@@ -1,12 +1,15 @@
 package com.github.ciselab.metric.metrics;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-
+import com.github.ciselab.lampion.core.transformations.transformers.IfTrueTransformer;
+import com.github.ciselab.lampion.guided.algorithms.MetamorphicIndividual;
+import com.github.ciselab.lampion.guided.configuration.Configuration;
 import com.github.ciselab.lampion.guided.metric.Metric;
 import com.github.ciselab.lampion.guided.metric.metrics.Transformations;
-import com.github.ciselab.lampion.guided.metric.metrics.Transformations;
+import com.github.ciselab.lampion.guided.support.GenotypeSupport;
+import com.github.ciselab.lampion.guided.support.MetricCache;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class TransformationsTest {
 
@@ -16,16 +19,60 @@ public class TransformationsTest {
         assertEquals("TRANSFORMATIONS", metric.getName());
     }
 
-    /* TODO: Reimplement
     @Test
-    public void calculateScoreTest() {
+    public void testCanBeBiggerThanOne_shouldBe(){
         Transformations metric = new Transformations();
-        assertEquals(0, metric.calculateScore());
-        metric.setLength(5);
-        assertEquals(5, metric.calculateScore());
+        assertTrue(metric.canBeBiggerThanOne());
     }
 
-     */
+    @Test
+    public void testIsSecondary_shouldBe(){
+        Transformations metric = new Transformations();
+        assertTrue(metric.isSecondary());
+    }
+
+    @Test
+    public void testApply_EmptyGene_shouldBe0(){
+        var support = makeNewEmptySupport();
+
+        MetamorphicIndividual individual = new MetamorphicIndividual(support,0);
+
+        Metric testObject = new Transformations();
+
+        var result = testObject.apply(individual);
+
+        assertEquals(0.0,result,0.0001);
+    }
+
+    @Test
+    public void testApply_GeneWithOneTransformer_shouldBe1(){
+        var support = makeNewEmptySupport();
+
+        MetamorphicIndividual individual = new MetamorphicIndividual(support,0);
+        individual.addGene(new IfTrueTransformer(5));
+
+        Metric testObject = new Transformations();
+
+        var result = testObject.apply(individual);
+
+        assertEquals(1.0,result,0.0001);
+    }
+
+    @Test
+    public void testApply_GeneWithThreeTransformers_shouldBe3(){
+        var support = makeNewEmptySupport();
+
+        MetamorphicIndividual individual = new MetamorphicIndividual(support,0);
+        individual.addGene(new IfTrueTransformer(5));
+        individual.addGene(new IfTrueTransformer(5));
+        individual.addGene(new IfTrueTransformer(5));
+
+        Metric testObject = new Transformations();
+
+        var result = testObject.apply(individual);
+
+        assertEquals(3.0,result,0.0001);
+    }
 
     @Test
     public void testEquality_isEqualToItself(){
@@ -81,4 +128,14 @@ public class TransformationsTest {
         b.setWeight(0.5);
         assertNotEquals(a.hashCode(),b.hashCode());
     }
+
+    static GenotypeSupport makeNewEmptySupport(){
+        var config = new Configuration();
+        MetricCache cache = new MetricCache();
+        cache.getMetrics().removeIf(x ->true);
+
+        GenotypeSupport support = new GenotypeSupport(cache,config);
+        return support;
+    }
+
 }

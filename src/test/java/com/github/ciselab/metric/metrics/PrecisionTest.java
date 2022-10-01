@@ -6,6 +6,7 @@ import com.github.ciselab.lampion.guided.metric.Metric;
 import com.github.ciselab.lampion.guided.metric.metrics.Precision;
 import com.github.ciselab.lampion.guided.metric.metrics.F1;
 import com.github.ciselab.lampion.guided.metric.metrics.Precision;
+import com.github.ciselab.lampion.guided.metric.metrics.Recall;
 import com.github.ciselab.lampion.guided.support.GenotypeSupport;
 import com.github.ciselab.lampion.guided.support.MetricCache;
 import org.junit.jupiter.api.Tag;
@@ -15,6 +16,17 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class PrecisionTest {
 
+    @Test
+    public void testCanBeBiggerThanOne_shouldNotBe(){
+        Metric metric = new Precision();
+        assertFalse(metric.canBeBiggerThanOne());
+    }
+
+    @Test
+    public void testIsSecondary_shouldNotBe(){
+        Metric metric = new Precision();
+        assertFalse(metric.isSecondary());
+    }
 
     @Tag("File")
     @Test

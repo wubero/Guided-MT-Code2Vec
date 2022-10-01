@@ -72,7 +72,13 @@ public class ConfigManagerTest {
 
         assertTrue(config.program.useGA());
         assertEquals(105,config.program.getSeed());
-        assertEquals("F:/My/Path",config.program.getBashPath().toString());
+
+        String windowsPath = "F:\\My\\Path";
+        String linuxPath = "F:/My/Path";
+        String receivedPath = config.program.getBashPath().toString();
+        boolean matchesEitherPath = receivedPath.equals(windowsPath) || receivedPath.equals(linuxPath);
+
+        assertTrue(matchesEitherPath);
     }
 
 

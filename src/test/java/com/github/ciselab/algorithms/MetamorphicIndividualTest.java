@@ -28,7 +28,7 @@ public class MetamorphicIndividualTest {
 
         MetamorphicIndividual a = new MetamorphicIndividual(support,0);
 
-        a.populateIndividual(r,3,20);
+        a.populateIndividual(r,3);
 
         assertEquals(3,a.getLength());
     }
@@ -43,7 +43,7 @@ public class MetamorphicIndividualTest {
 
         MetamorphicIndividual a = new MetamorphicIndividual(support,0);
 
-        a.populateIndividual(r,3,20);
+        a.populateIndividual(r,3);
 
         assertEquals(1,a.getLength());
     }
@@ -103,7 +103,7 @@ public class MetamorphicIndividualTest {
 
         MetamorphicIndividual a = new MetamorphicIndividual(support,0);
 
-        a.populateIndividual(r,3,20);
+        a.populateIndividual(r,3);
 
         assertNotNull(a.getGene(0));
     }
@@ -221,9 +221,9 @@ public class MetamorphicIndividualTest {
         GenotypeSupport support = new GenotypeSupport(cache,config);
 
         MetamorphicIndividual a = new MetamorphicIndividual(support,0);
-        a.populateIndividual(r,2,20);
+        a.populateIndividual(r,2);
         MetamorphicIndividual b = new MetamorphicIndividual(support,0);
-        b.populateIndividual(r,2,20);
+        b.populateIndividual(r,2);
 
         assertNotEquals(a,b);
     }
@@ -239,9 +239,9 @@ public class MetamorphicIndividualTest {
         GenotypeSupport support = new GenotypeSupport(cache,config);
 
         MetamorphicIndividual a = new MetamorphicIndividual(support,0);
-        a.populateIndividual(r,2,20);
+        a.populateIndividual(r,2);
         MetamorphicIndividual b = new MetamorphicIndividual(support,0);
-        b.populateIndividual(p,2,20);
+        b.populateIndividual(p,2);
 
         assertEquals(a,b);
     }
@@ -256,9 +256,9 @@ public class MetamorphicIndividualTest {
         GenotypeSupport support = new GenotypeSupport(cache,config);
 
         MetamorphicIndividual a = new MetamorphicIndividual(support,0);
-        a.populateIndividual(r,10,20);
+        a.populateIndividual(r,10);
         MetamorphicIndividual b = new MetamorphicIndividual(support,0);
-        b.populateIndividual(r,10,20);
+        b.populateIndividual(r,10);
 
         assertNotEquals(a,b);
     }
@@ -274,9 +274,9 @@ public class MetamorphicIndividualTest {
         GenotypeSupport support = new GenotypeSupport(cache,config);
 
         MetamorphicIndividual a = new MetamorphicIndividual(support,0);
-        a.populateIndividual(r,10,20);
+        a.populateIndividual(r,10);
         MetamorphicIndividual b = new MetamorphicIndividual(support,0);
-        b.populateIndividual(p,10,20);
+        b.populateIndividual(p,10);
 
         assertEquals(a,b);
     }
@@ -317,9 +317,9 @@ public class MetamorphicIndividualTest {
         GenotypeSupport support = new GenotypeSupport(cache,config);
 
         MetamorphicIndividual a = new MetamorphicIndividual(support,0);
-        a.populateIndividual(r,2,20);
+        a.populateIndividual(r,2);
         MetamorphicIndividual b = new MetamorphicIndividual(support,0);
-        b.populateIndividual(r,2,20);
+        b.populateIndividual(r,2);
 
         assertNotEquals(a.hashCode(),b.hashCode());
     }
@@ -335,9 +335,9 @@ public class MetamorphicIndividualTest {
         GenotypeSupport support = new GenotypeSupport(cache,config);
 
         MetamorphicIndividual a = new MetamorphicIndividual(support,0);
-        a.populateIndividual(r,2,20);
+        a.populateIndividual(r,2);
         MetamorphicIndividual b = new MetamorphicIndividual(support,0);
-        b.populateIndividual(p,2,20);
+        b.populateIndividual(p,2);
 
         assertEquals(a.hashCode(),b.hashCode());
     }
@@ -352,9 +352,9 @@ public class MetamorphicIndividualTest {
         GenotypeSupport support = new GenotypeSupport(cache,config);
 
         MetamorphicIndividual a = new MetamorphicIndividual(support,0);
-        a.populateIndividual(r,10,20);
+        a.populateIndividual(r,10);
         MetamorphicIndividual b = new MetamorphicIndividual(support,0);
-        b.populateIndividual(r,10,20);
+        b.populateIndividual(r,10);
 
         assertEquals(a.hashCode(),b.hashCode());
     }
@@ -370,9 +370,9 @@ public class MetamorphicIndividualTest {
         GenotypeSupport support = new GenotypeSupport(cache,config);
 
         MetamorphicIndividual a = new MetamorphicIndividual(support,0);
-        a.populateIndividual(r,10,20);
+        a.populateIndividual(r,10);
         MetamorphicIndividual b = new MetamorphicIndividual(support,0);
-        b.populateIndividual(p,10,20);
+        b.populateIndividual(p,10);
 
         assertNotEquals(a.hashCode(),b.hashCode());
     }

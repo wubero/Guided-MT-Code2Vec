@@ -38,7 +38,7 @@ public class MetamorphicPopulationTest {
         MetricCache cache = new MetricCache();
         GenotypeSupport support = new GenotypeSupport(cache,config);
 
-        MetamorphicPopulation population = new MetamorphicPopulation(3, r, 6, true, support, 0);
+        MetamorphicPopulation population = new MetamorphicPopulation(3, r,  true, support, 0);
         assertEquals(population.size(), 3);
         for(int i = 0; i < population.size(); i++) {
             assertNotNull(population.getIndividual(i));
@@ -52,7 +52,7 @@ public class MetamorphicPopulationTest {
         MetricCache cache = new MetricCache();
         GenotypeSupport support = new GenotypeSupport(cache,config);
 
-        MetamorphicPopulation population = new MetamorphicPopulation(3, r, 6, true, support, 0);
+        MetamorphicPopulation population = new MetamorphicPopulation(3, r, true, support, 0);
         assertTrue(population.toString().contains("MetamorphicPopulation{"));
     }
 
@@ -81,7 +81,7 @@ public class MetamorphicPopulationTest {
         bMetrics.put(stub,0.5);
         cache.putMetricResults(b,bMetrics);
 
-        MetamorphicPopulation testObject = new MetamorphicPopulation(2,r,20,false,support,0);
+        MetamorphicPopulation testObject = new MetamorphicPopulation(2,r,false,support,0);
 
 
         testObject.saveIndividual(a);
@@ -118,7 +118,7 @@ public class MetamorphicPopulationTest {
         bMetrics.put(stub,0.5);
         cache.putMetricResults(b,bMetrics);
 
-        MetamorphicPopulation testObject = new MetamorphicPopulation(2,r,20,false,support,0);
+        MetamorphicPopulation testObject = new MetamorphicPopulation(2,r,false,support,0);
 
 
         testObject.saveIndividual(a);
@@ -140,7 +140,7 @@ public class MetamorphicPopulationTest {
 
         MetamorphicIndividual a = new MetamorphicIndividual(support,0);
 
-        MetamorphicPopulation testObject = new MetamorphicPopulation(2,r,20,false,support,0);
+        MetamorphicPopulation testObject = new MetamorphicPopulation(2,r,false,support,0);
 
         testObject.saveIndividual(a);
 
@@ -156,7 +156,7 @@ public class MetamorphicPopulationTest {
 
         MetamorphicIndividual a = new MetamorphicIndividual(support,0);
 
-        MetamorphicPopulation testObject = new MetamorphicPopulation(2,r,20,false,support,0);
+        MetamorphicPopulation testObject = new MetamorphicPopulation(2,r,false,support,0);
 
         testObject.saveIndividual(a);
 

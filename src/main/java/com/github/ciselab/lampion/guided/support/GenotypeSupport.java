@@ -1,6 +1,7 @@
 package com.github.ciselab.lampion.guided.support;
 
 import com.github.ciselab.lampion.core.program.EngineResult;
+import com.github.ciselab.lampion.core.transformations.Transformer;
 import com.github.ciselab.lampion.core.transformations.TransformerRegistry;
 import com.github.ciselab.lampion.core.transformations.transformers.*;
 
@@ -8,6 +9,8 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Collections;
+import java.util.random.RandomGenerator;
 
 import com.github.ciselab.lampion.guided.algorithms.MetamorphicIndividual;
 import com.github.ciselab.lampion.guided.configuration.Configuration;
@@ -63,7 +66,7 @@ public class GenotypeSupport {
      * @param seed the transformer seed.
      * @return a transformer that extends the BaseTransformer.
      */
-    public BaseTransformer createTransformers(Integer key, Integer seed) {
+    public Transformer createTransformers(Integer key, Integer seed) {
         switch (key) {
             case 0:
                 return new IfTrueTransformer(seed);
@@ -83,6 +86,15 @@ public class GenotypeSupport {
                 logger.error("The key provided does not match a transformer");
                 throw new IllegalArgumentException("The key provided does not match a transformer.");
         }
+    }
+
+    public Transformer createRandomTransformer(RandomGenerator r){
+        var constructors = config.lampion.getAvailableTransformerConstructors();
+
+        long seed = r.nextLong();
+        int index = r.nextInt(0,constructors.size());
+
+        return constructors.get(index).apply(seed);
     }
 
     /**
@@ -111,8 +123,10 @@ public class GenotypeSupport {
     public String runTransformations(MetamorphicIndividual individual, String input) {
         long start = System.currentTimeMillis();
         TransformerRegistry registry = new TransformerRegistry("fromGA");
-        for(BaseTransformer i: individual.getTransformers()) {
-            i.setTryingToCompile(false);
+        for(Transformer i: individual.getTransformers()) {
+            if (i instanceof BaseTransformer bt)
+                bt.setTryingToCompile(false);
+
             registry.registerTransformer(i);
         }
         String dir = individual.getGeneration() == -1 ? "initialGen" : "gen" + individual.getGeneration();

@@ -52,7 +52,7 @@ public class GeneticAlgorithm {
         logger.debug("Evolve the old population");
         currentGeneration += 1;
         MetamorphicPopulation newPopulation = new MetamorphicPopulation(pop.size(),
-                randomGenerator, Main.maxTransformerValue, false, genotypeSupport, currentGeneration);
+                randomGenerator, false, genotypeSupport, currentGeneration);
 
         // Loop over the population size and create new individuals with
         // crossover
@@ -95,7 +95,7 @@ public class GeneticAlgorithm {
      */
     private void mutate(MetamorphicIndividual individual) {
         if (Math.random() <= config.getIncreaseSizeRate()) {
-            individual.increase(config.getMaxGeneLength(), randomGenerator, Main.maxTransformerValue);
+            individual.increase(config.getMaxGeneLength(), randomGenerator);
         } else {
             individual.decrease(randomGenerator);
         }
@@ -140,7 +140,7 @@ public class GeneticAlgorithm {
     private Optional<MetamorphicIndividual> tournamentSelection(MetamorphicPopulation pop, RandomGenerator random) {
         // Create a tournament population
         MetamorphicPopulation tournament = new MetamorphicPopulation(config.getTournamentSize(), random,
-                Main.maxTransformerValue, false, genotypeSupport, currentGeneration);
+                 false, genotypeSupport, currentGeneration);
         // For each place in the tournament get a random individual
         for (int i = 0; i < config.getTournamentSize(); i++) {
             int randomId = (int) (Math.random() * pop.size());

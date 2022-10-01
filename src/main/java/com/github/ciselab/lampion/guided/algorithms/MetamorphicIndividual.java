@@ -1,5 +1,6 @@
 package com.github.ciselab.lampion.guided.algorithms;
 
+import com.github.ciselab.lampion.core.transformations.Transformer;
 import com.github.ciselab.lampion.core.transformations.transformers.BaseTransformer;
 import com.github.ciselab.lampion.guided.metric.Metric;
 import com.github.ciselab.lampion.guided.support.GenotypeSupport;
@@ -37,7 +38,7 @@ public class MetamorphicIndividual {
     // Path to where the output of Code2Vec is stored for this Individual (empty if Code2Vec was not run)
     protected Optional<String> resultPath = Optional.empty();
 
-    private List<BaseTransformer> transformers = new ArrayList<>();
+    private List<Transformer> transformers = new ArrayList<>();
     private Optional<Double> fitness = Optional.empty(); // Empty while not calculated or reset
     private Map<Metric, Double> metrics;
     private List<MetamorphicIndividual> parents = new ArrayList<>();
@@ -62,15 +63,12 @@ public class MetamorphicIndividual {
      *
      * @param randomGenerator     the random generator used for this run.
      * @param length              the length.
-     * @param maxTransformerValue the maximum transformer key value.
      */
-    public void populateIndividual(RandomGenerator randomGenerator, int length, int maxTransformerValue) {
+    public void populateIndividual(RandomGenerator randomGenerator, int length) {
         transformers.clear();
         metrics = new HashMap<>();
         for (int i = 0; i < length; i++) {
-            int key = randomGenerator.nextInt(0, maxTransformerValue + 1);
-            int seed = randomGenerator.nextInt();
-            transformers.add(genotypeSupport.createTransformers(key, seed));
+            transformers.add(genotypeSupport.createRandomTransformer(randomGenerator));
         }
     }
 
@@ -134,7 +132,7 @@ public class MetamorphicIndividual {
      * @param index the index.
      * @return the transformer.
      */
-    public BaseTransformer getGene(int index) {
+    public Transformer getGene(int index) {
         return transformers.get(index);
     }
 
@@ -143,7 +141,7 @@ public class MetamorphicIndividual {
      *
      * @return the list of transformers.
      */
-    public List<BaseTransformer> getTransformers() {
+    public List<Transformer> getTransformers() {
         return transformers;
     }
 
@@ -163,7 +161,7 @@ public class MetamorphicIndividual {
      *
      * @param gene the transformer to add.
      */
-    public void addGene(BaseTransformer gene) {
+    public void addGene(Transformer gene) {
         transformers.add(gene);
         fitness = Optional.empty();
     }
@@ -173,14 +171,13 @@ public class MetamorphicIndividual {
      *
      * @param maxGeneLength the max length for the transformer list.
      * @param randomGen     the random generator used for this run.
-     * @param maxValue      the maximum value for the transformer keys.
      */
-    public void increase(int maxGeneLength, RandomGenerator randomGen, int maxValue) {
+    public void increase(int maxGeneLength, RandomGenerator randomGen) {
         if (getLength() < maxGeneLength) {
-            BaseTransformer newTransformer = genotypeSupport.createTransformers(randomGen.nextInt(1, maxValue + 1), randomGen.nextInt());
+            Transformer newTransformer = genotypeSupport.createRandomTransformer(randomGen);
             fitness = Optional.empty();
             if (metricCache.getDir(transformers).isPresent()) {
-                List<BaseTransformer> t = new ArrayList<>();
+                List<Transformer> t = new ArrayList<>();
                 t.add(newTransformer);
                 String oldDir = metricCache.getDir(transformers).get() + "/test";
                 String name = genotypeSupport.runTransformations(this, oldDir);
@@ -255,17 +252,6 @@ public class MetamorphicIndividual {
                 metrics = new HashMap<>();
             }
         }
-    }
-
-    /**
-     * Create a new gene, transformer, for the metamorphic individual.
-     *
-     * @param key    the key for the transformer.
-     * @param random the random generator used for this run.
-     * @return the transformer created.
-     */
-    public BaseTransformer createGene(int key, RandomGenerator random) {
-        return genotypeSupport.createTransformers(key, random.nextInt());
     }
 
     /**
@@ -425,7 +411,7 @@ public class MetamorphicIndividual {
      */
     private JSONArray individualToJSON(MetamorphicIndividual individual) {
         JSONArray jsonArray = new JSONArray();
-        for (BaseTransformer transformer : individual.getTransformers()) {
+        for (Transformer transformer : individual.getTransformers()) {
             JSONObject jsonTransformer = new JSONObject();
             String[] temp = transformer.getClass().toString().split("\\.");
             String name = temp[temp.length - 1];
@@ -439,7 +425,7 @@ public class MetamorphicIndividual {
     @Override
     public String toString() {
         String geneString = "[";
-        for (BaseTransformer i : transformers) {
+        for (Transformer i : transformers) {
             String[] temp = i.getClass().toString().split("\\.");
             String addition = temp[temp.length - 1];
             geneString += addition + ", ";

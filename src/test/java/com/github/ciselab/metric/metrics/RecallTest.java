@@ -5,6 +5,7 @@ import com.github.ciselab.lampion.guided.configuration.Configuration;
 import com.github.ciselab.lampion.guided.metric.Metric;
 import com.github.ciselab.lampion.guided.metric.metrics.Recall;
 import com.github.ciselab.lampion.guided.metric.metrics.Recall;
+import com.github.ciselab.lampion.guided.metric.metrics.Transformations;
 import com.github.ciselab.lampion.guided.support.GenotypeSupport;
 import com.github.ciselab.lampion.guided.support.MetricCache;
 import org.junit.jupiter.api.Tag;
@@ -13,6 +14,18 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class RecallTest {
+
+    @Test
+    public void testCanBeBiggerThanOne_shouldNotBe(){
+        Metric metric = new Recall();
+        assertFalse(metric.canBeBiggerThanOne());
+    }
+
+    @Test
+    public void testIsSecondary_shouldNotBe(){
+        Metric metric = new Recall();
+        assertFalse(metric.isSecondary());
+    }
 
 
     @Tag("File")

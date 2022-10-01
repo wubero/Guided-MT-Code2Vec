@@ -1,5 +1,6 @@
 package com.github.ciselab.lampion.guided.support;
 
+import com.github.ciselab.lampion.core.transformations.Transformer;
 import com.github.ciselab.lampion.guided.algorithms.MetamorphicIndividual;
 import com.github.ciselab.lampion.core.transformations.transformers.BaseTransformer;
 import com.github.ciselab.lampion.guided.metric.Metric;
@@ -49,7 +50,7 @@ public class MetricCache {
      * @param genotype the list of transformers.
      * @return the directory string if it exists, null otherwise.
      */
-    public Optional<String> getDir(List<BaseTransformer> genotype) {
+    public Optional<String> getDir(List<Transformer> genotype) {
         String file = fileLookup.get(genotype);
         return Optional.ofNullable(file);
     }

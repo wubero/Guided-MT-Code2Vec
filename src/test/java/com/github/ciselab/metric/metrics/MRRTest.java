@@ -3,8 +3,7 @@ package com.github.ciselab.metric.metrics;
 import com.github.ciselab.lampion.guided.algorithms.MetamorphicIndividual;
 import com.github.ciselab.lampion.guided.configuration.Configuration;
 import com.github.ciselab.lampion.guided.metric.Metric;
-import com.github.ciselab.lampion.guided.metric.metrics.MRR;
-import com.github.ciselab.lampion.guided.metric.metrics.F1;
+import com.github.ciselab.lampion.guided.metric.metrics.*;
 import com.github.ciselab.lampion.guided.metric.metrics.MRR;
 import com.github.ciselab.lampion.guided.support.GenotypeSupport;
 import com.github.ciselab.lampion.guided.support.MetricCache;
@@ -14,6 +13,18 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class MRRTest {
+
+    @Test
+    public void testCanBeBiggerThanOne_shouldNotBe(){
+        Metric metric = new PercentageMRR();
+        assertFalse(metric.canBeBiggerThanOne());
+    }
+
+    @Test
+    public void testIsSecondary_shouldNotBe(){
+        Metric metric = new PercentageMRR();
+        assertFalse(metric.isSecondary());
+    }
 
     @Tag("File")
     @Test

@@ -42,9 +42,6 @@ public class Main {
 
     private static String logDir = "";
 
-    // Currently a magic number ...
-    public static final int maxTransformerValue = 6;
-
     /**
      * The main method for the Guided-MT-Code2Vec project.
      * @param args system arguments.
@@ -101,11 +98,11 @@ public class Main {
         // Create an initial population
         try {
             FileWriter resultWriter = new FileWriter(logDir + "results.txt");
-            MetamorphicPopulation myPop = new MetamorphicPopulation(config.genetic.getPopSize(), randomGenerator,
-                    maxTransformerValue, false, genotypeSupport, 0);
+            MetamorphicPopulation myPop =
+                    new MetamorphicPopulation(config.genetic.getPopSize(), randomGenerator,false, genotypeSupport, 0);
             for(int i = 0; i < config.genetic.getPopSize(); i++) {
                 MetamorphicIndividual newIndiv = new MetamorphicIndividual(genotypeSupport, 0);
-                newIndiv.populateIndividual(randomGenerator, 1, maxTransformerValue);
+                newIndiv.populateIndividual(randomGenerator, 1);
                 myPop.saveIndividual(newIndiv);
             }
             MetamorphicIndividual initial = new MetamorphicIndividual(genotypeSupport, -1);
@@ -179,8 +176,8 @@ public class Main {
         // Create an initial population
         try {
             FileWriter resultWriter = new FileWriter(logDir + "GA_results.txt");
-            MetamorphicPopulation myPop = new MetamorphicPopulation(config.genetic.getPopSize(), random,
-                    maxTransformerValue, true, genotypeSupport, 0);
+            MetamorphicPopulation myPop =
+                    new MetamorphicPopulation(config.genetic.getPopSize(), random, true, genotypeSupport, 0);
             MetamorphicIndividual best = new MetamorphicIndividual(genotypeSupport, -1);
             best.setJavaPath(config.program.getDirectoryPath().toString());
             double bestFitness = writeInitialPopulationResults(resultWriter, myPop, best);

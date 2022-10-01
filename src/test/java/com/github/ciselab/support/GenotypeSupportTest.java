@@ -1,5 +1,6 @@
 package com.github.ciselab.support;
 
+import com.github.ciselab.lampion.core.transformations.Transformer;
 import com.github.ciselab.lampion.core.transformations.transformers.BaseTransformer;
 import java.io.File;
 import java.io.IOException;
@@ -37,7 +38,7 @@ public class GenotypeSupportTest {
         var support =  new GenotypeSupport(cache,config);
 
         var testObject = new MetamorphicIndividual(support, 0);
-        List<BaseTransformer> transformers = new ArrayList<>();
+        List<Transformer> transformers = new ArrayList<>();
         File[] files = new File("src/test/resources/code_files").listFiles();
         File directory = new File(config.program.getDataDirectoryPath() + "code_files");
         if(!directory.exists())

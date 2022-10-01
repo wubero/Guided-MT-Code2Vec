@@ -4,6 +4,7 @@ import com.github.ciselab.lampion.guided.algorithms.MetamorphicIndividual;
 import com.github.ciselab.lampion.guided.configuration.Configuration;
 import com.github.ciselab.lampion.guided.metric.Metric;
 import com.github.ciselab.lampion.guided.metric.metrics.F1;
+import com.github.ciselab.lampion.guided.metric.metrics.Recall;
 import com.github.ciselab.lampion.guided.support.GenotypeSupport;
 import com.github.ciselab.lampion.guided.support.MetricCache;
 import org.junit.jupiter.api.Tag;
@@ -17,6 +18,18 @@ public class F1_ScoreTest {
     public void checkNameTest() {
         F1 metric = new F1();
         assertEquals("F1", metric.getName());
+    }
+
+    @Test
+    public void testCanBeBiggerThanOne_shouldNotBe(){
+        Metric metric = new F1();
+        assertFalse(metric.canBeBiggerThanOne());
+    }
+
+    @Test
+    public void testIsSecondary_shouldNotBe(){
+        Metric metric = new F1();
+        assertFalse(metric.isSecondary());
     }
 
     @Tag("File")

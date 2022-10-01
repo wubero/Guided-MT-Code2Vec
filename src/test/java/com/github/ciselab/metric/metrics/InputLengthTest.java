@@ -1,12 +1,13 @@
 package com.github.ciselab.metric.metrics;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-
 import com.github.ciselab.lampion.guided.metric.Metric;
 import com.github.ciselab.lampion.guided.metric.metrics.PredictionLength;
 import com.github.ciselab.lampion.guided.metric.metrics.InputLength;
+import com.github.ciselab.lampion.guided.metric.metrics.Recall;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 public class InputLengthTest {
 
@@ -16,7 +17,19 @@ public class InputLengthTest {
         assertEquals("INPUTLENGTH", metric.getName());
     }
 
-    //TODO: Reimplement
+    @Test
+    public void testCanBeBiggerThanOne_shouldBe(){
+        Metric metric = new InputLength();
+        assertTrue(metric.canBeBiggerThanOne());
+    }
+
+    @Test
+    public void testIsSecondary_shouldBe(){
+        Metric metric = new InputLength();
+        assertTrue(metric.isSecondary());
+    }
+
+    //TODO: Reimplement the actual value Test
 
     @Test
     public void testEquality_isEqualToItself(){

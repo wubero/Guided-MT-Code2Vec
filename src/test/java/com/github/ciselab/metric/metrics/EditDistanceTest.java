@@ -4,6 +4,7 @@ import com.github.ciselab.lampion.guided.algorithms.MetamorphicIndividual;
 import com.github.ciselab.lampion.guided.configuration.Configuration;
 import com.github.ciselab.lampion.guided.metric.Metric;
 import com.github.ciselab.lampion.guided.metric.metrics.EditDistance;
+import com.github.ciselab.lampion.guided.metric.metrics.Recall;
 import com.github.ciselab.lampion.guided.support.GenotypeSupport;
 import com.github.ciselab.lampion.guided.support.MetricCache;
 import org.junit.jupiter.api.Tag;
@@ -13,6 +14,17 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class EditDistanceTest {
 
+    @Test
+    public void testCanBeBiggerThanOne_shouldBe(){
+        Metric metric = new EditDistance();
+        assertTrue(metric.canBeBiggerThanOne());
+    }
+
+    @Test
+    public void testIsSecondary_shouldNotBe(){
+        Metric metric = new EditDistance();
+        assertFalse(metric.isSecondary());
+    }
 
     @Test
     public void checkNameTest() {

@@ -3,6 +3,7 @@ package com.github.ciselab.metric.metrics;
 import com.github.ciselab.lampion.guided.algorithms.MetamorphicIndividual;
 import com.github.ciselab.lampion.guided.configuration.Configuration;
 import com.github.ciselab.lampion.guided.metric.Metric;
+import com.github.ciselab.lampion.guided.metric.metrics.InputLength;
 import com.github.ciselab.lampion.guided.metric.metrics.PredictionLength;
 import com.github.ciselab.lampion.guided.metric.metrics.F1;
 import com.github.ciselab.lampion.guided.metric.metrics.PredictionLength;
@@ -14,6 +15,23 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class PredictionLengthTest {
+
+    @Test
+    public void checkNameTest() {
+        PredictionLength metric = new PredictionLength();
+        assertEquals("PREDLENGTH", metric.getName());
+    }
+
+    @Test
+    public void testCanBeBiggerThanOne_shouldBe(){
+        Metric metric = new PredictionLength();
+        assertTrue(metric.canBeBiggerThanOne());
+    }
+    @Test
+    public void testIsSecondary_shouldBe(){
+        Metric metric = new PredictionLength();
+        assertTrue(metric.isSecondary());
+    }
 
     @Tag("File")
     @Test

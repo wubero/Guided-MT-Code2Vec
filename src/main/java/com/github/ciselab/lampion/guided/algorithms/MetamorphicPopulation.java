@@ -19,11 +19,10 @@ public class MetamorphicPopulation {
      * After that the evolution begins.
      * @param popSize the population size.
      * @param randomGenerator the random generator. This is kept the same everywhere for testing purposes.
-     * @param maxValue the maximum transformer value.
      * @param initialize whether the population should be initialized or just created as an object.
      * @param generation the generation of the current population.
      */
-    public MetamorphicPopulation(int popSize, RandomGenerator randomGenerator, int maxValue, boolean initialize
+    public MetamorphicPopulation(int popSize, RandomGenerator randomGenerator, boolean initialize
             , GenotypeSupport gen, int generation) {
         genotypeSupport = gen;
         this.populationSize = popSize;
@@ -32,12 +31,12 @@ public class MetamorphicPopulation {
             int cutOff = popSize/2;
             for (int i = 0; i < cutOff; i++) {
                 MetamorphicIndividual individual = new MetamorphicIndividual(genotypeSupport, generation);
-                individual.populateIndividual(randomGenerator, 1, maxValue);
+                individual.populateIndividual(randomGenerator, 1);
                 saveIndividual(individual);
             }
             for (int j = cutOff; j < popSize; j++) {
                 MetamorphicIndividual individual = new MetamorphicIndividual(genotypeSupport, generation);
-                individual.populateIndividual(randomGenerator, 2, maxValue);
+                individual.populateIndividual(randomGenerator, 2);
                 saveIndividual(individual);
             }
         }

@@ -2,7 +2,7 @@ package com.github.ciselab.metric.metrics;
 
 import com.github.ciselab.lampion.guided.algorithms.MetamorphicIndividual;
 import com.github.ciselab.lampion.guided.configuration.Configuration;
-import com.github.ciselab.lampion.guided.metric.metrics.EditDistance;
+import com.github.ciselab.lampion.guided.metric.Metric;
 import com.github.ciselab.lampion.guided.metric.metrics.F1;
 import com.github.ciselab.lampion.guided.support.GenotypeSupport;
 import com.github.ciselab.lampion.guided.support.MetricCache;
@@ -51,5 +51,61 @@ public class F1_ScoreTest {
 
         assertNotNull(result);
         assertEquals(Double.NaN,result);
+    }
+
+
+    @Test
+    public void testEquality_isEqualToItself(){
+        Metric metric = new F1();
+
+        assertEquals(metric,metric);
+    }
+
+    @Test
+    public void testEquality_sameWeight_isEqual(){
+        Metric a = new F1();
+        Metric b = new F1();
+
+        assertEquals(a,b);
+    }
+
+    @Test
+    public void testEquality_differentWeight_notEqual(){
+        Metric a = new F1();
+        a.setWeight(0.75);
+        Metric b = new F1();
+        b.setWeight(0.5);
+        assertNotEquals(a,b);
+    }
+
+    @Test
+    public void testEquality_againstNonMetric_isNotEqual(){
+        Metric metric = new F1();
+        Double other = 5.0;
+        assertNotEquals(other,metric);
+    }
+
+    @Test
+    public void testHashCode_isEqualToItself(){
+        Metric metric = new F1();
+
+        assertEquals(metric.hashCode(),metric.hashCode());
+    }
+
+    @Test
+    public void testHashCode_sameWeight_isEqual(){
+        Metric a = new F1();
+        Metric b = new F1();
+
+        assertEquals(a.hashCode(),b.hashCode());
+    }
+
+    @Test
+    public void testHashCode_differentWeight_notEqual(){
+        Metric a = new F1();
+        a.setWeight(0.75);
+        Metric b = new F1();
+        b.setWeight(0.5);
+        assertNotEquals(a.hashCode(),b.hashCode());
     }
 }

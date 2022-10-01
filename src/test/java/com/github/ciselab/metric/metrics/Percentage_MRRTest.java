@@ -2,6 +2,8 @@ package com.github.ciselab.metric.metrics;
 
 import com.github.ciselab.lampion.guided.algorithms.MetamorphicIndividual;
 import com.github.ciselab.lampion.guided.configuration.Configuration;
+import com.github.ciselab.lampion.guided.metric.Metric;
+import com.github.ciselab.lampion.guided.metric.metrics.PercentageMRR;
 import com.github.ciselab.lampion.guided.metric.metrics.F1;
 import com.github.ciselab.lampion.guided.metric.metrics.PercentageMRR;
 import com.github.ciselab.lampion.guided.support.GenotypeSupport;
@@ -47,4 +49,58 @@ public class Percentage_MRRTest {
         assertEquals(Double.NaN,result);
     }
 
+    @Test
+    public void testEquality_isEqualToItself(){
+        Metric metric = new PercentageMRR();
+
+        assertEquals(metric,metric);
+    }
+
+    @Test
+    public void testEquality_sameWeight_isEqual(){
+        Metric a = new PercentageMRR();
+        Metric b = new PercentageMRR();
+
+        assertEquals(a,b);
+    }
+
+    @Test
+    public void testEquality_differentWeight_notEqual(){
+        Metric a = new PercentageMRR();
+        a.setWeight(0.75);
+        Metric b = new PercentageMRR();
+        b.setWeight(0.5);
+        assertNotEquals(a,b);
+    }
+
+    @Test
+    public void testEquality_againstNonMetric_isNotEqual(){
+        Metric metric = new PercentageMRR();
+        Double other = 5.0;
+        assertNotEquals(other,metric);
+    }
+
+    @Test
+    public void testHashCode_isEqualToItself(){
+        Metric metric = new PercentageMRR();
+
+        assertEquals(metric.hashCode(),metric.hashCode());
+    }
+
+    @Test
+    public void testHashCode_sameWeight_isEqual(){
+        Metric a = new PercentageMRR();
+        Metric b = new PercentageMRR();
+
+        assertEquals(a.hashCode(),b.hashCode());
+    }
+
+    @Test
+    public void testHashCode_differentWeight_notEqual(){
+        Metric a = new PercentageMRR();
+        a.setWeight(0.75);
+        Metric b = new PercentageMRR();
+        b.setWeight(0.5);
+        assertNotEquals(a.hashCode(),b.hashCode());
+    }
 }

@@ -2,6 +2,7 @@ package com.github.ciselab.lampion.guided.metric.metrics;
 
 import com.github.ciselab.lampion.guided.algorithms.MetamorphicIndividual;
 import com.github.ciselab.lampion.guided.metric.Metric;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -57,5 +58,22 @@ public class PercentageMRR extends Metric {
     @Override
     public boolean canBeBiggerThanOne() {
         return false;
+    }
+
+
+    @Override
+    public boolean equals(Object o){
+        if (o == this) {
+            return true;
+        }
+        if (o instanceof PercentageMRR ed) {
+            return ed.getWeight() == this.getWeight();
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode(){
+        return new HashCodeBuilder().append(name).append(weight).hashCode();
     }
 }

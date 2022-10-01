@@ -53,4 +53,60 @@ public class EditDistanceTest {
         assertNotNull(result);
         assertEquals(Double.NaN,result);
     }
+
+    @Test
+    public void testEquality_isEqualToItself(){
+        Metric metric = new EditDistance();
+
+        assertEquals(metric,metric);
+    }
+
+    @Test
+    public void testEquality_sameWeight_isEqual(){
+        Metric a = new EditDistance();
+        Metric b = new EditDistance();
+
+        assertEquals(a,b);
+    }
+
+    @Test
+    public void testEquality_differentWeight_notEqual(){
+        Metric a = new EditDistance();
+        a.setWeight(0.75);
+        Metric b = new EditDistance();
+        b.setWeight(0.5);
+        assertNotEquals(a,b);
+    }
+
+    @Test
+    public void testEquality_againstNonMetric_isNotEqual(){
+        Metric metric = new EditDistance();
+        Double other = 5.0;
+        assertNotEquals(other,metric);
+    }
+
+    @Test
+    public void testHashCode_isEqualToItself(){
+        Metric metric = new EditDistance();
+
+        assertEquals(metric.hashCode(),metric.hashCode());
+    }
+
+    @Test
+    public void testHashCode_sameWeight_isEqual(){
+        Metric a = new EditDistance();
+        Metric b = new EditDistance();
+
+        assertEquals(a.hashCode(),b.hashCode());
+    }
+
+    @Test
+    public void testHashCode_differentWeight_notEqual(){
+        Metric a = new EditDistance();
+        a.setWeight(0.75);
+        Metric b = new EditDistance();
+        b.setWeight(0.5);
+        assertNotEquals(a.hashCode(),b.hashCode());
+    }
+
 }

@@ -474,7 +474,7 @@ public class MetamorphicIndividual {
         // Note: Comparing Hashes is not "allowed",
         // as equals needs to be different from hashCode for some of Javas Fall-Back Logic on HashCollision
         for (int i = 0; i < this.getLength(); i++){
-            if(this.getGene(i).equals(sO.getGene(0))){
+            if(!this.getGene(i).equals(sO.getGene(i))){
                 return false;
             }
         }

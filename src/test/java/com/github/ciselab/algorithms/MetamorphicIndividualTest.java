@@ -13,6 +13,8 @@ import java.util.random.RandomGenerator;
 
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -43,7 +45,7 @@ public class MetamorphicIndividualTest {
 
         MetamorphicIndividual a = new MetamorphicIndividual(support,0);
 
-        a.populateIndividual(r,3);
+        a.populateIndividual(r,1);
 
         assertEquals(1,a.getLength());
     }
@@ -225,14 +227,16 @@ public class MetamorphicIndividualTest {
         MetamorphicIndividual b = new MetamorphicIndividual(support,0);
         b.populateIndividual(r,2);
 
-        assertNotEquals(a,b);
+        boolean equality = a.equals(b);
+        assertFalse(equality);
     }
 
     @Tag("Regression")
-    @Test
-    public void testEquality_twoGenesWithSameTransformers_areEqual(){
-        RandomGenerator r = new Random(5);
-        RandomGenerator p = new Random(5);
+    @ParameterizedTest
+    @ValueSource(ints = {2, 3, 5, 15})
+    public void testEquality_twoGenesWithSameTransformers_areEqual(int seed){
+        RandomGenerator r = new Random(seed);
+        RandomGenerator p = new Random(seed);
 
         var config = new Configuration();
         MetricCache cache = makeEmptyCache();
@@ -243,13 +247,15 @@ public class MetamorphicIndividualTest {
         MetamorphicIndividual b = new MetamorphicIndividual(support,0);
         b.populateIndividual(p,2);
 
-        assertEquals(a,b);
+        boolean equality = a.equals(b);
+        assertTrue(equality);
     }
 
     @Tag("Regression")
-    @Test
-    public void testEquality_twoDifferentGenes_areNotEqual_test2(){
-        RandomGenerator r = new Random(5);
+    @ParameterizedTest
+    @ValueSource(ints = {2, 3, 5, 15})
+    public void testEquality_twoDifferentGenes_areNotEqual_test2(int seed){
+        RandomGenerator r = new Random(seed);
 
         var config = new Configuration();
         MetricCache cache = makeEmptyCache();
@@ -264,8 +270,9 @@ public class MetamorphicIndividualTest {
     }
 
     @Tag("Regression")
-    @Test
-    public void testEquality_twoGenesWithSameTransformers_areEqual_test2(){
+    @ParameterizedTest
+    @ValueSource(ints = {2, 3, 5, 15})
+    public void testEquality_twoGenesWithSameTransformers_areEqual_test2(int length){
         RandomGenerator r = new Random(5);
         RandomGenerator p = new Random(5);
 
@@ -274,13 +281,45 @@ public class MetamorphicIndividualTest {
         GenotypeSupport support = new GenotypeSupport(cache,config);
 
         MetamorphicIndividual a = new MetamorphicIndividual(support,0);
-        a.populateIndividual(r,10);
+        a.populateIndividual(r,length);
         MetamorphicIndividual b = new MetamorphicIndividual(support,0);
-        b.populateIndividual(p,10);
+        b.populateIndividual(p,length);
 
         assertEquals(a,b);
     }
 
+    @Test
+    public void testEquals_AgainstNonIndividual_shouldNotBeEqual(){
+        RandomGenerator r = new Random(5);
+
+        var config = new Configuration();
+        MetricCache cache = makeEmptyCache();
+        GenotypeSupport support = new GenotypeSupport(cache,config);
+
+        MetamorphicIndividual a = new MetamorphicIndividual(support,0);
+
+        Double comparison = 5.0;
+
+        assertNotEquals(comparison,a);
+    }
+
+    @Tag("Regression")
+    @Test
+    public void testEquals_IndividualsHaveDifferentLength_ShouldNotBeEqual(){
+        RandomGenerator r = new Random(5);
+        RandomGenerator p = new Random(5);
+
+        var config = new Configuration();
+        MetricCache cache = makeEmptyCache();
+        GenotypeSupport support = new GenotypeSupport(cache,config);
+
+        MetamorphicIndividual a = new MetamorphicIndividual(support,0);
+        a.populateIndividual(r,5);
+        MetamorphicIndividual b = new MetamorphicIndividual(support,0);
+        b.populateIndividual(p,10);
+
+        assertNotEquals(a,b);
+    }
 
     @Tag("Regression")
     @Test
@@ -325,8 +364,9 @@ public class MetamorphicIndividualTest {
     }
 
     @Tag("Regression")
-    @Test
-    public void testHashCode_twoGenesWithSameTransformers_areEqual(){
+    @ParameterizedTest
+    @ValueSource(ints = {2, 3, 5, 15})
+    public void testHashCode_twoGenesWithSameTransformers_areEqual(int length){
         RandomGenerator r = new Random(5);
         RandomGenerator p = new Random(5);
 
@@ -335,17 +375,18 @@ public class MetamorphicIndividualTest {
         GenotypeSupport support = new GenotypeSupport(cache,config);
 
         MetamorphicIndividual a = new MetamorphicIndividual(support,0);
-        a.populateIndividual(r,2);
+        a.populateIndividual(r,length);
         MetamorphicIndividual b = new MetamorphicIndividual(support,0);
-        b.populateIndividual(p,2);
+        b.populateIndividual(p,length);
 
         assertEquals(a.hashCode(),b.hashCode());
     }
 
     @Tag("Regression")
-    @Test
-    public void testHashcode_twoDifferentGenes_areNotEqual_test2(){
-        RandomGenerator r = new Random(5);
+    @ParameterizedTest
+    @ValueSource(ints = {2, 3, 5, 15})
+    public void testHashcode_twoDifferentGenes_areNotEqual_test2(int seed){
+        RandomGenerator r = new Random(seed);
 
         var config = new Configuration();
         MetricCache cache = makeEmptyCache();
@@ -356,7 +397,7 @@ public class MetamorphicIndividualTest {
         MetamorphicIndividual b = new MetamorphicIndividual(support,0);
         b.populateIndividual(r,10);
 
-        assertEquals(a.hashCode(),b.hashCode());
+        assertNotEquals(a.hashCode(),b.hashCode());
     }
 
     @Tag("Regression")
@@ -374,10 +415,8 @@ public class MetamorphicIndividualTest {
         MetamorphicIndividual b = new MetamorphicIndividual(support,0);
         b.populateIndividual(p,10);
 
-        assertNotEquals(a.hashCode(),b.hashCode());
+        assertEquals(a.hashCode(),b.hashCode());
     }
-
-
 
     /**
      * @return A Cache without any active metrics, will not call file system for any evaluation

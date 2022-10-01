@@ -28,10 +28,6 @@ public class MetricCache {
     }
     public List<Metric> getActiveMetrics() { return activeMetrics;}
 
-    public List<Double> getWeights() {
-        return activeMetrics.stream().map(x -> x.getWeight()).toList();
-    }
-
     public void addMetric(Metric metric) {
         metricList.add(metric);
         if (metric.getWeight()!=0){
@@ -61,34 +57,16 @@ public class MetricCache {
     /**
      * Create a key value pair of an individual and the corresponding fitness.
      * @param individual the individual.
-     * @param fitnesses the fitness score.
+     * @param metricResults the fitness score.
      */
-    public void fillFitness(MetamorphicIndividual individual, Map<Metric,Double> fitnesses) {
-        lookup.put(individual, fitnesses);
-    }
-
-    /**
-     *Get the fitness score corresponding to a given transformers.
-     * @param individual the metamorphic individual.
-     * @return the fitness scores as an array of doubles.
-     */
-    public Optional<double[]> getMetricResult(MetamorphicIndividual individual) {
-        return getMetricResults(individual).map(
-                mapp -> {
-                    var metrics = new double[]{mapp.size()};
-                    int i = 0;
-                    for(var entry : mapp.entrySet()){
-                        metrics[i]=entry.getValue();
-                        i++;
-                    }
-                    return metrics;
-                }
-        );
+    public void storeMetricResults(MetamorphicIndividual individual, Map<Metric,Double> metricResults) {
+        lookup.put(individual, metricResults);
     }
 
     public Optional<Map<Metric,Double>> getMetricResults(MetamorphicIndividual individual){
         return Optional.ofNullable(lookup.get(individual));
     }
+
 
     /**
      * Store the current genotype together with the fitness and filename in the map for later reference.
@@ -113,6 +91,7 @@ public class MetricCache {
 
     /**
      * Remove all metrics that have a weight of zero from activeMetrics.
+     * The metrics will be kept in the normal metrics, but are not used for fitness calculation.
      */
     private void removeZeroWeights() {
         var toRemove = activeMetrics.stream().filter(m -> m.getWeight() == 0).toList();
@@ -140,7 +119,7 @@ public class MetricCache {
     }
 
     /*
-    Returns true if ATLEAST one metric has negative weight.
+    Returns true if AT LEAST one metric has negative weight.
     In case of multiple positive weights and one negative, the result will be true.
      */
     public boolean doMaximize(){

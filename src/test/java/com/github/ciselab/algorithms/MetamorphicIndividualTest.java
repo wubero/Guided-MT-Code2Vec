@@ -1,119 +1,391 @@
 package com.github.ciselab.algorithms;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import com.github.ciselab.lampion.core.transformations.transformers.AddNeutralElementTransformer;
+import com.github.ciselab.lampion.core.transformations.transformers.BaseTransformer;
 import com.github.ciselab.lampion.core.transformations.transformers.IfTrueTransformer;
 import com.github.ciselab.lampion.guided.algorithms.MetamorphicIndividual;
-import com.github.ciselab.lampion.guided.configuration.ConfigManagement;
-import com.github.ciselab.lampion.guided.support.FileManagement;
+import com.github.ciselab.lampion.guided.configuration.Configuration;
 import com.github.ciselab.lampion.guided.support.GenotypeSupport;
 import com.github.ciselab.lampion.guided.support.MetricCache;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.util.SplittableRandom;
+import java.util.Random;
 import java.util.random.RandomGenerator;
 
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 public class MetamorphicIndividualTest {
 
-/*
-TODO: REIMPLEMENT
-    @BeforeEach
-    public void setUp() throws FileNotFoundException {
-        genotypeSupport = new GenotypeSupport(new MetricCache());
-        ConfigManagement configManagement = genotypeSupport.getConfigManagement();
-        configManagement.setConfigFile("src/test/resources/config.properties");
-        configManagement.initializeFields();
-        individual = new MetamorphicIndividual(genotypeSupport, 0);
-    }
+    @Test
+    public void testPopulateIndividual_with3Transformers_shouldHave3Transformations(){
+        RandomGenerator r = new Random(5);
 
-    @AfterEach
-    public void after() {
-        FileManagement.removeOtherDirs(FileManagement.dataDir);
+        var config = new Configuration();
+        MetricCache cache = makeEmptyCache();
+        GenotypeSupport support = new GenotypeSupport(cache,config);
+
+        MetamorphicIndividual a = new MetamorphicIndividual(support,0);
+
+        a.populateIndividual(r,3,20);
+
+        assertEquals(3,a.getLength());
     }
 
     @Test
-    public void createIndividualTest() {
-        RandomGenerator r = new SplittableRandom(101010);
-        assertTrue(individual.getTransformers().isEmpty());
-        individual.populateIndividual(r, 2, 6);
-        assertFalse(individual.getTransformers().isEmpty());
+    public void testPopulateIndividual_with1Transformers_shouldHave1Transformations(){
+        RandomGenerator r = new Random(5);
+
+        var config = new Configuration();
+        MetricCache cache = makeEmptyCache();
+        GenotypeSupport support = new GenotypeSupport(cache,config);
+
+        MetamorphicIndividual a = new MetamorphicIndividual(support,0);
+
+        a.populateIndividual(r,3,20);
+
+        assertEquals(1,a.getLength());
     }
 
     @Test
-    public void increaseIndividualLength() {
-        RandomGenerator r = new SplittableRandom(101010);
-        individual.populateIndividual(r, 2, 6);
-        assertEquals(individual.getTransformers().size(), 2);
-        individual.increase(10, r, 6);
-        assertEquals(individual.getTransformers().size(), 3);
+    public void testGetGeneration_ShouldReturnValueFromConstructor(){
+        var config = new Configuration();
+        MetricCache cache = makeEmptyCache();
+        GenotypeSupport support = new GenotypeSupport(cache,config);
+
+        MetamorphicIndividual a = new MetamorphicIndividual(support,10);
+
+        assertEquals(10,a.getGeneration());
     }
 
     @Test
-    public void decreaseIndividualLength() {
-        RandomGenerator r = new SplittableRandom(101010);
-        individual.populateIndividual(r, 2, 6);
-        assertEquals(individual.getTransformers().size(), 2);
-        individual.decrease(r);
-        assertEquals(individual.getTransformers().size(), 1);
+    public void testGetPaths_freshGene_ShouldNotHaveAnyPaths(){
+        var config = new Configuration();
+        MetricCache cache = makeEmptyCache();
+        GenotypeSupport support = new GenotypeSupport(cache,config);
+
+        MetamorphicIndividual a = new MetamorphicIndividual(support,10);
+
+        assertTrue(a.getResultPath().isEmpty());
+        assertTrue(a.getJavaPath().isEmpty());
     }
 
     @Test
-    public void individualJSONTest() {
-        RandomGenerator r = new SplittableRandom(101010);
-        MetamorphicIndividual parent1 = new MetamorphicIndividual(genotypeSupport, 0);
-        parent1.populateIndividual(r, 2, 6);
-        MetamorphicIndividual parent2 = new MetamorphicIndividual(genotypeSupport, 0);
-        parent2.populateIndividual(r, 2, 6);
-        MetamorphicIndividual child = new MetamorphicIndividual(genotypeSupport, 1);
-        child.populateIndividual(r, 3, 6);
-        child.setParents(parent1, parent2);
-        JSONObject json = child.createNewJSON();
-        assertTrue(json.containsKey("parent_1"));
-        assertTrue(json.containsKey("genotype"));
-        assertEquals(1, json.get("introduced_generation"));
-        assertEquals("class org.json.simple.JSONArray", json.get("genotype").getClass().toString());
-        JSONArray arr = (JSONArray) json.get("genotype");
-        assertTrue(((JSONObject) arr.get(0)).containsKey("transformer"));
+    public void testGetParents_freshGene_shouldNotHaveAnyParents(){
+        var config = new Configuration();
+        MetricCache cache = makeEmptyCache();
+        GenotypeSupport support = new GenotypeSupport(cache,config);
+
+        MetamorphicIndividual a = new MetamorphicIndividual(support,10);
+
+        assertTrue(a.getParents().isEmpty());
     }
 
     @Test
-    public void individualJSON_withoutParents_Test() {
-        RandomGenerator r = new SplittableRandom(101010);
-        MetamorphicIndividual child = new MetamorphicIndividual(genotypeSupport, 1);
-        child.populateIndividual(r, 3, 6);
-        JSONObject json = child.createNewJSON();
-        assertFalse(json.containsKey("parent_1"));
-        assertTrue(json.containsKey("genotype"));
-        assertEquals(1, json.get("introduced_generation"));
-        assertEquals("class org.json.simple.JSONArray", json.get("genotype").getClass().toString());
-        JSONArray arr = (JSONArray) json.get("genotype");
-        assertTrue(((JSONObject) arr.get(0)).containsKey("transformer"));
+    public void testGetParents_freshGene_shouldHaveLength0(){
+        var config = new Configuration();
+        MetricCache cache = makeEmptyCache();
+        GenotypeSupport support = new GenotypeSupport(cache,config);
+
+        MetamorphicIndividual a = new MetamorphicIndividual(support,10);
+
+        assertEquals(0,a.getLength());
     }
 
-    @Tag("Slow")
-    @Tag("File")
     @Test
-    public void extendExistingDirectory_withTransformerTest() {
-        RandomGenerator r = new SplittableRandom(101010);
-        individual.populateIndividual(r, 2, 6);
-        individual.getFitness();
-        individual.addGene(individual.createGene(3, r));
-        individual.getFitness();
-        assertEquals(individual.getGene(2).getClass(), AddNeutralElementTransformer.class);
-        individual.setGene(2, individual.createGene(0, r));
-        assertEquals(individual.getGene(2).getClass(), IfTrueTransformer.class);
+    public void testPopulateIndividual_with3Transformers_getGeneShouldReturnValue(){
+        RandomGenerator r = new Random(5);
+
+        var config = new Configuration();
+        MetricCache cache = makeEmptyCache();
+        GenotypeSupport support = new GenotypeSupport(cache,config);
+
+        MetamorphicIndividual a = new MetamorphicIndividual(support,0);
+
+        a.populateIndividual(r,3,20);
+
+        assertNotNull(a.getGene(0));
     }
 
- */
+
+    @Test
+    public void testAddGene_getGeneShouldReturnValue(){
+        RandomGenerator r = new Random(5);
+
+        var config = new Configuration();
+        MetricCache cache = makeEmptyCache();
+        GenotypeSupport support = new GenotypeSupport(cache,config);
+
+        MetamorphicIndividual testObject = new MetamorphicIndividual(support,0);
+
+        BaseTransformer a = new IfTrueTransformer(10);
+        testObject.addGene(a);
+
+        assertNotNull(testObject.getGene(0));
+        assertEquals(a,testObject.getGene(0));
+    }
+
+    @Test
+    public void testAddGene_sizeShouldGrow(){
+        RandomGenerator r = new Random(5);
+
+        var config = new Configuration();
+        MetricCache cache = makeEmptyCache();
+        GenotypeSupport support = new GenotypeSupport(cache,config);
+
+        MetamorphicIndividual testObject = new MetamorphicIndividual(support,0);
+
+        BaseTransformer a = new IfTrueTransformer(10);
+        testObject.addGene(a);
+
+        assertEquals(1,testObject.getLength());
+    }
+
+    @Test
+    public void testAddGene_twoGenes_sizeShouldGrow(){
+        RandomGenerator r = new Random(5);
+
+        var config = new Configuration();
+        MetricCache cache = makeEmptyCache();
+        GenotypeSupport support = new GenotypeSupport(cache,config);
+
+        MetamorphicIndividual testObject = new MetamorphicIndividual(support,0);
+
+        BaseTransformer a = new IfTrueTransformer(10);
+        BaseTransformer b = new IfTrueTransformer(11);
+        testObject.addGene(a);
+        testObject.addGene(b);
+
+        assertEquals(2,testObject.getLength());
+    }
+
+    @Test
+    public void testAddGene_addTwoGenes_getGeneShouldReturnValue(){
+        RandomGenerator r = new Random(5);
+
+        var config = new Configuration();
+        MetricCache cache = makeEmptyCache();
+        GenotypeSupport support = new GenotypeSupport(cache,config);
+
+        MetamorphicIndividual testObject = new MetamorphicIndividual(support,0);
+
+        BaseTransformer a = new IfTrueTransformer(10);
+        BaseTransformer b = new AddNeutralElementTransformer(11);
+        testObject.addGene(a);
+        testObject.addGene(b);
+
+        assertNotNull(testObject.getGene(0));
+        assertEquals(a,testObject.getGene(0));
+        assertNotNull(testObject.getGene(1));
+        assertEquals(b,testObject.getGene(1));
+    }
+
+    /* ===================================================
+            Equality and HashCode Tests
+       ====================================================
+     */
+
+    @Tag("Regression")
+    @Test
+    public void testEquality_TwoEmptyIndividuals_areEqual(){
+        var config = new Configuration();
+        MetricCache cache = makeEmptyCache();
+        GenotypeSupport support = new GenotypeSupport(cache,config);
+
+        MetamorphicIndividual a = new MetamorphicIndividual(support,0);
+        MetamorphicIndividual b = new MetamorphicIndividual(support,0);
+
+        assertEquals(a,b);
+    }
+
+    @Tag("Regression")
+    @Test
+    public void testEquality_toItself_isEqual(){
+        var config = new Configuration();
+        MetricCache cache = makeEmptyCache();
+        GenotypeSupport support = new GenotypeSupport(cache,config);
+
+        MetamorphicIndividual a = new MetamorphicIndividual(support,0);
+
+        assertEquals(a,a);
+    }
+
+    @Tag("Regression")
+    @Test
+    public void testEquality_twoDifferentGenes_areNotEqual(){
+        RandomGenerator r = new Random(5);
+
+        var config = new Configuration();
+        MetricCache cache = makeEmptyCache();
+        GenotypeSupport support = new GenotypeSupport(cache,config);
+
+        MetamorphicIndividual a = new MetamorphicIndividual(support,0);
+        a.populateIndividual(r,2,20);
+        MetamorphicIndividual b = new MetamorphicIndividual(support,0);
+        b.populateIndividual(r,2,20);
+
+        assertNotEquals(a,b);
+    }
+
+    @Tag("Regression")
+    @Test
+    public void testEquality_twoGenesWithSameTransformers_areEqual(){
+        RandomGenerator r = new Random(5);
+        RandomGenerator p = new Random(5);
+
+        var config = new Configuration();
+        MetricCache cache = makeEmptyCache();
+        GenotypeSupport support = new GenotypeSupport(cache,config);
+
+        MetamorphicIndividual a = new MetamorphicIndividual(support,0);
+        a.populateIndividual(r,2,20);
+        MetamorphicIndividual b = new MetamorphicIndividual(support,0);
+        b.populateIndividual(p,2,20);
+
+        assertEquals(a,b);
+    }
+
+    @Tag("Regression")
+    @Test
+    public void testEquality_twoDifferentGenes_areNotEqual_test2(){
+        RandomGenerator r = new Random(5);
+
+        var config = new Configuration();
+        MetricCache cache = makeEmptyCache();
+        GenotypeSupport support = new GenotypeSupport(cache,config);
+
+        MetamorphicIndividual a = new MetamorphicIndividual(support,0);
+        a.populateIndividual(r,10,20);
+        MetamorphicIndividual b = new MetamorphicIndividual(support,0);
+        b.populateIndividual(r,10,20);
+
+        assertNotEquals(a,b);
+    }
+
+    @Tag("Regression")
+    @Test
+    public void testEquality_twoGenesWithSameTransformers_areEqual_test2(){
+        RandomGenerator r = new Random(5);
+        RandomGenerator p = new Random(5);
+
+        var config = new Configuration();
+        MetricCache cache = makeEmptyCache();
+        GenotypeSupport support = new GenotypeSupport(cache,config);
+
+        MetamorphicIndividual a = new MetamorphicIndividual(support,0);
+        a.populateIndividual(r,10,20);
+        MetamorphicIndividual b = new MetamorphicIndividual(support,0);
+        b.populateIndividual(p,10,20);
+
+        assertEquals(a,b);
+    }
+
+
+    @Tag("Regression")
+    @Test
+    public void testHashCode_TwoEmptyIndividuals_areEqual(){
+        var config = new Configuration();
+        MetricCache cache = makeEmptyCache();
+        GenotypeSupport support = new GenotypeSupport(cache,config);
+
+        MetamorphicIndividual a = new MetamorphicIndividual(support,0);
+        MetamorphicIndividual b = new MetamorphicIndividual(support,0);
+
+        assertEquals(a.hashCode(),b.hashCode());
+    }
+
+    @Tag("Regression")
+    @Test
+    public void testHashCode_toItself_isEqual(){
+        var config = new Configuration();
+        MetricCache cache = makeEmptyCache();
+        GenotypeSupport support = new GenotypeSupport(cache,config);
+
+        MetamorphicIndividual a = new MetamorphicIndividual(support,0);
+
+        assertEquals(a.hashCode(),a.hashCode());
+    }
+
+    @Tag("Regression")
+    @Test
+    public void testHashCode_twoDifferentGenes_areNotEqual(){
+        RandomGenerator r = new Random(5);
+
+        var config = new Configuration();
+        MetricCache cache = makeEmptyCache();
+        GenotypeSupport support = new GenotypeSupport(cache,config);
+
+        MetamorphicIndividual a = new MetamorphicIndividual(support,0);
+        a.populateIndividual(r,2,20);
+        MetamorphicIndividual b = new MetamorphicIndividual(support,0);
+        b.populateIndividual(r,2,20);
+
+        assertNotEquals(a.hashCode(),b.hashCode());
+    }
+
+    @Tag("Regression")
+    @Test
+    public void testHashCode_twoGenesWithSameTransformers_areEqual(){
+        RandomGenerator r = new Random(5);
+        RandomGenerator p = new Random(5);
+
+        var config = new Configuration();
+        MetricCache cache = makeEmptyCache();
+        GenotypeSupport support = new GenotypeSupport(cache,config);
+
+        MetamorphicIndividual a = new MetamorphicIndividual(support,0);
+        a.populateIndividual(r,2,20);
+        MetamorphicIndividual b = new MetamorphicIndividual(support,0);
+        b.populateIndividual(p,2,20);
+
+        assertEquals(a.hashCode(),b.hashCode());
+    }
+
+    @Tag("Regression")
+    @Test
+    public void testHashcode_twoDifferentGenes_areNotEqual_test2(){
+        RandomGenerator r = new Random(5);
+
+        var config = new Configuration();
+        MetricCache cache = makeEmptyCache();
+        GenotypeSupport support = new GenotypeSupport(cache,config);
+
+        MetamorphicIndividual a = new MetamorphicIndividual(support,0);
+        a.populateIndividual(r,10,20);
+        MetamorphicIndividual b = new MetamorphicIndividual(support,0);
+        b.populateIndividual(r,10,20);
+
+        assertEquals(a.hashCode(),b.hashCode());
+    }
+
+    @Tag("Regression")
+    @Test
+    public void testHashCode_twoGenesWithSameTransformers_areEqual_test2(){
+        RandomGenerator r = new Random(5);
+        RandomGenerator p = new Random(5);
+
+        var config = new Configuration();
+        MetricCache cache = makeEmptyCache();
+        GenotypeSupport support = new GenotypeSupport(cache,config);
+
+        MetamorphicIndividual a = new MetamorphicIndividual(support,0);
+        a.populateIndividual(r,10,20);
+        MetamorphicIndividual b = new MetamorphicIndividual(support,0);
+        b.populateIndividual(p,10,20);
+
+        assertNotEquals(a.hashCode(),b.hashCode());
+    }
+
+
+
+    /**
+     * @return A Cache without any active metrics, will not call file system for any evaluation
+     */
+    private static MetricCache makeEmptyCache(){
+        MetricCache cache = new MetricCache();
+        cache.getMetrics().removeIf(x -> true);
+        cache.getActiveMetrics().removeIf(x -> true);
+        return cache;
+    }
 }

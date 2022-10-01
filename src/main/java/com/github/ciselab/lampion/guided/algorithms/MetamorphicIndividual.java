@@ -170,7 +170,7 @@ public class MetamorphicIndividual {
                 metricCache.storeFiles(this, name, metrics);
             } else {
                 transformers.add(newTransformer);
-                if (metricCache.getMetricResult(this).isPresent()) {
+                if (metricCache.getMetricResults(this).isPresent()) {
                     metrics = metricCache.getMetricResults(this).get();
                     fitness = Optional.of(calculateFitness());
                 }
@@ -250,15 +250,33 @@ public class MetamorphicIndividual {
      * Every metric has a certain weight specified in the config. These weights are normalized for all included metrics.
      * The score of a weight is then multiplied by its weights and added to the fitness of this individual.
      * The resulting fitness of all metrics will be between 0 and 1.
+     * Note: Calculation likely needs to run in the file-system
      * @return the fitness of this metamorphic individual.
      */
     public double getFitness() {
-        if (fitness.isEmpty() || fitness.get() < 0.0) {
+        /*
+        We have three cases:
+        1.) Fitness is already known to individual - return it.
+        2.) Fitness is not known to Individual, but to cache. Return it.
+        3.) Fitness needs to be read from FileSystem
+        3a.) Java Files are not created - create them first
+        3b.) Java Files are there, but Result Files are not read
+         */
+        if (fitness.isPresent()){
+            return this.fitness.get();
+        }
+        if (fetchFitness().isPresent()){
+            fitness = fetchFitness();
+            return fitness.get();
+        }
+        logger.trace("The gene " + Integer.toHexString(this.hashCode()).substring(0,6) +  " needs to calculate its fitness");
+        if(javaPath.isEmpty()) {
             String name = genotypeSupport.runTransformations(this, genotypeSupport.getInitialDataset());
             setJavaPath(name);
-            inferMetrics();
-            metricCache.fillFitness(this, metrics);
         }
+        inferMetrics();
+        metricCache.storeMetricResults(this, metrics);
+
         logger.debug("The gene " + Integer.toHexString(this.hashCode()).substring(0,6) +  " has calculated its fitness, it is: " + fitness.get());
         return fitness.get();
     }
@@ -276,6 +294,7 @@ public class MetamorphicIndividual {
     /**
      * Calculate the global fitness of the metrics with the weights for each metric.
      * Note: Metrics that can be bigger than 1 are ignored for Fitness Calculation, as they would scew the results.
+     * Note: Applying the Metrics likely runs in the file system, looking for result files.
      * @return The global fitness.
      */
     private double calculateFitness() {
@@ -285,6 +304,21 @@ public class MetamorphicIndividual {
                     m -> m.apply(this) * m.getWeight()
                 )
                 .sum();
+    }
+
+    /**
+     * Tries to calculate Fitness from the cache,
+     * if this individual was not stored in the cache return empty.
+     * @return the calculated metrics from cache, if possible. Empty otherwise.
+     */
+    private Optional<Double> fetchFitness(){
+        return metricCache.getMetricResults(this).map(
+                results -> results.entrySet().stream()
+                        .filter(e -> e.getKey().canBeBiggerThanOne())
+                        .filter(e -> metricCache.getActiveMetrics().contains(e.getKey()))
+                        .mapToDouble(e -> e.getKey().getWeight() * e.getValue())
+                        .sum()
+        );
     }
 
     /**
@@ -350,7 +384,7 @@ public class MetamorphicIndividual {
             jsonIndividual.put("parent_1", individualToJSON(parents.get(0)));
         }
         jsonIndividual.put("hash_with_lifetime", hashWithLifetime(1));
-        jsonIndividual.put("hash", hash());
+        jsonIndividual.put("hash", hashCode());
         jsonIndividual.put("genotype", individualToJSON(this));
         return jsonIndividual;
     }
@@ -394,7 +428,8 @@ public class MetamorphicIndividual {
      * To keep track of time of individuals, we have "hashWithLifetime"
      * @return
      */
-    public int hash() {
+    @Override
+    public int hashCode() {
         final int prime = 31;
         int result = 1;
         result = prime * result + ((transformers == null) ? 0 : transformers.hashCode());
@@ -403,8 +438,7 @@ public class MetamorphicIndividual {
 
     public int hashWithLifetime(int lifetime) {
         final int prime = 31;
-        int result = 1;
-        result = prime * result + ((transformers == null) ? 0 : transformers.hashCode());
+        int result = this.hashCode();
         result = prime * result + lifetime ^ lifetime;
         return result;
     }

@@ -239,7 +239,7 @@ public class MetamorphicIndividual {
         if (getLength() > 1) {
             int drop = randomGen.nextInt(0, getLength());
             transformers.remove(drop);
-            logger.debug("The gene " + Integer.toHexString(this.hashCode()).substring(0, 6) + " has decreased its size to " + this.getLength());
+            logger.debug("The gene " + hexHash() + " has decreased its size to " + this.getLength());
         }
     }
 
@@ -268,7 +268,7 @@ public class MetamorphicIndividual {
             fitness = fetchFitness();
             return fitness.get();
         }
-        logger.trace("The gene " + Integer.toHexString(this.hashCode()).substring(0, 6) + " needs to calculate its fitness");
+        logger.trace("The gene " + hexHash() + " needs to calculate its fitness");
         if (javaPath.isEmpty()) {
             String name = genotypeSupport.runTransformations(this, genotypeSupport.getInitialDataset());
             setJavaPath(name);
@@ -277,7 +277,7 @@ public class MetamorphicIndividual {
         metricCache.storeMetricResults(this, metrics);
         inferFitness();
 
-        logger.debug("The gene " + Integer.toHexString(this.hashCode()).substring(0, 6) + " has calculated its fitness, it is: " + fitness.get());
+        logger.debug("The gene " + hexHash() + " has calculated its fitness, it is: " + fitness.get());
         return fitness.get();
     }
 
@@ -465,6 +465,21 @@ public class MetamorphicIndividual {
         int result = this.hashCode();
         result = prime * result + lifetime ^ lifetime;
         return result;
+    }
+
+    /**
+     * Calculates the hashCode and returns it as Hexadezimal String.
+     * Note: This also handles "Error-Cases" if the Hashes Hex is smaller than 0.
+     * @return The HashCode as Hexadezimal, cut to 6 Digits
+     */
+    public String hexHash() {
+        final int DEFAULT_LENGTH = 6;
+        String base = Integer.toHexString(this.hashCode());
+        if (base.length()>=DEFAULT_LENGTH){
+            return base.substring(0,DEFAULT_LENGTH);
+        } else {
+            return "0".repeat(DEFAULT_LENGTH-base.length()) + base;
+        }
     }
 
     @Override

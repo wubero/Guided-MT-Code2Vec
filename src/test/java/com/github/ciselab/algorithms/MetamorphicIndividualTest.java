@@ -11,6 +11,7 @@ import com.github.ciselab.lampion.guided.support.MetricCache;
 import java.util.Random;
 import java.util.random.RandomGenerator;
 
+import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -416,6 +417,57 @@ public class MetamorphicIndividualTest {
         b.populateIndividual(p,10);
 
         assertEquals(a.hashCode(),b.hashCode());
+    }
+
+    @RepeatedTest(10)
+    public void testHexHashCode_shouldAlwaysBe6Long(){
+        RandomGenerator r = new Random();
+
+        var config = new Configuration();
+        MetricCache cache = makeEmptyCache();
+        GenotypeSupport support = new GenotypeSupport(cache,config);
+
+        MetamorphicIndividual a = new MetamorphicIndividual(support,0);
+
+        a.populateIndividual(r,r.nextInt(3,10));
+
+        assertEquals(6,a.hexHash().length());
+    }
+
+    @Test
+    public void testHexHashCode_isDeterministic(){
+        RandomGenerator r = new Random(5);
+        RandomGenerator p = new Random(5);
+
+        var config = new Configuration();
+        MetricCache cache = makeEmptyCache();
+        GenotypeSupport support = new GenotypeSupport(cache,config);
+
+        MetamorphicIndividual a = new MetamorphicIndividual(support,0);
+        a.populateIndividual(r,10);
+        MetamorphicIndividual b = new MetamorphicIndividual(support,0);
+        b.populateIndividual(p,10);
+
+        assertEquals(a.hexHash(),b.hexHash());
+    }
+
+    @Test
+    public void testHexHashCode_smallHash_HasLeading0s(){
+        /** The Empty Individual has a default low hashcode (not 0 tho).
+         * Hence we use it for the HexHash test.
+         */
+        RandomGenerator r = new Random(5);
+
+        var config = new Configuration();
+        MetricCache cache = makeEmptyCache();
+        GenotypeSupport support = new GenotypeSupport(cache,config);
+
+        MetamorphicIndividual a = new MetamorphicIndividual(support,0);
+
+        assertEquals(2,Integer.toHexString(a.hashCode()).length());
+        assertEquals(6,a.hexHash().length());
+
+        assertTrue(a.hexHash().startsWith("00"));
     }
 
     /**

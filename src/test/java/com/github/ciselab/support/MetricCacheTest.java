@@ -6,10 +6,12 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 import com.github.ciselab.helpers.StubMetric;
 import com.github.ciselab.lampion.guided.algorithms.MetamorphicIndividual;
+import com.github.ciselab.lampion.guided.algorithms.MetamorphicPopulation;
 import com.github.ciselab.lampion.guided.configuration.ConfigManagement;
 import com.github.ciselab.lampion.guided.configuration.Configuration;
 import com.github.ciselab.lampion.guided.metric.Metric;
@@ -19,6 +21,8 @@ import com.github.ciselab.lampion.guided.support.MetricCache;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 public class MetricCacheTest {
 
@@ -337,4 +341,105 @@ public class MetricCacheTest {
 
         assertTrue(results.isEmpty());
     }
+
+    @Test
+    public void testDoMaximize_noNegativeMetrics_ShouldNotMaximize(){
+        MetricCache testObject = new MetricCache();
+        testObject.getMetrics().removeIf(x ->true);
+        StubMetric stub1 = new StubMetric();
+        stub1.setWeight(1);
+        StubMetric stub2 = new StubMetric();
+        stub2.setWeight(1);
+
+        testObject.addMetric(stub1);
+        testObject.addMetric(stub2);
+
+        assertFalse(testObject.doMaximize());
+    }
+
+    @Test
+    public void testDoMaximize_OnlyNegativeWeights_ShouldMaximize(){
+        MetricCache testObject = new MetricCache();
+        testObject.getMetrics().removeIf(x ->true);
+        StubMetric stub1 = new StubMetric();
+        stub1.setWeight(-1);
+        StubMetric stub2 = new StubMetric();
+        stub2.setWeight(-1);
+
+        testObject.addMetric(stub1);
+        testObject.addMetric(stub2);
+
+        assertTrue(testObject.doMaximize());
+
+    }
+    @Test
+    public void testDoMaximize_MixedeMetrics_ShouldMaximize(){
+        MetricCache testObject = new MetricCache();
+        testObject.getMetrics().removeIf(x ->true);
+        StubMetric stub1 = new StubMetric();
+        stub1.setWeight(-1);
+        StubMetric stub2 = new StubMetric();
+        stub2.setWeight(1);
+
+        testObject.addMetric(stub1);
+        testObject.addMetric(stub2);
+
+        assertTrue(testObject.doMaximize());
+    }
+
+    @Tag("Regression")
+    @Test
+    public void testGetMetricResults_IndividualWasStored_shouldHaveValues(){
+        /*
+        This is a sub-piece of an issue we had with Genetic Populations not returning fitness,
+        despite things being stored in cache.
+        To have a better overview, this Test was created to test sub-parts.
+         */
+        var config = new Configuration();
+        MetricCache testObject = new MetricCache();
+        testObject.getMetrics().removeIf(x ->true);
+
+        GenotypeSupport support = new GenotypeSupport(testObject,config);
+
+        MetamorphicIndividual a = new MetamorphicIndividual(support,0);
+        MetamorphicIndividual b = new MetamorphicIndividual(support,0);
+
+        StubMetric stub = new StubMetric();
+        stub.setWeight(1);
+        stub.valuesToReturn.put(a,0.75);
+        stub.valuesToReturn.put(b,0.50);
+        testObject.addMetric(stub);
+
+        HashMap<Metric,Double> aMetrics = new HashMap<>();
+        aMetrics.put(stub,0.75);
+        testObject.putMetricResults(a,aMetrics);
+        HashMap<Metric,Double> bMetrics = new HashMap<>();
+        bMetrics.put(stub,0.5);
+        testObject.putMetricResults(b,bMetrics);
+
+        assertTrue(testObject.getMetricResults(a).isPresent());
+        assertTrue(testObject.getMetricResults(b).isPresent());
+    }
+
+    @Tag("Regression")
+    @ParameterizedTest
+    @ValueSource(doubles = {0.1, 0.25, 0.5, 1.0})
+    public void testGetMetricResults_IndividualWasStored_shouldReturnValueAsSpecified(Double returnValue){
+        var config = new Configuration();
+        MetricCache testObject = new MetricCache();
+        testObject.getMetrics().removeIf(x ->true);
+
+        GenotypeSupport support = new GenotypeSupport(testObject,config);
+
+        MetamorphicIndividual a = new MetamorphicIndividual(support,0);
+
+        StubMetric stub = new StubMetric();
+
+        HashMap<Metric,Double> aMetrics = new HashMap<>();
+        aMetrics.put(stub,returnValue);
+        testObject.putMetricResults(a,aMetrics);
+
+        assertEquals(returnValue,testObject.getMetricResults(a).get().get(stub),0.001);
+    }
+
 }

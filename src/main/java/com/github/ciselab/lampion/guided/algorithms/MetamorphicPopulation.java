@@ -81,7 +81,9 @@ public class MetamorphicPopulation {
      */
     public Optional<MetamorphicIndividual> getFittest() {
         return individuals.stream()
-                .sorted(Comparator.comparingDouble((MetamorphicIndividual x) -> x.getFitness()))
+                // Note: The - is necessary to sort in the right order
+                // This does not change the actual value, it is just used for this temporary sorting
+                .sorted(Comparator.comparingDouble((MetamorphicIndividual x) -> - x.getFitness()))
                 .findFirst();
     }
 

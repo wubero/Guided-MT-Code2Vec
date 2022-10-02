@@ -22,6 +22,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 public class MetamorphicPopulationTest {
 
@@ -66,7 +68,9 @@ public class MetamorphicPopulationTest {
         GenotypeSupport support = new GenotypeSupport(cache,config);
 
         MetamorphicIndividual a = new MetamorphicIndividual(support,0);
+        a.populateIndividual(r,3);
         MetamorphicIndividual b = new MetamorphicIndividual(support,0);
+        b.populateIndividual(r,3);
 
         StubMetric stub = new StubMetric();
         stub.setWeight(1);
@@ -77,6 +81,7 @@ public class MetamorphicPopulationTest {
         HashMap<Metric,Double> aMetrics = new HashMap<>();
         aMetrics.put(stub,0.75);
         cache.putMetricResults(a,aMetrics);
+
         HashMap<Metric,Double> bMetrics = new HashMap<>();
         bMetrics.put(stub,0.5);
         cache.putMetricResults(b,bMetrics);
@@ -96,14 +101,56 @@ public class MetamorphicPopulationTest {
     @Tag("Regression")
     @Tag("Integration")
     @Test
-    public void testMetamorphicPopulation_withNegativeMetricsCached_getFittest_ShouldReturnHighestFitness_WhenMinimizing(){
+    public void testMetamorphicPopulation_withMetricsCached_getFittest_ShouldReturnHighestFitness_WhenMinimizing_VariantB(){
         Random r = new Random(5);
         var config = new Configuration();
         MetricCache cache = makeEmptyCache();
         GenotypeSupport support = new GenotypeSupport(cache,config);
 
         MetamorphicIndividual a = new MetamorphicIndividual(support,0);
+        a.populateIndividual(r,3);
         MetamorphicIndividual b = new MetamorphicIndividual(support,0);
+        b.populateIndividual(r,3);
+
+        StubMetric stub = new StubMetric();
+        stub.setWeight(1);
+        stub.valuesToReturn.put(a,0.9);
+        stub.valuesToReturn.put(b,0.2);
+        cache.addMetric(stub);
+
+        HashMap<Metric,Double> aMetrics = new HashMap<>();
+        aMetrics.put(stub,0.9);
+        cache.putMetricResults(a,aMetrics);
+
+        HashMap<Metric,Double> bMetrics = new HashMap<>();
+        bMetrics.put(stub,0.2);
+        cache.putMetricResults(b,bMetrics);
+
+        MetamorphicPopulation testObject = new MetamorphicPopulation(2,r,false,support,0);
+
+
+        testObject.saveIndividual(a);
+        testObject.saveIndividual(b);
+
+        var result = testObject.getFittest();
+        assertTrue(result.isPresent());
+        assertEquals(a,result.get());
+        assertEquals(0.9,result.get().getFitness(),0.001);
+    }
+
+    @Tag("Regression")
+    @Tag("Integration")
+    @Test
+    public void testMetamorphicPopulation_withNegativeMetricsCached_getFittest_ShouldReturnHighestFitness_WhenMaximizing(){
+        Random r = new Random(5);
+        var config = new Configuration();
+        MetricCache cache = makeEmptyCache();
+        GenotypeSupport support = new GenotypeSupport(cache,config);
+
+        MetamorphicIndividual a = new MetamorphicIndividual(support,0);
+        a.populateIndividual(r,3);
+        MetamorphicIndividual b = new MetamorphicIndividual(support,0);
+        b.populateIndividual(r,3);
 
         StubMetric stub = new StubMetric();
         stub.setWeight(-1);
@@ -128,7 +175,175 @@ public class MetamorphicPopulationTest {
 
         assertTrue(result.isPresent());
         assertEquals(b,result.get());
-        assertEquals(0.75,result.get().getFitness(),0.001);
+        assertEquals(0.5,result.get().getFitness(),0.001);
+    }
+
+    @Tag("Regression")
+    @Tag("Integration")
+    @Test
+    public void testMetamorphicPopulation_withNegativeMetricsCached_getFittest_ShouldReturnHighestFitness_WhenMaximizing_VariantB(){
+        Random r = new Random(5);
+        var config = new Configuration();
+        MetricCache cache = makeEmptyCache();
+        GenotypeSupport support = new GenotypeSupport(cache,config);
+
+        MetamorphicIndividual a = new MetamorphicIndividual(support,0);
+        a.populateIndividual(r,3);
+        MetamorphicIndividual b = new MetamorphicIndividual(support,0);
+        b.populateIndividual(r,3);
+
+        StubMetric stub = new StubMetric();
+        stub.setWeight(-1);
+        stub.valuesToReturn.put(a,0.7);
+        stub.valuesToReturn.put(b,0.2);
+        cache.addMetric(stub);
+
+        HashMap<Metric,Double> aMetrics = new HashMap<>();
+        aMetrics.put(stub,0.7);
+        cache.putMetricResults(a,aMetrics);
+        HashMap<Metric,Double> bMetrics = new HashMap<>();
+        bMetrics.put(stub,0.2);
+        cache.putMetricResults(b,bMetrics);
+
+        MetamorphicPopulation testObject = new MetamorphicPopulation(2,r,false,support,0);
+
+
+        testObject.saveIndividual(a);
+        testObject.saveIndividual(b);
+
+        var result = testObject.getFittest();
+
+        assertTrue(result.isPresent());
+        assertEquals(b,result.get());
+        assertEquals(1-0.2,result.get().getFitness(),0.001);
+    }
+
+    @Tag("Regression")
+    @Tag("Integration")
+    @ParameterizedTest
+    @ValueSource(doubles = {0.0,0.1, 0.25, 0.5, 0.9, 1.0})
+    public void testGetFittest_OneElement_ShouldReturnSpecifiedFitness_WhenMinimizing(double fitness){
+        Random r = new Random(5);
+        var config = new Configuration();
+        MetricCache cache = makeEmptyCache();
+        GenotypeSupport support = new GenotypeSupport(cache,config);
+
+        MetamorphicIndividual a = new MetamorphicIndividual(support,0);
+
+        StubMetric stub = new StubMetric();
+        stub.setWeight(1);
+        stub.valuesToReturn.put(a,fitness);
+        cache.addMetric(stub);
+
+        HashMap<Metric,Double> aMetrics = new HashMap<>();
+        aMetrics.put(stub,fitness);
+        cache.putMetricResults(a,aMetrics);
+
+        MetamorphicPopulation testObject = new MetamorphicPopulation(2,r,false,support,0);
+
+
+        testObject.saveIndividual(a);
+
+        var result = testObject.getFittest();
+
+        assertTrue(result.isPresent());
+        assertEquals(fitness,result.get().getFitness(),0.001);
+    }
+
+    @Tag("Regression")
+    @Tag("Integration")
+    @ParameterizedTest
+    @ValueSource(doubles = {0.0,0.1, 0.25, 0.5,0.9,1.0})
+    public void testGetFittest_OneElement_ShouldReturnSpecifiedFitness_WhenMaximizing(double fitness){
+        Random r = new Random(5);
+        var config = new Configuration();
+        MetricCache cache = makeEmptyCache();
+        GenotypeSupport support = new GenotypeSupport(cache,config);
+
+        MetamorphicIndividual a = new MetamorphicIndividual(support,0);
+
+        StubMetric stub = new StubMetric();
+        stub.setWeight(-1);
+        stub.valuesToReturn.put(a,fitness);
+        cache.addMetric(stub);
+
+        HashMap<Metric,Double> aMetrics = new HashMap<>();
+        aMetrics.put(stub,fitness);
+        cache.putMetricResults(a,aMetrics);
+
+        MetamorphicPopulation testObject = new MetamorphicPopulation(2,r,false,support,0);
+
+
+        testObject.saveIndividual(a);
+
+        var result = testObject.getFittest();
+
+        assertTrue(result.isPresent());
+        assertEquals(1-fitness,result.get().getFitness(),0.001);
+    }
+
+    @Tag("Regression")
+    @Tag("Integration")
+    @ParameterizedTest
+    @ValueSource(doubles = {0.0,0.1, 0.25, 0.5,0.9,1.0})
+    public void testGetFittest_OneElement_WeightIsPoint5_ShouldReturnHalfOfSpecifiedFitness_WhenMaximizing(double fitness){
+        Random r = new Random(5);
+        var config = new Configuration();
+        MetricCache cache = makeEmptyCache();
+        GenotypeSupport support = new GenotypeSupport(cache,config);
+
+        MetamorphicIndividual a = new MetamorphicIndividual(support,0);
+
+        StubMetric stub = new StubMetric();
+        stub.setWeight(-0.5);
+        stub.valuesToReturn.put(a,fitness);
+        cache.addMetric(stub);
+
+        HashMap<Metric,Double> aMetrics = new HashMap<>();
+        aMetrics.put(stub,fitness);
+        cache.putMetricResults(a,aMetrics);
+
+        MetamorphicPopulation testObject = new MetamorphicPopulation(2,r,false,support,0);
+
+
+        testObject.saveIndividual(a);
+
+        var result = testObject.getFittest();
+
+        assertTrue(result.isPresent());
+        assertEquals((1-fitness/2),result.get().getFitness(),0.001);
+    }
+
+    @Tag("Regression")
+    @Tag("Integration")
+    @ParameterizedTest
+    @ValueSource(doubles = {0.0,0.1, 0.25, 0.5,0.9,1.0})
+    public void testGetFittest_OneElement_WeightIsPoint5_ShouldReturnHalfOfSpecifiedFitness_WhenMinimizing(double fitness){
+        Random r = new Random(5);
+        var config = new Configuration();
+        MetricCache cache = makeEmptyCache();
+        GenotypeSupport support = new GenotypeSupport(cache,config);
+
+        MetamorphicIndividual a = new MetamorphicIndividual(support,0);
+
+        StubMetric stub = new StubMetric();
+        stub.setWeight(0.5);
+        stub.valuesToReturn.put(a,fitness);
+        cache.addMetric(stub);
+
+        HashMap<Metric,Double> aMetrics = new HashMap<>();
+        aMetrics.put(stub,fitness);
+        cache.putMetricResults(a,aMetrics);
+
+        MetamorphicPopulation testObject = new MetamorphicPopulation(2,r,false,support,0);
+
+
+        testObject.saveIndividual(a);
+
+        var result = testObject.getFittest();
+
+        assertTrue(result.isPresent());
+        assertEquals((fitness)/2,result.get().getFitness(),0.001);
     }
 
     @Test

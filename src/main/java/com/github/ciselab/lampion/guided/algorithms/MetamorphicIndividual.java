@@ -188,10 +188,6 @@ public class MetamorphicIndividual {
                 metricCache.storeFiles(this, name, metrics);
             } else {
                 transformers.add(newTransformer);
-                if (metricCache.getMetricResults(this).isPresent()) {
-                    metrics = metricCache.getMetricResults(this).get();
-                    fitness = Optional.of(calculateFitness());
-                }
             }
             logger.debug("The gene " + this.hashCode() + " has increased its size to " + this.getLength());
         }
@@ -244,13 +240,6 @@ public class MetamorphicIndividual {
             int drop = randomGen.nextInt(0, getLength());
             transformers.remove(drop);
             logger.debug("The gene " + Integer.toHexString(this.hashCode()).substring(0, 6) + " has decreased its size to " + this.getLength());
-            if (metricCache.getMetricResults(this).isPresent()) {
-                metrics = metricCache.getMetricResults(this).get();
-                fitness = Optional.of(calculateFitness());
-            } else {
-                fitness = Optional.empty();
-                metrics = new HashMap<>();
-            }
         }
     }
 
@@ -286,6 +275,7 @@ public class MetamorphicIndividual {
         }
         inferMetrics();
         metricCache.storeMetricResults(this, metrics);
+        inferFitness();
 
         logger.debug("The gene " + Integer.toHexString(this.hashCode()).substring(0, 6) + " has calculated its fitness, it is: " + fitness.get());
         return fitness.get();
@@ -299,7 +289,7 @@ public class MetamorphicIndividual {
      */
     public void setMetrics(Map<Metric, Double> results) {
         this.metrics = results;
-        fitness = Optional.of(calculateFitness());
+        fitness = Optional.of(calculateFitness(results));
     }
 
     /**
@@ -309,13 +299,15 @@ public class MetamorphicIndividual {
      *
      * @return The global fitness.
      */
-    private double calculateFitness() {
-        return metricCache.getActiveMetrics().stream()
-                .filter(m -> !m.canBeBiggerThanOne())
-                .mapToDouble(
-                        m -> m.apply(this) * m.getWeight()
-                )
-                .sum();
+    private double inferFitness() {
+        var results =  new HashMap<Metric,Double>();
+        for (Metric m : metricCache.getActiveMetrics()){
+            results.put(m,m.apply(this));
+        };
+
+        metricCache.putMetricResults(this,results);
+
+        return calculateFitness(results);
     }
 
     /**
@@ -325,13 +317,29 @@ public class MetamorphicIndividual {
      * @return the calculated metrics from cache, if possible. Empty otherwise.
      */
     private Optional<Double> fetchFitness() {
-        return metricCache.getMetricResults(this).map(
-                results -> results.entrySet().stream()
-                        .filter(e -> e.getKey().canBeBiggerThanOne())
-                        .filter(e -> metricCache.getActiveMetrics().contains(e.getKey()))
-                        .mapToDouble(e -> e.getKey().getWeight() * e.getValue())
-                        .sum()
-        );
+        var cached = metricCache.getMetricResults(this);
+        if (cached.isPresent()){
+            Map<Metric,Double> cachedResults = cached.get();
+            return Optional.of(calculateFitness(cachedResults));
+        } else
+            return Optional.empty();
+    }
+
+
+    private double calculateFitness(Map<Metric,Double> entries){
+        Double fitness = 0.0;
+        for (Map.Entry<Metric,Double> entry : entries.entrySet()){
+            boolean isActiveMetric = metricCache.getActiveMetrics().contains(entry.getKey());
+            if(!entry.getKey().canBeBiggerThanOne() && isActiveMetric){
+                fitness += entry.getValue() * entry.getKey().getWeight();
+            }
+        }
+
+        // If the Fitness is negative, we are trying to maximize:
+        // We "flip" the fitness to 1-fitness
+        fitness = metricCache.doMaximize() ? 1 - Math.abs(fitness) : fitness;
+
+        return fitness;
     }
 
     /**

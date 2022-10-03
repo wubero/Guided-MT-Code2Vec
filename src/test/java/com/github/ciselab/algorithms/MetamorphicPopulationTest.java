@@ -345,6 +345,364 @@ public class MetamorphicPopulationTest {
         assertTrue(result.isPresent());
         assertEquals((fitness)/2,result.get().getFitness(),0.001);
     }
+    @Tag("Regression")
+    @Tag("Integration")
+    @Test
+    public void testGetFittest_WithMixedMetrics_FitnessIsEvenedOut(){
+        /**
+         * If we have Metric A with weight 0.5 and Value 1
+         * and Metric B with weight -0.5 and 1
+         * We expect an output of 0.5 (That is, it did max in one and least in other)
+         */
+        Random r = new Random(5);
+        var config = new Configuration();
+        MetricCache cache = makeEmptyCache();
+        GenotypeSupport support = new GenotypeSupport(cache,config);
+
+        MetamorphicIndividual a = new MetamorphicIndividual(support,0);
+
+        StubMetric stub1 = new StubMetric();
+        stub1.setWeight(0.5);
+        stub1.valuesToReturn.put(a,1.0);
+        cache.addMetric(stub1);
+
+        StubMetric stub2 = new StubMetric();
+        stub2.setWeight(-0.5);
+        stub2.valuesToReturn.put(a,1.0);
+        cache.addMetric(stub2);
+
+        HashMap<Metric,Double> aMetrics = new HashMap<>();
+        aMetrics.put(stub1,1.0);
+        aMetrics.put(stub2,1.0);
+        cache.putMetricResults(a,aMetrics);
+
+        MetamorphicPopulation testObject = new MetamorphicPopulation(2,r,false,support,0);
+        testObject.saveIndividual(a);
+
+        var result = testObject.getFittest();
+
+        assertTrue(result.isPresent());
+        assertEquals(0.5,result.get().getFitness(),0.001);
+    }
+
+    @Tag("Regression")
+    @Tag("Integration")
+    @Test
+    public void testGetFittest_WithMixedMetrics_FitnessIsMaxed(){
+        /**
+         * If we have Metric A with weight 0.5 and Value 1
+         * and Metric B with weight -0.5 and 0
+         * We expect an output of 1.0
+         * (Both Metrics are in their co-respective best value)
+         */
+        Random r = new Random(5);
+        var config = new Configuration();
+        MetricCache cache = makeEmptyCache();
+        GenotypeSupport support = new GenotypeSupport(cache,config);
+
+        MetamorphicIndividual a = new MetamorphicIndividual(support,0);
+
+        StubMetric stub1 = new StubMetric();
+        stub1.setWeight(0.5);
+        stub1.valuesToReturn.put(a,1.0);
+        cache.addMetric(stub1);
+
+        StubMetric stub2 = new StubMetric();
+        stub2.setWeight(-0.5);
+        stub2.valuesToReturn.put(a,0.0);
+        cache.addMetric(stub2);
+
+        HashMap<Metric,Double> aMetrics = new HashMap<>();
+        aMetrics.put(stub1,1.0);
+        aMetrics.put(stub2,0.0);
+        cache.putMetricResults(a,aMetrics);
+
+        MetamorphicPopulation testObject = new MetamorphicPopulation(2,r,false,support,0);
+        testObject.saveIndividual(a);
+
+        var result = testObject.getFittest();
+
+        assertTrue(result.isPresent());
+        assertEquals(1.0,result.get().getFitness(),0.001);
+    }
+
+    @Tag("Regression")
+    @Tag("Integration")
+    @Test
+    public void testGetFittest_WithMixedMetrics_FitnessIsMaxed_VariantB(){
+        /**
+         * If we have Metric A with weight 0.5 and Value 1
+         * and Metric B with weight -0.5 and 0
+         * We expect an output of 1.0
+         * (Both Metrics are in their co-respective best value)
+         * Variant B: Metrics flipped, otherwise same values
+         */
+        Random r = new Random(5);
+        var config = new Configuration();
+        MetricCache cache = makeEmptyCache();
+        GenotypeSupport support = new GenotypeSupport(cache,config);
+
+        MetamorphicIndividual a = new MetamorphicIndividual(support,0);
+
+        StubMetric stub1 = new StubMetric();
+        stub1.setWeight(-0.5);
+        stub1.valuesToReturn.put(a,0.0);
+        cache.addMetric(stub1);
+
+        StubMetric stub2 = new StubMetric();
+        stub2.setWeight(0.5);
+        stub2.valuesToReturn.put(a,1.0);
+        cache.addMetric(stub2);
+
+        HashMap<Metric,Double> aMetrics = new HashMap<>();
+        aMetrics.put(stub1,0.0);
+        aMetrics.put(stub2,1.0);
+        cache.putMetricResults(a,aMetrics);
+
+        MetamorphicPopulation testObject = new MetamorphicPopulation(2,r,false,support,0);
+        testObject.saveIndividual(a);
+
+        var result = testObject.getFittest();
+
+        assertTrue(result.isPresent());
+        assertEquals(1.0,result.get().getFitness(),0.001);
+    }
+
+
+    @Tag("Regression")
+    @Tag("Integration")
+    @Test
+    public void testGetFittest_PositivAndNegativeMetricResults_AreEvenedOut(){
+        Random r = new Random(5);
+        var config = new Configuration();
+        MetricCache cache = makeEmptyCache();
+        GenotypeSupport support = new GenotypeSupport(cache,config);
+
+        MetamorphicIndividual a = new MetamorphicIndividual(support,0);
+
+        StubMetric stub1 = new StubMetric();
+        stub1.setWeight(0.5);
+        stub1.valuesToReturn.put(a,0.0);
+        cache.addMetric(stub1);
+
+        StubMetric stub2 = new StubMetric();
+        stub2.setWeight(0.5);
+        stub2.valuesToReturn.put(a,1.0);
+        cache.addMetric(stub2);
+
+        HashMap<Metric,Double> aMetrics = new HashMap<>();
+        aMetrics.put(stub1,0.0);
+        aMetrics.put(stub2,1.0);
+        cache.putMetricResults(a,aMetrics);
+
+        MetamorphicPopulation testObject = new MetamorphicPopulation(2,r,false,support,0);
+        testObject.saveIndividual(a);
+
+        var result = testObject.getFittest();
+
+        assertTrue(result.isPresent());
+        assertEquals(0.5,result.get().getFitness(),0.001);
+    }
+
+    @Tag("Regression")
+    @Tag("Integration")
+    @Test
+    public void testGetFittest_PositivAndNegativeMetricResults_AreEvenedOut_VariantB(){
+        Random r = new Random(5);
+        var config = new Configuration();
+        MetricCache cache = makeEmptyCache();
+        GenotypeSupport support = new GenotypeSupport(cache,config);
+
+        MetamorphicIndividual a = new MetamorphicIndividual(support,0);
+
+        StubMetric stub1 = new StubMetric();
+        stub1.setWeight(-0.5);
+        stub1.valuesToReturn.put(a,0.0);
+        cache.addMetric(stub1);
+
+        StubMetric stub2 = new StubMetric();
+        stub2.setWeight(-0.5);
+        stub2.valuesToReturn.put(a,1.0);
+        cache.addMetric(stub2);
+
+        HashMap<Metric,Double> aMetrics = new HashMap<>();
+        aMetrics.put(stub1,0.0);
+        aMetrics.put(stub2,1.0);
+        cache.putMetricResults(a,aMetrics);
+
+        MetamorphicPopulation testObject = new MetamorphicPopulation(2,r,false,support,0);
+        testObject.saveIndividual(a);
+
+        var result = testObject.getFittest();
+
+        assertTrue(result.isPresent());
+        assertEquals(0.5,result.get().getFitness(),0.001);
+    }
+
+    @Tag("Regression")
+    @Tag("Integration")
+    @Test
+    public void testGetFittest_With3MixedMetrics_FitnessIsMaxed(){
+        Random r = new Random(5);
+        var config = new Configuration();
+        MetricCache cache = makeEmptyCache();
+        GenotypeSupport support = new GenotypeSupport(cache,config);
+
+        MetamorphicIndividual a = new MetamorphicIndividual(support,0);
+
+        StubMetric stub1 = new StubMetric();
+        stub1.setWeight(-0.333);
+        stub1.valuesToReturn.put(a,0.0);
+        cache.addMetric(stub1);
+
+        StubMetric stub2 = new StubMetric();
+        stub2.setWeight(0.333);
+        stub2.valuesToReturn.put(a,1.0);
+        cache.addMetric(stub2);
+
+        StubMetric stub3 = new StubMetric();
+        stub3.setWeight(0.333);
+        stub3.valuesToReturn.put(a,1.0);
+        cache.addMetric(stub3);
+
+        HashMap<Metric,Double> aMetrics = new HashMap<>();
+        aMetrics.put(stub1,0.0);
+        aMetrics.put(stub2,1.0);
+        aMetrics.put(stub3,1.0);
+        cache.putMetricResults(a,aMetrics);
+
+        MetamorphicPopulation testObject = new MetamorphicPopulation(2,r,false,support,0);
+        testObject.saveIndividual(a);
+
+        var result = testObject.getFittest();
+
+        assertTrue(result.isPresent());
+        assertEquals(1.0,result.get().getFitness(),0.01);
+    }
+
+    @Tag("Regression")
+    @Tag("Integration")
+    @Test
+    public void testGetFittest_With3MixedMetrics_FitnessIsMaxed_VariantB(){
+        Random r = new Random(5);
+        var config = new Configuration();
+        MetricCache cache = makeEmptyCache();
+        GenotypeSupport support = new GenotypeSupport(cache,config);
+
+        MetamorphicIndividual a = new MetamorphicIndividual(support,0);
+
+        StubMetric stub1 = new StubMetric();
+        stub1.setWeight(0.333);
+        stub1.valuesToReturn.put(a,1.0);
+        cache.addMetric(stub1);
+
+        StubMetric stub2 = new StubMetric();
+        stub2.setWeight(-0.333);
+        stub2.valuesToReturn.put(a,0.0);
+        cache.addMetric(stub2);
+
+        StubMetric stub3 = new StubMetric();
+        stub3.setWeight(-0.333);
+        stub3.valuesToReturn.put(a,0.0);
+        cache.addMetric(stub3);
+
+        HashMap<Metric,Double> aMetrics = new HashMap<>();
+        aMetrics.put(stub1,1.0);
+        aMetrics.put(stub2,0.0);
+        aMetrics.put(stub3,0.0);
+        cache.putMetricResults(a,aMetrics);
+
+        MetamorphicPopulation testObject = new MetamorphicPopulation(2,r,false,support,0);
+        testObject.saveIndividual(a);
+
+        var result = testObject.getFittest();
+
+        assertTrue(result.isPresent());
+        assertEquals(1.0,result.get().getFitness(),0.01);
+    }
+
+    @Tag("Regression")
+    @Tag("Integration")
+    @Test
+    public void testGetFittest_With3MixedMetrics_OneIsPoor_FitnessEvened(){
+        Random r = new Random(5);
+        var config = new Configuration();
+        MetricCache cache = makeEmptyCache();
+        GenotypeSupport support = new GenotypeSupport(cache,config);
+
+        MetamorphicIndividual a = new MetamorphicIndividual(support,0);
+
+        StubMetric stub1 = new StubMetric();
+        stub1.setWeight(0.333);
+        stub1.valuesToReturn.put(a,0.0);
+        cache.addMetric(stub1);
+
+        StubMetric stub2 = new StubMetric();
+        stub2.setWeight(-0.333);
+        stub2.valuesToReturn.put(a,0.0);
+        cache.addMetric(stub2);
+
+        StubMetric stub3 = new StubMetric();
+        stub3.setWeight(-0.333);
+        stub3.valuesToReturn.put(a,0.0);
+        cache.addMetric(stub3);
+
+        HashMap<Metric,Double> aMetrics = new HashMap<>();
+        aMetrics.put(stub1,1.0);
+        aMetrics.put(stub2,0.0);
+        aMetrics.put(stub3,0.0);
+        cache.putMetricResults(a,aMetrics);
+
+        MetamorphicPopulation testObject = new MetamorphicPopulation(2,r,false,support,0);
+        testObject.saveIndividual(a);
+
+        var result = testObject.getFittest();
+
+        assertTrue(result.isPresent());
+        assertEquals(0.6666,result.get().getFitness(),0.01);
+    }
+
+
+    @Tag("Regression")
+    @Tag("Integration")
+    @Test
+    public void testGetFittest_WithMixedMetrics_WorstValues_FitnessIsMin(){
+        /**
+         * If we have Metric A with weight 0.5 and Value 1
+         * and Metric B with weight -0.5 and 0
+         * We expect an output of 1.0
+         * (Both Metrics are in their co-respective best value)
+         */
+        Random r = new Random(5);
+        var config = new Configuration();
+        MetricCache cache = makeEmptyCache();
+        GenotypeSupport support = new GenotypeSupport(cache,config);
+
+        MetamorphicIndividual a = new MetamorphicIndividual(support,0);
+
+        StubMetric stub1 = new StubMetric();
+        stub1.setWeight(-0.5);
+        stub1.valuesToReturn.put(a,1.0);
+        cache.addMetric(stub1);
+
+        StubMetric stub2 = new StubMetric();
+        stub2.setWeight(0.5);
+        stub2.valuesToReturn.put(a,0.0);
+        cache.addMetric(stub2);
+
+        HashMap<Metric,Double> aMetrics = new HashMap<>();
+        aMetrics.put(stub1,1.0);
+        aMetrics.put(stub2,0.0);
+        cache.putMetricResults(a,aMetrics);
+
+        MetamorphicPopulation testObject = new MetamorphicPopulation(2,r,false,support,0);
+        testObject.saveIndividual(a);
+
+        var result = testObject.getFittest();
+
+        assertTrue(result.isPresent());
+        assertEquals(0.0,result.get().getFitness(),0.001);
+    }
 
     @Test
     public void testMetamorphicPopulation_savingIndividual_shouldHaveIndividual(){

@@ -93,6 +93,7 @@ public class ConfigManagerTest {
         assertEquals(0.5, config.genetic.getElitismRate(),0.01);
         assertEquals(0.15, config.genetic.getMutationRate(),0.01);
         assertEquals(0.4, config.genetic.getIncreaseSizeRate(),0.01);
+        assertEquals(77.0, config.genetic.getGrowthFactor(),0.01);
 
         assertEquals(25, config.genetic.getMaxGeneLength());
         assertEquals(12, config.genetic.getPopSize());

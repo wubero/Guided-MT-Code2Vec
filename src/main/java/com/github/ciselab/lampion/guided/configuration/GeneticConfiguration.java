@@ -4,6 +4,7 @@ public class GeneticConfiguration {
 
     private double crossoverRate = 0.7;
     private double mutationRate = 0.4;
+    private double growthFactor = 5;
     private double elitismRate = 0;
     private double increaseSizeRate = 0.7;
 
@@ -130,4 +131,20 @@ public class GeneticConfiguration {
         this.maxSteadyGenerations = maxSteadyGenerations;
     }
 
+    /**
+     * This variable configures how many transformers are added on mutation.
+     * Note: This leads to a distribution, i.E. a growth factor of 3 does not always add 3 elements,
+     * but it adds 3 on average.
+     * @return the average increase per mutation.
+     */
+    public double getGrowthFactor() {
+        return growthFactor;
+    }
+
+    public void setGrowthFactor(double growthFactor) {
+        if (growthFactor < 1){
+            throw new IllegalArgumentException("GrowthFactor cannot be smaller than 1");
+        }
+        this.growthFactor = growthFactor;
+    }
 }

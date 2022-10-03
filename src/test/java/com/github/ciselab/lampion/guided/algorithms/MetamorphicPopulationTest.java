@@ -1,4 +1,4 @@
-package com.github.ciselab.algorithms;
+package com.github.ciselab.lampion.guided.algorithms;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;

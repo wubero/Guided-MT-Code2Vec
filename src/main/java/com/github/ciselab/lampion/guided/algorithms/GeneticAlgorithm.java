@@ -93,11 +93,23 @@ public class GeneticAlgorithm {
      * Mutate the current individual
      * @param individual The individual to increase or decrease the size of.
      */
-    private void mutate(MetamorphicIndividual individual) {
-        if (Math.random() <= config.getIncreaseSizeRate()) {
-            individual.increase(config.getMaxGeneLength(), randomGenerator);
-        } else {
+    protected void mutate(MetamorphicIndividual individual) {
+        if(individual.getLength() >= config.getMaxGeneLength() || Math.random() > config.getIncreaseSizeRate() )
             individual.decrease(randomGenerator);
+        else {
+            int counter = 0;
+            // The base for this computation is a bit mathy.
+            // We are looking for the value y, for which
+            // sum(y^x),x->infinity
+            // equals our GrowthFactor.
+            // This took 1 Professor, 1 PhD and a lot of Wolfram Alpha to derive the base below.
+            // If your result vary: These things work on high numbers, so 10000 runs and upwards.
+            double base = (config.getGrowthFactor()-1)/(config.getGrowthFactor());
+            while (randomGenerator.nextDouble() < Math.pow(base, counter)
+                    && individual.getLength() < config.getMaxGeneLength()){
+                individual.increase(config.getMaxGeneLength(), randomGenerator);
+                counter ++;
+            }
         }
     }
 

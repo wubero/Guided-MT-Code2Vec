@@ -70,6 +70,9 @@ public class ConfigManagement {
         if(prop.get("increaserate") != null){
             config.genetic.setIncreaseSizeRate(Double.parseDouble(prop.get("increaserate").toString()));
         }
+        if(prop.get("growthfactor") != null){
+            config.genetic.setGrowthFactor(Double.parseDouble(prop.get("growthfactor").toString()));
+        }
 
         if(prop.get("maxgenelength") != null){
             config.genetic.setMaxGeneLength(Integer.parseInt(prop.get("maxgenelength").toString()));

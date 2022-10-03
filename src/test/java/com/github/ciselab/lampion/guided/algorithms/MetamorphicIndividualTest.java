@@ -1,4 +1,4 @@
-package com.github.ciselab.algorithms;
+package com.github.ciselab.lampion.guided.algorithms;
 
 import com.github.ciselab.lampion.core.transformations.transformers.AddNeutralElementTransformer;
 import com.github.ciselab.lampion.core.transformations.transformers.BaseTransformer;

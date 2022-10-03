@@ -189,7 +189,7 @@ public class MetamorphicIndividual {
             } else {
                 transformers.add(newTransformer);
             }
-            logger.debug("The gene " + this.hashCode() + " has increased its size to " + this.getLength());
+            logger.trace("The gene " + this.hashCode() + " has increased its size to " + this.getLength());
         }
     }
 

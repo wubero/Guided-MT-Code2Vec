@@ -1,4 +1,4 @@
-package com.github.ciselab.support;
+package com.github.ciselab.lampion.guided.support;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;

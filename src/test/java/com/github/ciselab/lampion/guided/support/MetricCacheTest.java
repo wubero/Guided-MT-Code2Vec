@@ -1,4 +1,4 @@
-package com.github.ciselab.support;
+package com.github.ciselab.lampion.guided.support;
 
 import static java.lang.Math.abs;
 import static org.junit.jupiter.api.Assertions.*;
@@ -6,12 +6,10 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Random;
 import java.util.stream.Collectors;
 
-import com.github.ciselab.helpers.StubMetric;
+import com.github.ciselab.lampion.guided.helpers.StubMetric;
 import com.github.ciselab.lampion.guided.algorithms.MetamorphicIndividual;
-import com.github.ciselab.lampion.guided.algorithms.MetamorphicPopulation;
 import com.github.ciselab.lampion.guided.configuration.ConfigManagement;
 import com.github.ciselab.lampion.guided.configuration.Configuration;
 import com.github.ciselab.lampion.guided.metric.Metric;

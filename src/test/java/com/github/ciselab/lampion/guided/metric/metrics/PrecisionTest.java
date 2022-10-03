@@ -1,9 +1,11 @@
-package com.github.ciselab.metric.metrics;
+package com.github.ciselab.lampion.guided.metric.metrics;
 
 import com.github.ciselab.lampion.guided.algorithms.MetamorphicIndividual;
 import com.github.ciselab.lampion.guided.configuration.Configuration;
 import com.github.ciselab.lampion.guided.metric.Metric;
-import com.github.ciselab.lampion.guided.metric.metrics.EditDistance;
+import com.github.ciselab.lampion.guided.metric.metrics.Precision;
+import com.github.ciselab.lampion.guided.metric.metrics.F1;
+import com.github.ciselab.lampion.guided.metric.metrics.Precision;
 import com.github.ciselab.lampion.guided.metric.metrics.Recall;
 import com.github.ciselab.lampion.guided.support.GenotypeSupport;
 import com.github.ciselab.lampion.guided.support.MetricCache;
@@ -12,33 +14,27 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class EditDistanceTest {
+public class PrecisionTest {
 
     @Test
-    public void testCanBeBiggerThanOne_shouldBe(){
-        Metric metric = new EditDistance();
-        assertTrue(metric.canBeBiggerThanOne());
+    public void testCanBeBiggerThanOne_shouldNotBe(){
+        Metric metric = new Precision();
+        assertFalse(metric.canBeBiggerThanOne());
     }
 
     @Test
     public void testIsSecondary_shouldNotBe(){
-        Metric metric = new EditDistance();
+        Metric metric = new Precision();
         assertFalse(metric.isSecondary());
-    }
-
-    @Test
-    public void checkNameTest() {
-        EditDistance metric = new EditDistance();
-        assertEquals("EDITDIST", metric.getName());
     }
 
     @Tag("File")
     @Test
-    public void testEditDistance_PathIsOk_shouldGiveValue(){
+    public void testPrecision_PathIsOk_shouldGiveValue(){
         var config = new Configuration();
         MetricCache cache = new MetricCache();
         GenotypeSupport support = new GenotypeSupport(cache,config);
-        EditDistance metric = new EditDistance();
+        Precision metric = new Precision();
 
         MetamorphicIndividual testObject = new MetamorphicIndividual(support, 0);
         testObject.setResultPath("./src/test/resources/metric_files");
@@ -47,15 +43,15 @@ public class EditDistanceTest {
 
         assertNotNull(result);
         assertNotEquals(Double.NaN,result);
-        assertTrue(result>=0);
+        assertTrue(result>=0  && result <=1);
     }
 
     @Test
-    public void testEditDistance_PathIsBad_NaNValue(){
+    public void testPrecision_PathIsBad_NaNValue(){
         var config = new Configuration();
         MetricCache cache = new MetricCache();
         GenotypeSupport support = new GenotypeSupport(cache,config);
-        EditDistance metric = new EditDistance();
+        Precision metric = new Precision();
 
         MetamorphicIndividual testObject = new MetamorphicIndividual(support, 0);
         testObject.setResultPath("./src/test/bad_path");
@@ -66,59 +62,59 @@ public class EditDistanceTest {
         assertEquals(Double.NaN,result);
     }
 
+
     @Test
     public void testEquality_isEqualToItself(){
-        Metric metric = new EditDistance();
+        Metric metric = new Precision();
 
         assertEquals(metric,metric);
     }
 
     @Test
     public void testEquality_sameWeight_isEqual(){
-        Metric a = new EditDistance();
-        Metric b = new EditDistance();
+        Metric a = new Precision();
+        Metric b = new Precision();
 
         assertEquals(a,b);
     }
 
     @Test
     public void testEquality_differentWeight_notEqual(){
-        Metric a = new EditDistance();
+        Metric a = new Precision();
         a.setWeight(0.75);
-        Metric b = new EditDistance();
+        Metric b = new Precision();
         b.setWeight(0.5);
         assertNotEquals(a,b);
     }
 
     @Test
     public void testEquality_againstNonMetric_isNotEqual(){
-        Metric metric = new EditDistance();
+        Metric metric = new Precision();
         Double other = 5.0;
         assertNotEquals(other,metric);
     }
 
     @Test
     public void testHashCode_isEqualToItself(){
-        Metric metric = new EditDistance();
+        Metric metric = new Precision();
 
         assertEquals(metric.hashCode(),metric.hashCode());
     }
 
     @Test
     public void testHashCode_sameWeight_isEqual(){
-        Metric a = new EditDistance();
-        Metric b = new EditDistance();
+        Metric a = new Precision();
+        Metric b = new Precision();
 
         assertEquals(a.hashCode(),b.hashCode());
     }
 
     @Test
     public void testHashCode_differentWeight_notEqual(){
-        Metric a = new EditDistance();
+        Metric a = new Precision();
         a.setWeight(0.75);
-        Metric b = new EditDistance();
+        Metric b = new Precision();
         b.setWeight(0.5);
         assertNotEquals(a.hashCode(),b.hashCode());
     }
-
 }

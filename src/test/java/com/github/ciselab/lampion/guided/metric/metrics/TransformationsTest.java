@@ -1,4 +1,4 @@
-package com.github.ciselab.metric.metrics;
+package com.github.ciselab.lampion.guided.metric.metrics;
 
 import com.github.ciselab.lampion.core.transformations.transformers.IfTrueTransformer;
 import com.github.ciselab.lampion.guided.algorithms.MetamorphicIndividual;

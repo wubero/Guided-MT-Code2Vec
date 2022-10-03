@@ -1,4 +1,4 @@
-package com.github.ciselab.program;
+package com.github.ciselab.lampion.guided.program;
 
 import com.github.ciselab.lampion.guided.configuration.Configuration;
 import com.github.ciselab.lampion.guided.metric.Metric;

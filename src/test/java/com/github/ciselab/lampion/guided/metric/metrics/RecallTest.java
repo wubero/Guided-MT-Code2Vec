@@ -1,10 +1,11 @@
-package com.github.ciselab.metric.metrics;
+package com.github.ciselab.lampion.guided.metric.metrics;
 
 import com.github.ciselab.lampion.guided.algorithms.MetamorphicIndividual;
 import com.github.ciselab.lampion.guided.configuration.Configuration;
 import com.github.ciselab.lampion.guided.metric.Metric;
-import com.github.ciselab.lampion.guided.metric.metrics.*;
-import com.github.ciselab.lampion.guided.metric.metrics.MRR;
+import com.github.ciselab.lampion.guided.metric.metrics.Recall;
+import com.github.ciselab.lampion.guided.metric.metrics.Recall;
+import com.github.ciselab.lampion.guided.metric.metrics.Transformations;
 import com.github.ciselab.lampion.guided.support.GenotypeSupport;
 import com.github.ciselab.lampion.guided.support.MetricCache;
 import org.junit.jupiter.api.Tag;
@@ -12,27 +13,28 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class MRRTest {
+public class RecallTest {
 
     @Test
     public void testCanBeBiggerThanOne_shouldNotBe(){
-        Metric metric = new PercentageMRR();
+        Metric metric = new Recall();
         assertFalse(metric.canBeBiggerThanOne());
     }
 
     @Test
     public void testIsSecondary_shouldNotBe(){
-        Metric metric = new PercentageMRR();
+        Metric metric = new Recall();
         assertFalse(metric.isSecondary());
     }
 
+
     @Tag("File")
     @Test
-    public void testMRRScore_PathIsOk_shouldGiveValue(){
+    public void testF1Score_PathIsOk_shouldGiveValue(){
         var config = new Configuration();
         MetricCache cache = new MetricCache();
         GenotypeSupport support = new GenotypeSupport(cache,config);
-        MRR metric = new MRR();
+        Recall metric = new Recall();
 
         MetamorphicIndividual testObject = new MetamorphicIndividual(support, 0);
         testObject.setResultPath("./src/test/resources/metric_files");
@@ -45,11 +47,11 @@ public class MRRTest {
     }
 
     @Test
-    public void testMRR_PathIsBad_NaNValue(){
+    public void testF1_PathIsBad_NaNValue(){
         var config = new Configuration();
         MetricCache cache = new MetricCache();
         GenotypeSupport support = new GenotypeSupport(cache,config);
-        MRR metric = new MRR();
+        Recall metric = new Recall();
 
         MetamorphicIndividual testObject = new MetamorphicIndividual(support, 0);
         testObject.setResultPath("./src/test/bad_path");
@@ -63,55 +65,55 @@ public class MRRTest {
 
     @Test
     public void testEquality_isEqualToItself(){
-        Metric metric = new MRR();
+        Metric metric = new Recall();
 
         assertEquals(metric,metric);
     }
 
     @Test
     public void testEquality_sameWeight_isEqual(){
-        Metric a = new MRR();
-        Metric b = new MRR();
+        Metric a = new Recall();
+        Metric b = new Recall();
 
         assertEquals(a,b);
     }
 
     @Test
     public void testEquality_differentWeight_notEqual(){
-        Metric a = new MRR();
+        Metric a = new Recall();
         a.setWeight(0.75);
-        Metric b = new MRR();
+        Metric b = new Recall();
         b.setWeight(0.5);
         assertNotEquals(a,b);
     }
 
     @Test
     public void testEquality_againstNonMetric_isNotEqual(){
-        Metric metric = new MRR();
+        Metric metric = new Recall();
         Double other = 5.0;
         assertNotEquals(other,metric);
     }
 
     @Test
     public void testHashCode_isEqualToItself(){
-        Metric metric = new MRR();
+        Metric metric = new Recall();
 
         assertEquals(metric.hashCode(),metric.hashCode());
     }
 
     @Test
     public void testHashCode_sameWeight_isEqual(){
-        Metric a = new MRR();
-        Metric b = new MRR();
+        Metric a = new Recall();
+        Metric b = new Recall();
 
         assertEquals(a.hashCode(),b.hashCode());
     }
 
     @Test
     public void testHashCode_differentWeight_notEqual(){
-        Metric a = new MRR();
+        Metric a = new Recall();
         a.setWeight(0.75);
-        Metric b = new MRR();
+        Metric b = new Recall();
         b.setWeight(0.5);
         assertNotEquals(a.hashCode(),b.hashCode());
     }

@@ -1,4 +1,4 @@
-package com.github.ciselab.support;
+package com.github.ciselab.lampion.guided.support;
 
 import com.github.ciselab.lampion.guided.support.*;
 import org.junit.jupiter.api.AfterEach;

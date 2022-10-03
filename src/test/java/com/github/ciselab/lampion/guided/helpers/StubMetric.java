@@ -1,4 +1,4 @@
-package com.github.ciselab.helpers;
+package com.github.ciselab.lampion.guided.helpers;
 
 import com.github.ciselab.lampion.guided.algorithms.MetamorphicIndividual;
 import com.github.ciselab.lampion.guided.metric.Metric;

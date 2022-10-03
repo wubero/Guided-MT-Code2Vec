@@ -331,13 +331,12 @@ public class MetamorphicIndividual {
         for (Map.Entry<Metric,Double> entry : entries.entrySet()){
             boolean isActiveMetric = metricCache.getActiveMetrics().contains(entry.getKey());
             if(!entry.getKey().canBeBiggerThanOne() && isActiveMetric){
-                fitness += entry.getValue() * entry.getKey().getWeight();
+                // If the Weight is negative, we are trying to maximize:
+                // We "flip" the value to 1-value (Turns 0 to 1, and 1 to 0)
+                var value = entry.getKey().getWeight() < 0 ? 1 - entry.getValue() : entry.getValue();
+                fitness += value * Math.abs(entry.getKey().getWeight());
             }
         }
-
-        // If the Fitness is negative, we are trying to maximize:
-        // We "flip" the fitness to 1-fitness
-        fitness = metricCache.doMaximize() ? 1 - Math.abs(fitness) : fitness;
 
         return fitness;
     }

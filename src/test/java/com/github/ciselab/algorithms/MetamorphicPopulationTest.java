@@ -311,7 +311,9 @@ public class MetamorphicPopulationTest {
         var result = testObject.getFittest();
 
         assertTrue(result.isPresent());
-        assertEquals((1-fitness/2),result.get().getFitness(),0.001);
+        Double expectedFitness = (1.0/2.0) - (fitness/2);
+
+        assertEquals(expectedFitness,result.get().getFitness(),0.001);
     }
 
     @Tag("Regression")
@@ -345,6 +347,7 @@ public class MetamorphicPopulationTest {
         assertTrue(result.isPresent());
         assertEquals((fitness)/2,result.get().getFitness(),0.001);
     }
+
     @Tag("Regression")
     @Tag("Integration")
     @Test
@@ -472,7 +475,7 @@ public class MetamorphicPopulationTest {
     @Tag("Regression")
     @Tag("Integration")
     @Test
-    public void testGetFittest_PositivAndNegativeMetricResults_AreEvenedOut(){
+    public void testGetFittest_PositiveAndNegativeMetricResults_AreEvenedOut(){
         Random r = new Random(5);
         var config = new Configuration();
         MetricCache cache = makeEmptyCache();
@@ -507,7 +510,7 @@ public class MetamorphicPopulationTest {
     @Tag("Regression")
     @Tag("Integration")
     @Test
-    public void testGetFittest_PositivAndNegativeMetricResults_AreEvenedOut_VariantB(){
+    public void testGetFittest_PositiveAndNegativeMetricResults_AreEvenedOut_VariantB(){
         Random r = new Random(5);
         var config = new Configuration();
         MetricCache cache = makeEmptyCache();
@@ -648,7 +651,7 @@ public class MetamorphicPopulationTest {
         cache.addMetric(stub3);
 
         HashMap<Metric,Double> aMetrics = new HashMap<>();
-        aMetrics.put(stub1,1.0);
+        aMetrics.put(stub1,0.0);
         aMetrics.put(stub2,0.0);
         aMetrics.put(stub3,0.0);
         cache.putMetricResults(a,aMetrics);
